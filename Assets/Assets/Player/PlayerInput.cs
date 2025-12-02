@@ -154,6 +154,24 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RunInput"",
+                    ""type"": ""Button"",
+                    ""id"": ""c9b32c6b-ce5a-4041-9a82-669f03dfcc3b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ProneInput"",
+                    ""type"": ""Button"",
+                    ""id"": ""d23dd968-b419-47a2-8cda-ddd105b7c312"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -226,7 +244,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""102d7ec6-13cd-43fd-9fba-3b983019cc31"",
-                    ""path"": ""<Keyboard>/leftShift"",
+                    ""path"": ""<Keyboard>/leftAlt"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -237,6 +255,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""8fe454a3-1ea5-4e2d-a6db-8a8144571128"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CrouchInput"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2da81d45-5c1c-439a-9c06-f37f3d4a1c26"",
                     ""path"": ""<Keyboard>/leftCtrl"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -321,6 +350,28 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""InteractInput"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""03cd503c-2494-4ba7-a432-a9c5cd348f27"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RunInput"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""82f73e01-e91d-46fb-bbfe-b15ba2485e1d"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ProneInput"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -336,6 +387,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_PlayerInputMap_LookInput = m_PlayerInputMap.FindAction("LookInput", throwIfNotFound: true);
         m_PlayerInputMap_GrabInput = m_PlayerInputMap.FindAction("GrabInput", throwIfNotFound: true);
         m_PlayerInputMap_InteractInput = m_PlayerInputMap.FindAction("InteractInput", throwIfNotFound: true);
+        m_PlayerInputMap_RunInput = m_PlayerInputMap.FindAction("RunInput", throwIfNotFound: true);
+        m_PlayerInputMap_ProneInput = m_PlayerInputMap.FindAction("ProneInput", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -423,6 +476,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerInputMap_LookInput;
     private readonly InputAction m_PlayerInputMap_GrabInput;
     private readonly InputAction m_PlayerInputMap_InteractInput;
+    private readonly InputAction m_PlayerInputMap_RunInput;
+    private readonly InputAction m_PlayerInputMap_ProneInput;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerInputMap".
     /// </summary>
@@ -462,6 +517,14 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "PlayerInputMap/InteractInput".
         /// </summary>
         public InputAction @InteractInput => m_Wrapper.m_PlayerInputMap_InteractInput;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerInputMap/RunInput".
+        /// </summary>
+        public InputAction @RunInput => m_Wrapper.m_PlayerInputMap_RunInput;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerInputMap/ProneInput".
+        /// </summary>
+        public InputAction @ProneInput => m_Wrapper.m_PlayerInputMap_ProneInput;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -509,6 +572,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @InteractInput.started += instance.OnInteractInput;
             @InteractInput.performed += instance.OnInteractInput;
             @InteractInput.canceled += instance.OnInteractInput;
+            @RunInput.started += instance.OnRunInput;
+            @RunInput.performed += instance.OnRunInput;
+            @RunInput.canceled += instance.OnRunInput;
+            @ProneInput.started += instance.OnProneInput;
+            @ProneInput.performed += instance.OnProneInput;
+            @ProneInput.canceled += instance.OnProneInput;
         }
 
         /// <summary>
@@ -541,6 +610,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @InteractInput.started -= instance.OnInteractInput;
             @InteractInput.performed -= instance.OnInteractInput;
             @InteractInput.canceled -= instance.OnInteractInput;
+            @RunInput.started -= instance.OnRunInput;
+            @RunInput.performed -= instance.OnRunInput;
+            @RunInput.canceled -= instance.OnRunInput;
+            @ProneInput.started -= instance.OnProneInput;
+            @ProneInput.performed -= instance.OnProneInput;
+            @ProneInput.canceled -= instance.OnProneInput;
         }
 
         /// <summary>
@@ -630,5 +705,19 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInteractInput(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RunInput" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRunInput(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ProneInput" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnProneInput(InputAction.CallbackContext context);
     }
 }

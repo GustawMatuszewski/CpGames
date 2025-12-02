@@ -10,8 +10,10 @@ public class KCC : MonoBehaviour
 
     [Header("Movement Settings")]
     public float walkSpeed = 5;
-    public float sprintSpeed = 7f;
+    public float runSpeed = 7f;
+    public float sprintSpeed = 10f;
     public float crouchSpeed = 3;
+    public float proneSpeed = 1;
     float moveSpeed;
 
     public float jumpForce = 8f;
@@ -22,6 +24,7 @@ public class KCC : MonoBehaviour
 
     [Header("Capsule Settings")]
     public float standingHeight;
+    public float proneHeight;
     public float crouchHeight;
     float capsuleHeight = 1.8f;
 
@@ -43,7 +46,9 @@ public class KCC : MonoBehaviour
         Air,
         Walk,
         Run,
+        Sprint,
         Crouch,
+        Prone,
         Hanging
     }
 
@@ -60,6 +65,7 @@ public class KCC : MonoBehaviour
     void FixedUpdate()
     {
         StateController();
+        capsule.height = capsuleHeight;
 
         if (useGravity)
             ApplyGravity();
@@ -82,10 +88,8 @@ public class KCC : MonoBehaviour
     {
         if (!isGrounded())
             velocity.y -= gravityStrength * Time.fixedDeltaTime;
-
         else if (SlopeCheck() <= maxSlopeAngle)
             velocity.y = 0f;
-
         else
             velocity.y -= gravityStrength * Time.fixedDeltaTime;
     }
@@ -108,21 +112,55 @@ public class KCC : MonoBehaviour
     void StateController()
     {
         Vector2 moveInput = input.PlayerInputMap.MoveInput.ReadValue<Vector2>();
-        float sprintInput = input.PlayerInputMap.SprintInput.ReadValue<float>();
-        float crouchInput = input.PlayerInputMap.CrouchInput.ReadValue<float>();
+        bool run = input.PlayerInputMap.RunInput.ReadValue<float>() > 0;
+        bool sprint = input.PlayerInputMap.SprintInput.ReadValue<float>() > 0;
+        bool crouch = input.PlayerInputMap.CrouchInput.ReadValue<float>() > 0;
+        bool prone = input.PlayerInputMap.ProneInput.ReadValue<float>() > 0;
+
+        float prevHeight = capsuleHeight;
 
         state = State.None;
-        if (velocity.y != 0)
-        { state = State.Air; }
-        else if (sprintInput != 0)
-        { state = State.Run; moveSpeed = sprintSpeed; }
-        else if (crouchInput != 0)
-        { state = State.Crouch; moveSpeed = crouchSpeed; }
-        else if (moveInput != Vector2.zero)
-        { state = State.Walk; moveSpeed = walkSpeed; }
-        else if (moveInput == Vector2.zero)
-        { state = State.Idle; }
+        if (velocity.y != 0){
+            state = State.Air;
+            return;
+        }
+
+        if (prone){
+            state = State.Prone;
+            moveSpeed = proneSpeed;
+            capsuleHeight = proneHeight;
+        }
+        else if (crouch){
+            state = State.Crouch;
+            moveSpeed = crouchSpeed;
+            capsuleHeight = crouchHeight;
+        }
+        else if (sprint && moveInput.y > 0.1f){
+            state = State.Sprint;
+            moveSpeed = sprintSpeed;
+            capsuleHeight = standingHeight;
+        }
+        else if (run){
+            state = State.Run;
+            moveSpeed = runSpeed;
+            capsuleHeight = standingHeight;
+        }
+        else if (moveInput != Vector2.zero){
+            state = State.Walk;
+            moveSpeed = walkSpeed;
+            capsuleHeight = standingHeight;
+        }
+        else{
+            state = State.Idle;
+            moveSpeed = 0f;
+            capsuleHeight = standingHeight;
+        }
+
+        if (capsuleHeight > prevHeight)
+            transform.position += new Vector3(0, (capsuleHeight - prevHeight)/2f, 0);
     }
+
+
 
     Vector3 RequestedMovement()
     {

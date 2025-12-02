@@ -127,6 +127,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 319013317773352581, guid: 6aedffc166d9dca8da568badd30df01c, type: 3}
+      propertyPath: proneHeight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 319013317773352581, guid: 6aedffc166d9dca8da568badd30df01c, type: 3}
+      propertyPath: sprintSpeed
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 319013317773352581, guid: 6aedffc166d9dca8da568badd30df01c, type: 3}
+      propertyPath: crouchHeight
+      value: 1.4
+      objectReference: {fileID: 0}
     - target: {fileID: 4483348850907070878, guid: 6aedffc166d9dca8da568badd30df01c, type: 3}
       propertyPath: m_Name
       value: PlayerFull
