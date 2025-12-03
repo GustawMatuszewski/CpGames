@@ -7,6 +7,7 @@ public class KCC : MonoBehaviour
     [SerializeField] private PlayerInput input;
     [SerializeField] private CapsuleCollider capsule;
     [SerializeField] private Transform cameraTransform;
+    //[SerializeField] private PlayerStatusController stamina;
 
     [Header("Movement Settings")]
     public float walkSpeed = 5;
@@ -49,126 +50,116 @@ public class KCC : MonoBehaviour
         Sprint,
         Crouch,
         Prone,
+        Climbing,
         Hanging
     }
 
     public State state;
 
-    private void Start()
-    {
+    private void Start() {
         Cursor.lockState = CursorLockMode.Locked;
         input = new PlayerInput();
         input.Enable();
         capsule.height = standingHeight;
     }
 
-    void FixedUpdate()
-    {
+    void FixedUpdate() {
         StateController();
         capsule.height = capsuleHeight;
 
-        if (useGravity)
-            ApplyGravity();
+        if (useGravity) ApplyGravity();
 
         RotateWithCamera();
 
-        if(enableMovement)
-            ApplyMovement();
+        if(enableMovement) ApplyMovement();
 
         jumpRequested = false;
     }
 
-    void ApplyMovement()
-    {
+    void ApplyMovement() {
         Vector3 frameMovement = new Vector3(RequestedMovement().x, velocity.y, RequestedMovement().z) * Time.fixedDeltaTime;
         transform.position = CollideAndSlide(transform.position, frameMovement);
     }
 
-    void ApplyGravity()
-    {
-        if (!isGrounded())
-            velocity.y -= gravityStrength * Time.fixedDeltaTime;
-        else if (SlopeCheck() <= maxSlopeAngle)
-            velocity.y = 0f;
-        else
-            velocity.y -= gravityStrength * Time.fixedDeltaTime;
+    void ApplyGravity() {
+        if (!isGrounded()) velocity.y -= gravityStrength * Time.fixedDeltaTime;
+        else if (SlopeCheck() <= maxSlopeAngle) velocity.y = 0f;
+        else velocity.y -= gravityStrength * Time.fixedDeltaTime;
     }
 
-    float SlopeCheck()
-    {
+    float SlopeCheck() {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, capsuleHeight, groundMask))
-            return Vector3.Angle(hit.normal, Vector3.up);
-
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, capsuleHeight, groundMask)) return Vector3.Angle(hit.normal, Vector3.up);
         return 0f;
     }
 
-    void RotateWithCamera()
-    {
+    void RotateWithCamera() {
         Vector3 camEuler = cameraTransform.rotation.eulerAngles;
         transform.rotation = Quaternion.Euler(0f, camEuler.y, 0f);
     }
 
-    void StateController()
-    {
+    void StateController() {
         Vector2 moveInput = input.PlayerInputMap.MoveInput.ReadValue<Vector2>();
         bool run = input.PlayerInputMap.RunInput.ReadValue<float>() > 0;
         bool sprint = input.PlayerInputMap.SprintInput.ReadValue<float>() > 0;
         bool crouch = input.PlayerInputMap.CrouchInput.ReadValue<float>() > 0;
         bool prone = input.PlayerInputMap.ProneInput.ReadValue<float>() > 0;
+        bool grabLedge = input.PlayerInputMap.InteractInput.ReadValue<float>() > 0;
 
         float prevHeight = capsuleHeight;
+        Vector3 ledgePosition = new Vector3(0,0,0);
 
         state = State.None;
-        if (velocity.y != 0){
+
+
+        if (grabLedge){
+            if (DetectLedge(out ledgePosition)){
+                state = State.Climbing;
+                moveSpeed = 0;
+                capsuleHeight = standingHeight;
+                ClimbOntoObject(ledgePosition);
+            }
+        }
+
+        if (!isGrounded()) {
             state = State.Air;
             return;
         }
 
-        if (prone){
+
+        
+        if (prone) {
             state = State.Prone;
             moveSpeed = proneSpeed;
             capsuleHeight = proneHeight;
-        }
-        else if (crouch){
+        } else if (crouch) {
             state = State.Crouch;
             moveSpeed = crouchSpeed;
             capsuleHeight = crouchHeight;
-        }
-        else if (sprint && moveInput.y > 0.1f){
+        } else if (sprint && moveInput.y > 0.1f) {
             state = State.Sprint;
             moveSpeed = sprintSpeed;
             capsuleHeight = standingHeight;
-        }
-        else if (run){
+        } else if (run) {
             state = State.Run;
             moveSpeed = runSpeed;
             capsuleHeight = standingHeight;
-        }
-        else if (moveInput != Vector2.zero){
+        } else if (moveInput != Vector2.zero) {
             state = State.Walk;
             moveSpeed = walkSpeed;
             capsuleHeight = standingHeight;
-        }
-        else{
+        } else {
             state = State.Idle;
             moveSpeed = 0f;
             capsuleHeight = standingHeight;
         }
 
-        if (capsuleHeight > prevHeight)
-            transform.position += new Vector3(0, (capsuleHeight - prevHeight)/2f, 0);
+        if (capsuleHeight > prevHeight) transform.position += new Vector3(0, (capsuleHeight - prevHeight)/2f, 0);
     }
 
-
-
-    Vector3 RequestedMovement()
-    {
-        if (input.PlayerInputMap.JumpInput.ReadValue<float>() != 0 && SlopeCheck() <= maxSlopeAngle)
-            jumpRequested = true;
-
-        if (isGrounded() && jumpRequested)
-            velocity.y = jumpForce;
+    Vector3 RequestedMovement() {
+        if (input.PlayerInputMap.JumpInput.ReadValue<float>() != 0 && SlopeCheck() <= maxSlopeAngle) jumpRequested = true;
+        if (isGrounded() && jumpRequested) velocity.y = jumpForce;
 
         Vector2 moveInput = input.PlayerInputMap.MoveInput.ReadValue<Vector2>();
         Vector3 inputDir = transform.right * moveInput.x + transform.forward * moveInput.y;
@@ -177,27 +168,20 @@ public class KCC : MonoBehaviour
         return inputDir * moveSpeed;
     }
 
-    Vector3 CollideAndSlide(Vector3 position, Vector3 movement)
-    {
+    Vector3 CollideAndSlide(Vector3 position, Vector3 movement) {
         Vector3 remainingMovement = movement;
         float halfHeight = capsuleHeight / 2f - capsuleRadius;
 
-        for (int i = 0; i < maxSlideIterations; i++)
-        {
+        for (int i = 0; i < maxSlideIterations; i++) {
             Vector3 bottom = position + Vector3.down * halfHeight;
             Vector3 top = position + Vector3.up * halfHeight;
 
             if (Physics.CapsuleCast(bottom, top, capsuleRadius, remainingMovement.normalized,
-                out RaycastHit hit, remainingMovement.magnitude + skinWidth, collisionMask))
-            {
+                out RaycastHit hit, remainingMovement.magnitude + skinWidth, collisionMask)) {
                 float distance = hit.distance - skinWidth;
-                if (distance > 0f)
-                    position += remainingMovement.normalized * distance;
-
+                if (distance > 0f) position += remainingMovement.normalized * distance;
                 remainingMovement = Vector3.ProjectOnPlane(remainingMovement, hit.normal);
-            }
-            else
-            {
+            } else {
                 position += remainingMovement;
                 break;
             }
@@ -206,8 +190,7 @@ public class KCC : MonoBehaviour
         return position;
     }
 
-    bool isGrounded()
-    {
+    bool isGrounded() {
         float halfHeight = capsuleHeight / 2f - capsuleRadius;
         Vector3 bottom = transform.position + Vector3.down * halfHeight;
         Vector3 top = transform.position + Vector3.up * halfHeight;
@@ -216,8 +199,42 @@ public class KCC : MonoBehaviour
         return Physics.CapsuleCast(bottom, top, capsuleRadius, Vector3.down, out _, checkDistance + skinWidth, groundMask);
     }
 
-    void OnDrawGizmos()
-    {/*
+    void ClimbOntoObject(Vector3 ledgePos) {
+        transform.position = ledgePos + new Vector3(0,capsuleHeight/2+.06f,0);
+    }
+
+    bool Hanging() {
+        return false;
+    }
+
+    bool DetectLedge(out Vector3 ledgePos)
+    {
+        ledgePos = Vector3.zero;
+        float forwardCheckDistance = 1.0f;
+        float downCheckDistance = 2.0f;
+        LayerMask ledgeMask = collisionMask;
+
+        Vector3 origin = transform.position + Vector3.up * 1.0f;
+        if (Physics.Raycast(origin, transform.forward, out RaycastHit forwardHit, forwardCheckDistance, ledgeMask))
+        {
+            Vector3 downOrigin = forwardHit.point + Vector3.up * 1.5f;
+            if (Physics.Raycast(downOrigin, Vector3.down, out RaycastHit downHit, downCheckDistance, ledgeMask))
+            {
+                ledgePos = downHit.point;
+                Debug.Log("Ledge detected at " + ledgePos);
+                return true;
+            }
+        }
+
+        Debug.DrawRay(transform.position, transform.forward * forwardCheckDistance, Color.green);
+        Debug.DrawRay(transform.position+forwardHit.point + Vector3.up * 1.5f, Vector3.down * downCheckDistance, Color.green);
+
+        return false;
+    }
+
+
+
+    void OnDrawGizmos() {/*
         float halfHeight = capsuleHeight / 2f - capsuleRadius;
         Vector3 bottom = transform.position + Vector3.down * halfHeight;
         Vector3 top = transform.position + Vector3.up * halfHeight;
