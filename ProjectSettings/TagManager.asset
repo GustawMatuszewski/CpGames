@@ -3,16 +3,17 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - ClimbableTag
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - GroundLayer
+  - 
   - Water
   - UI
-  - 
-  - 
+  - ClimbableLayer
+  - GroundLayer
   - 
   - 
   - 

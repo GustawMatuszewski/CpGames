@@ -32,6 +32,11 @@ public class KCC : MonoBehaviour
     public float capsuleRadius = .5f;
     public LayerMask collisionMask;
     public LayerMask groundMask;
+    public string ledgeTag;
+
+    [Header ("Climbing Settings")]
+    public float forwardCheckDistance = 1.0f;
+    public float downCheckDistance = 2.0f;
 
     private Vector3 velocity;
     private bool jumpRequested = false;
@@ -39,6 +44,7 @@ public class KCC : MonoBehaviour
     [Header("Additional Modifiers")]
     public bool useGravity = true;
     public bool enableMovement = true;
+    public bool enableClimbing = true;
 
     public enum State
     {
@@ -210,27 +216,30 @@ public class KCC : MonoBehaviour
     bool DetectLedge(out Vector3 ledgePos)
     {
         ledgePos = Vector3.zero;
-        float forwardCheckDistance = 1.0f;
-        float downCheckDistance = 2.0f;
+
+        
         LayerMask ledgeMask = collisionMask;
 
         Vector3 origin = transform.position + Vector3.up * 1.0f;
-        if (Physics.Raycast(origin, transform.forward, out RaycastHit forwardHit, forwardCheckDistance, ledgeMask))
-        {
+
+        if (Physics.Raycast(origin, transform.forward, out RaycastHit forwardHit, forwardCheckDistance, ledgeMask)){
+            if (!forwardHit.collider.CompareTag(ledgeTag))
+                return false;
+
             Vector3 downOrigin = forwardHit.point + Vector3.up * 1.5f;
-            if (Physics.Raycast(downOrigin, Vector3.down, out RaycastHit downHit, downCheckDistance, ledgeMask))
-            {
+
+            if (Physics.Raycast(downOrigin, Vector3.down, out RaycastHit downHit, downCheckDistance, ledgeMask)){
+                if (!downHit.collider.CompareTag(ledgeTag))
+                    return false;
+
                 ledgePos = downHit.point;
-                Debug.Log("Ledge detected at " + ledgePos);
                 return true;
             }
         }
 
-        Debug.DrawRay(transform.position, transform.forward * forwardCheckDistance, Color.green);
-        Debug.DrawRay(transform.position+forwardHit.point + Vector3.up * 1.5f, Vector3.down * downCheckDistance, Color.green);
-
         return false;
     }
+
 
 
 
