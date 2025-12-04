@@ -1,8 +1,13 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
+
 
 public class KCC : MonoBehaviour
 {
+    [Header("Debug MODE!!!")]
+    public bool debugMode = false;
+
     [Header("References")]
     [SerializeField] private PlayerInput input;
     [SerializeField] private CapsuleCollider capsule;
@@ -37,6 +42,7 @@ public class KCC : MonoBehaviour
     [Header ("Climbing Settings")]
     public float forwardCheckDistance = 1.0f;
     public float downCheckDistance = 2.0f;
+    public float hangTimer = .4f;
 
     private Vector3 velocity;
     private bool jumpRequested = false;
@@ -118,12 +124,13 @@ public class KCC : MonoBehaviour
         state = State.None;
 
 
-        if (grabLedge){
+        if (grabLedge && enableClimbing){
             if (DetectLedge(out ledgePosition)){
                 state = State.Climbing;
                 moveSpeed = 0;
                 capsuleHeight = standingHeight;
-                ClimbOntoObject(ledgePosition);
+                StartCoroutine(ClimbOntoObject(ledgePosition));
+
             }
         }
 
@@ -184,10 +191,19 @@ public class KCC : MonoBehaviour
 
             if (Physics.CapsuleCast(bottom, top, capsuleRadius, remainingMovement.normalized,
                 out RaycastHit hit, remainingMovement.magnitude + skinWidth, collisionMask)) {
+
+                if (debugMode) {
+                    DebugCapsuleSweep(position, remainingMovement.normalized * hit.distance, halfHeight, capsuleRadius);
+                    Debug.DrawRay(hit.point, hit.normal, Color.magenta, 0.1f);
+                }
+
                 float distance = hit.distance - skinWidth;
                 if (distance > 0f) position += remainingMovement.normalized * distance;
                 remainingMovement = Vector3.ProjectOnPlane(remainingMovement, hit.normal);
             } else {
+                if (debugMode)
+                    DebugCapsuleSweep(position, remainingMovement, halfHeight, capsuleRadius);
+
                 position += remainingMovement;
                 break;
             }
@@ -195,6 +211,24 @@ public class KCC : MonoBehaviour
 
         return position;
     }
+
+
+    void DebugCapsuleSweep(Vector3 startPos, Vector3 movement, float halfHeight, float radius, float predictDistance = 5f, int steps = 10){
+        Vector3 extendedMovement = movement.normalized * Mathf.Max(movement.magnitude, predictDistance);
+
+        for (int s = 0; s <= steps; s++){
+            float t = s / (float)steps;
+            Vector3 interpPos = Vector3.Lerp(startPos, startPos + extendedMovement, t);
+            Vector3 interpBottom = interpPos + Vector3.down * halfHeight;
+            Vector3 interpTop = interpPos + Vector3.up * halfHeight;
+
+            Color col = Color.Lerp(Color.yellow, Color.green, t);
+            DebugDrawCapsule(interpBottom, interpTop, radius, col);
+        }
+    }
+
+
+
 
     bool isGrounded() {
         float halfHeight = capsuleHeight / 2f - capsuleRadius;
@@ -205,40 +239,73 @@ public class KCC : MonoBehaviour
         return Physics.CapsuleCast(bottom, top, capsuleRadius, Vector3.down, out _, checkDistance + skinWidth, groundMask);
     }
 
-    void ClimbOntoObject(Vector3 ledgePos) {
-        transform.position = ledgePos + new Vector3(0,capsuleHeight/2+.06f,0);
+    IEnumerator ClimbOntoObject(Vector3 ledgePos){
+        enableMovement = false;
+        yield return new WaitForSeconds(hangTimer);
+        transform.position = ledgePos + new Vector3(0, capsuleHeight / 2f + 0.06f, 0);
+        enableMovement = true;
     }
+
 
     bool Hanging() {
         return false;
     }
 
-    bool DetectLedge(out Vector3 ledgePos)
+ bool DetectLedge(out Vector3 ledgePos)
+{
+    ledgePos = Vector3.zero;
+    LayerMask ledgeMask = collisionMask;
+
+    Vector3 origin = transform.position + Vector3.up * 1.0f;
+
+    // Forward ray
+    if (Physics.Raycast(origin, transform.forward, out RaycastHit forwardHit, forwardCheckDistance, ledgeMask))
     {
-        ledgePos = Vector3.zero;
+        if(debugMode)
+            Debug.DrawLine(origin, forwardHit.point, Color.green);
 
-        
-        LayerMask ledgeMask = collisionMask;
+        if (!forwardHit.collider.CompareTag(ledgeTag))
+            return false;
 
-        Vector3 origin = transform.position + Vector3.up * 1.0f;
+        Vector3 downOrigin = forwardHit.point + Vector3.up * 1.5f;
 
-        if (Physics.Raycast(origin, transform.forward, out RaycastHit forwardHit, forwardCheckDistance, ledgeMask)){
-            if (!forwardHit.collider.CompareTag(ledgeTag))
-                return false;
+        if (Physics.Raycast(downOrigin, Vector3.down, out RaycastHit downHit, downCheckDistance, ledgeMask)){
+            Vector3 ledgeForward = -transform.forward * 0.1f;
+            Vector3 capsuleBottom = downHit.point + Vector3.up * capsuleRadius + ledgeForward;
+            Vector3 capsuleTop = capsuleBottom + Vector3.up * (capsuleHeight - 2 * capsuleRadius);
 
-            Vector3 downOrigin = forwardHit.point + Vector3.up * 1.5f;
-
-            if (Physics.Raycast(downOrigin, Vector3.down, out RaycastHit downHit, downCheckDistance, ledgeMask)){
-                if (!downHit.collider.CompareTag(ledgeTag))
-                    return false;
-
+            if (debugMode){
+                Debug.DrawLine(downOrigin, downHit.point, Color.green);
+                DebugDrawCapsule(capsuleBottom, capsuleTop, capsuleRadius, Color.blue);
+            }
+            if (!Physics.CheckCapsule(capsuleTop, capsuleBottom, capsuleRadius, ledgeMask)){
                 ledgePos = downHit.point;
                 return true;
             }
         }
-
-        return false;
     }
+
+    return false;
+}
+
+// Helper function to draw a capsule in the Scene view
+void DebugDrawCapsule(Vector3 start, Vector3 end, float radius, Color color)
+{
+    int segments = 16;
+    for (int i = 0; i < segments; i++)
+    {
+        float angle1 = (i / (float)segments) * Mathf.PI * 2;
+        float angle2 = ((i + 1) / (float)segments) * Mathf.PI * 2;
+
+        Vector3 offset1 = new Vector3(Mathf.Cos(angle1) * radius, 0, Mathf.Sin(angle1) * radius);
+        Vector3 offset2 = new Vector3(Mathf.Cos(angle2) * radius, 0, Mathf.Sin(angle2) * radius);
+
+        Debug.DrawLine(start + offset1, start + offset2, color);
+        Debug.DrawLine(end + offset1, end + offset2, color);
+        Debug.DrawLine(start + offset1, end + offset1, color);
+    }
+}
+
 
 
 
