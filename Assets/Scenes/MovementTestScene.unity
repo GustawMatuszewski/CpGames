@@ -935,12 +935,20 @@ PrefabInstance:
       value: ClimbableTag
       objectReference: {fileID: 0}
     - target: {fileID: 319013317773352581, guid: 6aedffc166d9dca8da568badd30df01c, type: 3}
+      propertyPath: runSpeed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 319013317773352581, guid: 6aedffc166d9dca8da568badd30df01c, type: 3}
       propertyPath: debugMode
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 319013317773352581, guid: 6aedffc166d9dca8da568badd30df01c, type: 3}
       propertyPath: hangTimer
       value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 319013317773352581, guid: 6aedffc166d9dca8da568badd30df01c, type: 3}
+      propertyPath: walkSpeed
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 319013317773352581, guid: 6aedffc166d9dca8da568badd30df01c, type: 3}
       propertyPath: useGravity
@@ -952,7 +960,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 319013317773352581, guid: 6aedffc166d9dca8da568badd30df01c, type: 3}
       propertyPath: sprintSpeed
-      value: 10
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 319013317773352581, guid: 6aedffc166d9dca8da568badd30df01c, type: 3}
       propertyPath: climbableTag
