@@ -8,42 +8,45 @@ public class Inventory : MonoBehaviour
     public List<Item> inventory = new List<Item>();
     public Inventory outsideInventory;
 
-    public List<Item> allItems = new List<Item>();
-
+    public ItemDatabase itemDatabase;
 
     public void AddToInventory(List<Item> inventoryToAddTo, int itemQuantity, int itemID){
-        Item itemToAdd = allItems[itemID];
+        if(itemDatabase == null || itemID < 0 || itemID >= itemDatabase.allItems.Count)
+            return;
 
-        for (int i = 0; i < itemQuantity; i++){
+        for(int i = 0; i < itemQuantity; i++){
+            Item itemToAdd = Instantiate(itemDatabase.allItems[itemID]);
             inventoryToAddTo.Add(itemToAdd);
 
             if(debugMode)
-                Debug.Log($"Added {itemQuantity} items with ID {itemID}");
+                Debug.Log($"Added 1 item with ID {itemID}");
         }
     }
 
     public void RemoveFromInventory(List<Item> inventoryToRemoveFrom, int itemID, int itemQuantity){
-        for (int i = 0; i < itemQuantity; i++){
+        for(int i = 0; i < itemQuantity; i++){
             Item itemToRemove = inventoryToRemoveFrom.Find(item => item.itemID == itemID);
             if(itemToRemove != null)
                 inventoryToRemoveFrom.Remove(itemToRemove);
+            else
+                break;
 
             if(debugMode)
-                Debug.Log($"Removed {itemQuantity} items with ID {itemID}");
+                Debug.Log($"Removed 1 item with ID {itemID}");
         }
     }
-    
+
     public void MoveBetweenInventories(List<Item> fromInventory, List<Item> toInventory, int itemID, int itemQuantity){
         List<Item> itemsToMove = fromInventory.FindAll(item => item.itemID == itemID);
 
-        if (itemsToMove.Count == 0){
+        if(itemsToMove.Count == 0){
             if(debugMode)
                 Debug.Log("No items with this ID in source inventory!");
             return;
         }
 
         int moveCount = Mathf.Min(itemQuantity, itemsToMove.Count);
-        for (int i = 0; i < moveCount; i++){
+        for(int i = 0; i < moveCount; i++){
             Item item = itemsToMove[i];
             fromInventory.Remove(item);
             toInventory.Add(item);
