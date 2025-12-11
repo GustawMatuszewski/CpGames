@@ -3226,13 +3226,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fireStarter: {fileID: 11400000, guid: 570845f365bda7b4ea23478920b9d5cd, type: 2}
   starterFuel: {fileID: 11400000, guid: 40a2739e6269c7b47a99d4e511201cad, type: 2}
-  calories: 0
-  caloriesBurnRate: 0.001
+  inventory: {fileID: 1871013069}
   isLit: 0
   attemptToLight: 0
-  chanceToBeLit: 151
-  prepPoints: 0
-  chanceToKeepStarter: 25
+  windSpeed: 0
+  dampness: 0
+  fireTemp: 0
+  smoke: 0
+  calories: 0
+  caloriesBurnRate: 0.001
 --- !u!4 &1871013071
 Transform:
   m_ObjectHideFlags: 0
