@@ -10,9 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd8830252424942188d77e1ae61b005a, type: 3}
-  m_Name: testItem2
+  m_Name: testItem
   m_EditorClassIdentifier: 
-  itemID: 1
-  itemName: testItem2
+  itemID: 0
+  itemName: test
   icon: {fileID: 0}
-  description: 
+  description: test
+  type: 0
+  burnCalories: 300
+  foodCalories: 0
