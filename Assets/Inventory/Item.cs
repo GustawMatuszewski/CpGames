@@ -9,12 +9,40 @@ public class Item : ScriptableObject
     [TextArea]
     public string description;
 
-    public enum itemType{
-        none,
-        resource
-    }
-    public itemType type;
-
+    public float weight;
+    public int durability;
+    public int usesLeft;
+    public bool craftable;
     public float burnCalories;
-    public float foodCalories;
+    public enum ItemType
+    {
+        none,
+        resource,
+        food,
+        tool,
+        weapon,
+        buildingMaterial,
+        medical,
+        storage,
+        clothing,
+        loot
+    }
+    public ItemType itemType;
+
+    public enum MaterialType
+    {
+        none,
+        wood,
+        kindling,
+        stone,
+        metal,
+        plastic,
+        cloth,
+        tissue,
+        unknown
+    }
+    public MaterialType materialType;
+
+    
+
 }

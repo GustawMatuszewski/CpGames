@@ -24,25 +24,27 @@ public class FirePit : MonoBehaviour
     public float calories = 0f;
     public float caloriesBurnRate = .01f;
 
-    private float chanceToBeLit = 151;
+    private float chanceToBeLit = 151f;
     private float prepPoints = 0f;
     private float chanceToKeepStarter = 25f;
 
     void FixedUpdate()
     {
-        if (attemptToLight){
+        if (attemptToLight)
+        {
             firePreping();
             fireStarting();
-
             CollectFuelFromInventory();
 
-            if (fireStarter != null){
+            if (fireStarter != null)
+            {
                 float keepRoll = Random.Range(0f, 100f);
                 if (keepRoll > chanceToKeepStarter)
                     fireStarter = null;
             }
 
-            if (starterFuel != null){
+            if (starterFuel != null)
+            {
                 calories += starterFuel.burnCalories;
                 starterFuel = null;
             }
@@ -60,28 +62,35 @@ public class FirePit : MonoBehaviour
 
         List<Item> toRemove = new List<Item>();
 
-        foreach (Item item in inventory.inventory){
+        foreach (Item item in inventory.inventory)
+        {
             if (item == null)
                 continue;
 
-            if (item.burnCalories > 0){
+            bool isFuel = item.burnCalories > 0 &&
+                          (item.materialType == Item.MaterialType.wood ||
+                           item.materialType == Item.MaterialType.plastic ||
+                           item.materialType == Item.MaterialType.cloth);
+
+            if (isFuel)
+            {
                 calories += item.burnCalories;
                 toRemove.Add(item);
             }
-            else{
+            else
+            {
                 StartCoroutine(RemoveNonFuelItem(item, 5f));
             }
         }
 
-        foreach (Item item in toRemove){
+        foreach (Item item in toRemove)
             inventory.inventory.Remove(item);
-        }
     }
 
     IEnumerator RemoveNonFuelItem(Item item, float delay)
     {
         yield return new WaitForSeconds(delay);
-        if (item != null)
+        if (item != null && inventory.inventory.Contains(item))
             inventory.inventory.Remove(item);
     }
 
@@ -91,26 +100,31 @@ public class FirePit : MonoBehaviour
         float dampPenalty = dampness * 1.5f;
 
         float roll = Random.Range(0, chanceToBeLit + windPenalty + dampPenalty);
-
         bool canStartFromExisting = calories > 0;
 
-        if (roll <= prepPoints && fireStarter != null){
+        if (roll <= prepPoints && fireStarter != null)
+        {
             isLit = true;
             return;
         }
 
-        if (roll <= prepPoints && canStartFromExisting && fireStarter != null){
+        if (roll <= prepPoints && canStartFromExisting && fireStarter != null)
             isLit = true;
-        }
     }
 
     void firePreping()
     {
         if (fireStarter != null)
-            prepPoints += fireStarter.burnCalories / 10;
+        {
+            float multiplier = 1f;
+            if (fireStarter.itemType == Item.ItemType.resource && fireStarter.materialType == Item.MaterialType.kindling)
+                multiplier = 10f;
+
+            prepPoints += fireStarter.burnCalories / 10f * multiplier;
+        }
 
         if (starterFuel != null)
-            prepPoints += starterFuel.burnCalories / 40;
+            prepPoints += starterFuel.burnCalories / 40f;
 
         prepPoints -= Random.Range(5f, 10f);
         prepPoints -= windSpeed * 0.5f;
@@ -121,15 +135,16 @@ public class FirePit : MonoBehaviour
 
     void fireStats()
     {
-        if (isLit){
-            float windBurn = caloriesBurnRate + (windSpeed * 0.01f);
+        if (isLit)
+        {
+            float windBurn = caloriesBurnRate + windSpeed * 0.01f;
             calories -= windBurn;
 
             fireTemp = 50f + windSpeed * 3f + calories * 0.01f + 10f;
-
             smoke = dampness * 5f + Random.Range(0f, 2f);
         }
-        else{
+        else
+        {
             fireTemp = 0f;
             smoke = dampness;
         }
