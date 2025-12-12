@@ -7,8 +7,9 @@ public class FirePit : MonoBehaviour
     [Header("References")]
     public Item fireStarter;
     public Item starterFuel;
-
     public Inventory inventory;
+
+    //Tu musicie dac efekt ognia ktore sie pokaze przy zapaleniu
 
     [Header("Fire")]
     public bool isLit = false;

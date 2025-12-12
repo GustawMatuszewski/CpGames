@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98b63a842a178ca3a698f963e20ca45, type: 3}
+  m_Name: SpikedBat
+  m_EditorClassIdentifier: 
+  itemID: 6
+  itemName: SpikedBat
+  icon: {fileID: 0}
+  description: Spiked bat large stick that can poke a few holes.
+  weight: 4
+  durability: 100
+  usesLeft: 100
+  craftable: 1
+  burnCalories: 0
+  itemType: 4
+  materialType: 1
+  weaponType: 2
+  damageType: 1
+  useType: 2
+  damage: 20

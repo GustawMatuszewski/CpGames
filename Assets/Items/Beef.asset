@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a9a7ed2b29bb197780353b85411c539, type: 3}
+  m_Name: Beef
+  m_EditorClassIdentifier: 
+  itemID: 2
+  itemName: Beef
+  icon: {fileID: 0}
+  description: Yummy :P
+  weight: 0.3
+  durability: 0
+  usesLeft: 1
+  craftable: 1
+  burnCalories: 0
+  itemType: 2
+  materialType: 7
+  foodState: 10
+  calories: 900
+  nurishment: 100
+  hydration: -20
+  eneryBoost: 0
