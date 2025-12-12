@@ -251,16 +251,14 @@ public class KCC : MonoBehaviour
         return false;
     }
 
- bool DetectLedge(out Vector3 ledgePos)
-{
+ bool DetectLedge(out Vector3 ledgePos){
     ledgePos = Vector3.zero;
     LayerMask ledgeMask = collisionMask;
 
     Vector3 origin = transform.position + Vector3.up * 1.0f;
 
     // Forward ray
-    if (Physics.Raycast(origin, transform.forward, out RaycastHit forwardHit, forwardCheckDistance, ledgeMask))
-    {
+    if (Physics.Raycast(origin, transform.forward, out RaycastHit forwardHit, forwardCheckDistance, ledgeMask)){
         if(debugMode)
             Debug.DrawLine(origin, forwardHit.point, Color.green);
 

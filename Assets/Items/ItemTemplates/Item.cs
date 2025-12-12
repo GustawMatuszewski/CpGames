@@ -13,6 +13,7 @@ public class Item : ScriptableObject
     public int durability;
     public int usesLeft;
     public bool craftable;
+    public CraftingRecipe craftingRecipe;
     public float burnCalories;
     public enum ItemType
     {

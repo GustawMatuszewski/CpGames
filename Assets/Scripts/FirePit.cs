@@ -9,8 +9,6 @@ public class FirePit : MonoBehaviour
     public Item starterFuel;
     public Inventory inventory;
 
-    //Tu musicie dac efekt ognia ktore sie pokaze przy zapaleniu
-
     [Header("Fire")]
     public bool isLit = false;
     public bool attemptToLight = false;
@@ -29,23 +27,19 @@ public class FirePit : MonoBehaviour
     private float prepPoints = 0f;
     private float chanceToKeepStarter = 25f;
 
-    void FixedUpdate()
-    {
-        if (attemptToLight)
-        {
+    void FixedUpdate() {
+        if (attemptToLight) {
             firePreping();
             fireStarting();
             CollectFuelFromInventory();
 
-            if (fireStarter != null)
-            {
+            if (fireStarter != null) {
                 float keepRoll = Random.Range(0f, 100f);
                 if (keepRoll > chanceToKeepStarter)
                     fireStarter = null;
             }
 
-            if (starterFuel != null)
-            {
+            if (starterFuel != null) {
                 calories += starterFuel.burnCalories;
                 starterFuel = null;
             }
@@ -56,30 +50,26 @@ public class FirePit : MonoBehaviour
         fireStats();
     }
 
-    void CollectFuelFromInventory()
-    {
+    void CollectFuelFromInventory() {
         if (inventory == null || inventory.inventory.Count == 0)
             return;
 
         List<Item> toRemove = new List<Item>();
 
-        foreach (Item item in inventory.inventory)
-        {
+        foreach (Item item in inventory.inventory) {
             if (item == null)
                 continue;
 
             bool isFuel = item.burnCalories > 0 &&
-                          (item.materialType == Item.MaterialType.wood ||
-                           item.materialType == Item.MaterialType.plastic ||
-                           item.materialType == Item.MaterialType.cloth);
+                            (item.materialType == Item.MaterialType.wood ||
+                            item.materialType == Item.MaterialType.plastic ||
+                            item.materialType == Item.MaterialType.cloth);
 
-            if (isFuel)
-            {
+            if (isFuel) {
                 calories += item.burnCalories;
                 toRemove.Add(item);
             }
-            else
-            {
+            else {
                 StartCoroutine(RemoveNonFuelItem(item, 5f));
             }
         }
@@ -88,23 +78,20 @@ public class FirePit : MonoBehaviour
             inventory.inventory.Remove(item);
     }
 
-    IEnumerator RemoveNonFuelItem(Item item, float delay)
-    {
+    IEnumerator RemoveNonFuelItem(Item item, float delay) {
         yield return new WaitForSeconds(delay);
         if (item != null && inventory.inventory.Contains(item))
             inventory.inventory.Remove(item);
     }
 
-    void fireStarting()
-    {
+    void fireStarting() {
         float windPenalty = windSpeed * 2f;
         float dampPenalty = dampness * 1.5f;
 
         float roll = Random.Range(0, chanceToBeLit + windPenalty + dampPenalty);
         bool canStartFromExisting = calories > 0;
 
-        if (roll <= prepPoints && fireStarter != null)
-        {
+        if (roll <= prepPoints && fireStarter != null) {
             isLit = true;
             return;
         }
@@ -113,10 +100,8 @@ public class FirePit : MonoBehaviour
             isLit = true;
     }
 
-    void firePreping()
-    {
-        if (fireStarter != null)
-        {
+    void firePreping() {
+        if (fireStarter != null) {
             float multiplier = 1f;
             if (fireStarter.itemType == Item.ItemType.resource && fireStarter.materialType == Item.MaterialType.kindling)
                 multiplier = 10f;
@@ -134,18 +119,15 @@ public class FirePit : MonoBehaviour
         prepPoints = Mathf.Clamp(prepPoints, 0f, 100f);
     }
 
-    void fireStats()
-    {
-        if (isLit)
-        {
+    void fireStats() {
+        if (isLit) {
             float windBurn = caloriesBurnRate + windSpeed * 0.01f;
             calories -= windBurn;
 
             fireTemp = 50f + windSpeed * 3f + calories * 0.01f + 10f;
             smoke = dampness * 5f + Random.Range(0f, 2f);
         }
-        else
-        {
+        else {
             fireTemp = 0f;
             smoke = dampness;
         }
