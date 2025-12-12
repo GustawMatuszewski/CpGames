@@ -29,6 +29,7 @@ public class WeaponItem : Item
     public WeaponType weaponType = WeaponType.none;
     public DamageType damageType = DamageType.none;
     public UseType useType = UseType.none;
+
     public float damage;
 
 }

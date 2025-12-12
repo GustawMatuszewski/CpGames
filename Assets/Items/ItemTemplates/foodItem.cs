@@ -21,11 +21,6 @@ public class FoodItem : Item
         slightlyRottenRaw,
         rottenRaw
     }
-    public FoodState foodState;
-    public float calories;
-    public float nurishment;
-    public float hydration;
-    public float eneryBoost;
 
     public enum Effect
     {
@@ -36,4 +31,12 @@ public class FoodItem : Item
         diareah,
         drunk
     }
+    public FoodState foodState;
+    public Effect effect;
+    public float calories;
+    public float nurishment;
+    public float hydration;
+    public float eneryBoost;
+
+    
 }
