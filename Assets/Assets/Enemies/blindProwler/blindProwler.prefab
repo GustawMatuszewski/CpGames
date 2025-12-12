@@ -68,7 +68,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f692be34ce067a5439170a155add17cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
+  debugMode: 1
   agent: {fileID: -1448459323735847221}
   player: {fileID: 0}
   whatIsGround:
@@ -79,11 +79,11 @@ MonoBehaviour:
     m_Bits: 64
   speed: 2
   walkPoint: {x: 0, y: 0, z: 0}
-  walkPointRange: 5
+  walkPointRange: 20
   attackInterval: 2
   sightRange: 20
   attackRange: 2
-  playerInSightRange: 0
+  playerInSightRange: 1
   playerInAttackRange: 0
   state: 0
 --- !u!1 &8493141014874193942

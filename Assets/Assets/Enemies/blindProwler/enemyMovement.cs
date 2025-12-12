@@ -55,7 +55,11 @@ public class enemyMovement : MonoBehaviour
         if (!playerInSightRange && !playerInAttackRange) Patrol();
         if (playerInSightRange && !playerInAttackRange) Chase();
         if (playerInSightRange && playerInAttackRange) Attack();
-        Debug.Log(state);
+
+        if (debugMode)
+        {
+            DebugMode();
+        }
     }
 
     void StateController()
@@ -73,6 +77,34 @@ public class enemyMovement : MonoBehaviour
         }
     }
 
+    void DebugMode()
+    {
+        if (agent.velocity.magnitude > 0.2f)
+        {
+            Vector3 startPos = transform.position;
+            Vector3 movement = agent.velocity;
+            int steps=10;
+            float radius=0.5f;
+            // Debug.DrawRay(startPos,movement,Color.magenta,0.1f);
+
+            for (int s = 0; s <= steps; s++)
+            {
+                float t = s / (float)steps;
+                Vector3 interpPos = Vector3.Lerp(startPos, startPos + movement, t);
+                Vector3 interpBottom = interpPos + Vector3.down * 1.5f;
+                Vector3 interpTop = interpPos + Vector3.up * 1.5f;
+
+                Color col = Color.Lerp(Color.yellow, Color.green, t);
+                DebugDrawCapsule(interpBottom, interpTop, radius, col);
+            }
+        }
+        if (walkPointSet)
+        {
+            Vector3 walkPointTop = walkPoint+Vector3.up*1.5f;
+            DebugDrawCapsule(walkPoint,walkPointTop,0.5f, Color.red);
+        }
+    }
+
     private void Patrol()
     {
         if (nextPatrolTime <= Time.time)
@@ -80,9 +112,11 @@ public class enemyMovement : MonoBehaviour
             if (!walkPointSet) SearchWalkPoint();
             if (walkPointSet) agent.SetDestination(walkPoint);
 
+
             Vector3 distanceToWalkPoint = transform.position - walkPoint;
             if (distanceToWalkPoint.magnitude < 1f) walkPointSet = false;
             nextPatrolTime=Time.time+walkPointInterval;
+            
         }
 
     }
@@ -96,11 +130,13 @@ public class enemyMovement : MonoBehaviour
     private void Chase()
     {
         agent.SetDestination(player.position);
+        walkPointSet=false;
     }
     private void Attack()
     {
         agent.SetDestination(transform.position);
         transform.LookAt(player);
+        walkPointSet=false;
 
         if (!alreadyAttacked)
         {
@@ -116,5 +152,21 @@ public class enemyMovement : MonoBehaviour
         alreadyAttacked=false;
     }
     
-    
+    // Helper function to draw a capsule in the Scene view
+    void DebugDrawCapsule(Vector3 start, Vector3 end, float radius, Color color)
+    {
+        int segments = 16;
+        for (int i = 0; i < segments; i++)
+        {
+            float angle1 = (i / (float)segments) * Mathf.PI * 2;
+            float angle2 = ((i + 1) / (float)segments) * Mathf.PI * 2;
+
+            Vector3 offset1 = new Vector3(Mathf.Cos(angle1) * radius, 0, Mathf.Sin(angle1) * radius);
+            Vector3 offset2 = new Vector3(Mathf.Cos(angle2) * radius, 0, Mathf.Sin(angle2) * radius);
+
+            Debug.DrawLine(start + offset1, start + offset2, color);
+            Debug.DrawLine(end + offset1, end + offset2, color);
+            Debug.DrawLine(start + offset1, end + offset1, color);
+        }
+    }
 }
