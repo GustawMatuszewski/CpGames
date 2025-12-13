@@ -63,7 +63,8 @@ public class KCC : MonoBehaviour
         Crouch,
         Prone,
         Climbing,
-        Hanging
+        Hanging,
+        Attack
     }
 
     public State state;
