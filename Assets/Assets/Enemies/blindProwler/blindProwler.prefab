@@ -79,12 +79,15 @@ MonoBehaviour:
     m_Bits: 64
   speed: 2
   walkPoint: {x: 0, y: 0, z: 0}
-  walkPointRange: 20
+  walkPointRange: 10
   attackInterval: 2
   sightRange: 20
   attackRange: 2
-  playerInSightRange: 1
+  hearingRange: 25
+  playerInSightRange: 0
   playerInAttackRange: 0
+  playerInHearingRange: 0
+  investigateWaitTime: 3
   state: 0
 --- !u!1 &8493141014874193942
 GameObject:

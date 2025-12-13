@@ -27,6 +27,19 @@ public class enemyMovement : MonoBehaviour
     public float sightRange, attackRange;
     public bool playerInSightRange, playerInAttackRange;
 
+    [Header("Search settings")]
+    public float investigateWaitTime = 3f;
+    bool investigating;
+    float investigateEndTime;
+
+    [Header("Hearing settings")]
+    public float hearingRange;
+    public bool playerInHearingRange;
+    public float hearingCooldown = 8f;
+    private float nextHearingCheckTime = 0f;
+
+
+
     public enum State
     {
         None,
@@ -36,6 +49,7 @@ public class enemyMovement : MonoBehaviour
     }
     public State state;
 
+    private Vector3 lastPlayerPosition;
     private void Awake()
     {
         player = GameObject.Find("Player").transform;
@@ -51,10 +65,32 @@ public class enemyMovement : MonoBehaviour
         StateController();
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsPlayer);
+        playerInHearingRange = Physics.CheckSphere(transform.position, hearingRange, whatIsPlayer);
 
-        if (!playerInSightRange && !playerInAttackRange) Patrol();
-        if (playerInSightRange && !playerInAttackRange) Chase();
-        if (playerInSightRange && playerInAttackRange) Attack();
+        if (Time.time >= nextHearingCheckTime)
+        {
+            nextHearingCheckTime=Time.time+hearingCooldown;
+
+            if (playerInHearingRange)
+            {
+                lastPlayerPosition=player.position;
+                investigating=true;
+            }
+        }
+
+        if (playerInSightRange && playerInAttackRange)
+        {
+            Attack();
+        }
+        else if (playerInSightRange)
+        {
+            Chase();
+        }
+        else
+        {
+            Patrol();
+        }
+
 
         if (debugMode)
         {
@@ -98,27 +134,94 @@ public class enemyMovement : MonoBehaviour
                 DebugDrawCapsule(interpBottom, interpTop, radius, col);
             }
         }
-        if (walkPointSet)
+
+        DrawDebugTarget();
+    }
+    void DrawDebugTarget()
+    {
+        if(!debugMode) return;
+        
+        Vector3 targetPos;
+        if(playerInSightRange && !playerInAttackRange)
         {
-            Vector3 walkPointTop = walkPoint+Vector3.up*1.5f;
-            DebugDrawCapsule(walkPoint,walkPointTop,0.5f, Color.red);
-        }
+            targetPos=player.position;
+        } else if (investigating)
+        {
+            targetPos=lastPlayerPosition;
+        } else if (walkPointSet)
+        {
+            targetPos=walkPoint;
+        } else return;
+        Vector3 targetPosTop = targetPos+Vector3.up*1.5f;
+        DebugDrawCapsule(targetPos,targetPosTop,0.5f, Color.red);
+        // if (walkPointSet)
+        // {
+        //     Vector3 walkPointTop = walkPoint+Vector3.up*1.5f;
+        //     DebugDrawCapsule(walkPoint,walkPointTop,0.5f, Color.red);
+        // } 
     }
 
     private void Patrol()
     {
-        if (nextPatrolTime <= Time.time)
+
+        if (investigating)
         {
-            if (!walkPointSet) SearchWalkPoint();
-            if (walkPointSet) agent.SetDestination(walkPoint);
+            agent.SetDestination(lastPlayerPosition);
+
+            float dist = Vector3.Distance(transform.position, lastPlayerPosition);
+            if(dist<1f){
+                agent.SetDestination(transform.position);
+
+                if(investigateEndTime == 0f)
+                {
+                    investigateEndTime= Time.time +investigateWaitTime;
+                    Debug.Log("At last known player position");
+                }
+                if (Time.time >= investigateEndTime)
+                {
+                    investigating=false;
+                    investigateEndTime=0f;
+                    lastPlayerPosition=Vector3.zero;
+                    //starting patrol
+                    walkPointSet = false;
+                    walkPointInterval = Random.Range(2,10);
+                    nextPatrolTime = Time.time+walkPointInterval;
+                    Debug.Log("Return to patrolling ");
+                }
+            }
+            return;
+        }
+
+        if(lastPlayerPosition != Vector3.zero)
+        {
+            investigating=true;
+            Debug.Log("Player pos lost");
+            return;
+        }
+
+        if (Time.time<nextPatrolTime) return;
+        
+            if (!walkPointSet)
+            {
+                // agent.SetDestination(lastPlayerPosition);
+                SearchWalkPoint();
+            }
+            if (walkPointSet) 
+            {
+                agent.SetDestination(walkPoint);
+                Debug.Log("Patrol START");
+            };
 
 
             Vector3 distanceToWalkPoint = transform.position - walkPoint;
-            if (distanceToWalkPoint.magnitude < 1f) walkPointSet = false;
-            nextPatrolTime=Time.time+walkPointInterval;
-            
-        }
-
+            if (distanceToWalkPoint.magnitude < 1f) 
+            {
+                Debug.Log("Patrol STOP");
+                walkPointSet = false;
+                walkPointInterval = Random.Range(2,10);
+                nextPatrolTime = Time.time+walkPointInterval;
+                Debug.Log("odstep: "+walkPointInterval);
+            }
     }
     private void SearchWalkPoint()
     {
@@ -130,7 +233,8 @@ public class enemyMovement : MonoBehaviour
     private void Chase()
     {
         agent.SetDestination(player.position);
-        walkPointSet=false;
+        lastPlayerPosition = player.position;
+        investigating=false;
     }
     private void Attack()
     {
@@ -169,4 +273,21 @@ public class enemyMovement : MonoBehaviour
             Debug.DrawLine(start + offset1, end + offset1, color);
         }
     }
+    void OnDrawGizmos()
+    {
+        if (!debugMode) return;
+
+        //Sight range
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, sightRange);
+
+        //Attack range
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        //Hearing range
+        Gizmos.color=Color.blue;
+        Gizmos.DrawWireSphere(transform.position,hearingRange);
+    }
+
 }

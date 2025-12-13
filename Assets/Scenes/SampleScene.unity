@@ -816,6 +816,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1079026866}
     - target: {fileID: -7522507298582646648, guid: 8cd6fcb69f8129c4e8923aad7f7429a4, type: 3}
+      propertyPath: debugMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -7522507298582646648, guid: 8cd6fcb69f8129c4e8923aad7f7429a4, type: 3}
       propertyPath: sightRange
       value: 10
       objectReference: {fileID: 0}
