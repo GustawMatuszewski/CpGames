@@ -3953,6 +3953,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2701a4885403c5a390bf1af237eaffd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugMode: 1
   ownerHitboxes:
   - {fileID: 253502939}
   - {fileID: 727715439}
@@ -3964,6 +3965,7 @@ MonoBehaviour:
   - LeftLowerArm
   - RightLowerArm
   hitboxTag: Hitbox
+  currentCollision: {fileID: 0}
   canAttack: 1
 --- !u!1 &1601314908 stripped
 GameObject:
@@ -4001,12 +4003,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2701a4885403c5a390bf1af237eaffd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugMode: 0
   ownerHitboxes:
   - {fileID: 1601314915}
   damageHitboxNameList:
   - LeftLowerArm
   - RightLowerArm
   hitboxTag: Hitbox
+  currentCollision: {fileID: 0}
   canAttack: 0
 --- !u!1 &1639663438
 GameObject:
@@ -5819,7 +5823,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7578279795465060126, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: Hitbox
       objectReference: {fileID: 0}
     - target: {fileID: 8236944989907278765, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
       propertyPath: m_LocalPosition.x
