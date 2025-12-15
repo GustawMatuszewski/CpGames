@@ -62,8 +62,7 @@ public class FirePit : MonoBehaviour
 
             bool isFuel = item.burnCalories > 0 &&
                             (item.materialType == Item.MaterialType.wood ||
-                            item.materialType == Item.MaterialType.plastic ||
-                            item.materialType == Item.MaterialType.cloth);
+                            item.materialType == Item.MaterialType.plastic ); //more can be added here
 
             if (isFuel) {
                 calories += item.burnCalories;

@@ -49,8 +49,12 @@ public class Item : ScriptableObject
         stone,
         metal,
         plastic,
-        cloth,
         tissue,
+        woolen,
+        jeans,
+        nylon,
+        leather,
+        tough,
         unknown
     }
     public MaterialType materialType;

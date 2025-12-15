@@ -6,6 +6,7 @@ public class Attack : MonoBehaviour
 {
     public bool debugMode = true;
     public List<AttackTemplate> attackList;
+    public EntityStatus owner;
     public string playerTag = "Player";
     public string enemyTag = "Enemy";
     public bool targetPlayer = true;
