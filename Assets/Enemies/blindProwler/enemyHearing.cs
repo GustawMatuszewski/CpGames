@@ -50,16 +50,9 @@ public class enemyHearing : MonoBehaviour
         }
 
         if (loudest != null)
-            {
-                Debug.Log("HEARD with speed: " + maxSpeed);
-                movement.OnHearNoise(loudest.transform.position);
-            }
-
-        if (loudest == null)
         {
-            Debug.Log("SILENCE");
+            movement.OnHearNoise(loudest.transform.position);
         }
-
     }
 
     void OnDrawGizmos()
