@@ -1,4 +1,5 @@
 {
+    "version": 1,
     "name": "PlayerInput",
     "maps": [
         {
@@ -63,6 +64,24 @@
                     "name": "InteractInput",
                     "type": "Button",
                     "id": "ec28027e-d468-4a36-933f-6c5ebe365f15",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "RunInput",
+                    "type": "Button",
+                    "id": "c9b32c6b-ce5a-4041-9a82-669f03dfcc3b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ProneInput",
+                    "type": "Button",
+                    "id": "d23dd968-b419-47a2-8cda-ddd105b7c312",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -139,7 +158,7 @@
                 {
                     "name": "",
                     "id": "102d7ec6-13cd-43fd-9fba-3b983019cc31",
-                    "path": "<Keyboard>/leftShift",
+                    "path": "<Keyboard>/leftAlt",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -150,6 +169,17 @@
                 {
                     "name": "",
                     "id": "8fe454a3-1ea5-4e2d-a6db-8a8144571128",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CrouchInput",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2da81d45-5c1c-439a-9c06-f37f3d4a1c26",
                     "path": "<Keyboard>/leftCtrl",
                     "interactions": "",
                     "processors": "",
@@ -232,6 +262,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "InteractInput",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "03cd503c-2494-4ba7-a432-a9c5cd348f27",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RunInput",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "82f73e01-e91d-46fb-bbfe-b15ba2485e1d",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ProneInput",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

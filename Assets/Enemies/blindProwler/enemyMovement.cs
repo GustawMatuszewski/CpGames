@@ -32,11 +32,11 @@ public class enemyMovement : MonoBehaviour
     bool investigating;
     float investigateEndTime;
 
-    [Header("Hearing settings")]
-    public float hearingRange;
-    public bool playerInHearingRange;
-    public float hearingCooldown = 8f;
-    private float nextHearingCheckTime = 0f;
+    // [Header("Hearing settings")]
+    // public float hearingRange;
+    // public bool playerInHearingRange;
+    // public float hearingCooldown = 8f;
+    // private float nextHearingCheckTime = 0f;
 
 
 
@@ -65,18 +65,19 @@ public class enemyMovement : MonoBehaviour
         StateController();
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsPlayer);
-        playerInHearingRange = Physics.CheckSphere(transform.position, hearingRange, whatIsPlayer);
+        // playerInHearingRange = Physics.CheckSphere(transform.position, hearingRange, whatIsPlayer);
 
-        if (Time.time >= nextHearingCheckTime)
-        {
-            nextHearingCheckTime=Time.time+hearingCooldown;
+        // First temp. hearing script
+        // if (Time.time >= nextHearingCheckTime)
+        // {
+        //     nextHearingCheckTime=Time.time+hearingCooldown;
 
-            if (playerInHearingRange)
-            {
-                lastPlayerPosition=player.position;
-                investigating=true;
-            }
-        }
+        //     if (playerInHearingRange)
+        //     {
+        //         lastPlayerPosition=player.position;
+        //         investigating=true;
+        //     }
+        // }
 
         if (playerInSightRange && playerInAttackRange)
         {
@@ -255,6 +256,12 @@ public class enemyMovement : MonoBehaviour
     {
         alreadyAttacked=false;
     }
+
+    public void OnHearNoise(Vector3 movement)
+    {
+        lastPlayerPosition=movement;
+        investigating=true;
+    }
     
     // Helper function to draw a capsule in the Scene view
     void DebugDrawCapsule(Vector3 start, Vector3 end, float radius, Color color)
@@ -284,10 +291,6 @@ public class enemyMovement : MonoBehaviour
         //Attack range
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
-
-        //Hearing range
-        Gizmos.color=Color.blue;
-        Gizmos.DrawWireSphere(transform.position,hearingRange);
     }
 
 }

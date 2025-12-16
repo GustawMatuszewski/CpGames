@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8560518714772483299}
   - component: {fileID: -1448459323735847221}
   - component: {fileID: -7522507298582646648}
+  - component: {fileID: 8810597340040699998}
   m_Layer: 0
   m_Name: blindProwler
   m_TagString: Untagged
@@ -81,14 +82,27 @@ MonoBehaviour:
   walkPoint: {x: 0, y: 0, z: 0}
   walkPointRange: 10
   attackInterval: 2
-  sightRange: 20
+  sightRange: 10
   attackRange: 2
-  hearingRange: 25
   playerInSightRange: 0
   playerInAttackRange: 0
-  playerInHearingRange: 0
   investigateWaitTime: 3
   state: 0
+--- !u!114 &8810597340040699998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3286759236651227657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d202866b0a17abc8a7207297e594343, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debugMode: 1
+  hearingRange: 19
+  minVelocityThreshold: 0.1
 --- !u!1 &8493141014874193942
 GameObject:
   m_ObjectHideFlags: 0
