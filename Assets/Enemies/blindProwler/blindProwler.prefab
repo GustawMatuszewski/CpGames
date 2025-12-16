@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: -1448459323735847221}
   - component: {fileID: -7522507298582646648}
   - component: {fileID: 8810597340040699998}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: blindProwler
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102,7 +102,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugMode: 1
   hearingRange: 19
-  minVelocityThreshold: 0.1
+  minVelocityThreshold: 5
 --- !u!1 &8493141014874193942
 GameObject:
   m_ObjectHideFlags: 0
@@ -112,7 +112,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6031677430914818101}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -183,9 +183,57 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7640558969779515294, guid: 7f15f12318e723c1c9beaab121cbf55d, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -7146521406498821007, guid: 7f15f12318e723c1c9beaab121cbf55d, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -6742950604139593291, guid: 7f15f12318e723c1c9beaab121cbf55d, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -4818270086331185941, guid: 7f15f12318e723c1c9beaab121cbf55d, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -1599826595754709761, guid: 7f15f12318e723c1c9beaab121cbf55d, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -516098083770646512, guid: 7f15f12318e723c1c9beaab121cbf55d, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -466329591000292508, guid: 7f15f12318e723c1c9beaab121cbf55d, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -208595431880416365, guid: 7f15f12318e723c1c9beaab121cbf55d, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 281855664364225751, guid: 7f15f12318e723c1c9beaab121cbf55d, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 7f15f12318e723c1c9beaab121cbf55d, type: 3}
       propertyPath: m_Name
       value: vampire6
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 7f15f12318e723c1c9beaab121cbf55d, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1313789107405145873, guid: 7f15f12318e723c1c9beaab121cbf55d, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8416272007918961125, guid: 7f15f12318e723c1c9beaab121cbf55d, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -12,7 +12,6 @@ public class enemyMovement : MonoBehaviour
 
     [Header("Agent Settings")]
     public float speed;
-    private Vector3 velocity;
 
     [Header("Actions' settings")]
     public Vector3 walkPoint;
@@ -31,6 +30,7 @@ public class enemyMovement : MonoBehaviour
     public float investigateWaitTime = 3f;
     bool investigating;
     float investigateEndTime;
+    private Vector3 velocity;
 
     // [Header("Hearing settings")]
     // public float hearingRange;

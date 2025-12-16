@@ -39,6 +39,7 @@ public class enemyHearing : MonoBehaviour
         for (int i = 0; i < soundSources.Count; i++)
         {
             float speed = soundSources[i].GetVelocity().magnitude;
+            Debug.Log("predkosc: "+speed);{}
             if (speed < minVelocityThreshold) continue;
 
             if (speed > maxSpeed)
@@ -49,9 +50,16 @@ public class enemyHearing : MonoBehaviour
         }
 
         if (loudest != null)
+            {
+                Debug.Log("HEARD with speed: " + maxSpeed);
+                movement.OnHearNoise(loudest.transform.position);
+            }
+
+        if (loudest == null)
         {
-            movement.OnHearNoise(loudest.transform.position);
+            Debug.Log("SILENCE");
         }
+
     }
 
     void OnDrawGizmos()

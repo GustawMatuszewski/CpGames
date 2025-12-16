@@ -17,7 +17,7 @@ public class SoundController : MonoBehaviour
         velocity = (transform.position - lastPos) / Time.fixedDeltaTime;
         lastPos = transform.position;
         soundLevel = velocity.magnitude * soundMultiplier;
-        Debug.Log(velocity);
+        // Debug.Log(velocity);
     }
 
     public Vector3 GetVelocity()
