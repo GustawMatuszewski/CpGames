@@ -33,7 +33,8 @@ public class AttackTemplate : ScriptableObject
     {
         None,
         Poison,
-        Bleed
+        Bleed,
+        Fracture
     }
     public List<AttackEffect> attackEffects;
 }

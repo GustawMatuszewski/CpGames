@@ -1,13 +1,23 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
-public class Combat : MonoBehaviour
-{
+public class Combat : MonoBehaviour {
+    [System.Serializable]
+    public class Limb {
+        public string name;
+        public Collider limbHitbox;
+        public float health = 50;
+        public float damageMultiplier = 1f;
+        public bool severed = false;
+    }
+
     [Header("Debug Mode!!!!!!")]
     public bool debugMode;
 
     [Header("References")]
-    public List<Collider> ownerHitboxes = new List<Collider>();
+    [SerializeField]public List<Limb> ownerHitboxes;
+
     public List<string> damageHitboxNameList = new List<string>();
     public string hitboxTag;
 
@@ -18,54 +28,19 @@ public class Combat : MonoBehaviour
     public Collider currentCollision;
     public bool canAttack;
 
-    void FixedUpdate()
-    {
+    void FixedUpdate() {
         if (canAttack && currentAttack != null)
             ApplyDamage();
     }
 
-    public void AddAttackTemplate(AttackTemplate attack)
-    {
-        if (attack == null)
-            return;
-
-        if (!attackTemplates.Contains(attack))
-        {
-            attackTemplates.Add(attack);
-
-            if (debugMode)
-                Debug.Log("Combat: Added attack template -> " + attack.name);
-        }
-    }
-
-    public void SetCurrentAttack(AttackTemplate attack)
-    {
-        if (attack == null)
-            return;
-
-        if (!attackTemplates.Contains(attack))
-        {
-            if (debugMode)
-                Debug.Log("Combat: Attack not registered -> " + attack.name);
-            return;
-        }
-
-        currentAttack = attack;
-
-        if (debugMode)
-            Debug.Log("Combat: Current attack set -> " + attack.name);
-    }
-
-    public void ApplyDamage()
-    {
+    public void ApplyDamage() {
         currentCollision = HitboxDetector();
 
-        if (DamageCollider(currentCollision) != null)
-        {
+        if (DamageCollider(currentCollision) != null) {
             EntityStatus status = DetectEntityStatus(currentCollision);
-            if (status != null)
-            {
+            if (status != null) {
                 status.entityHealth = status.CalculateStat(status.entityHealth, -currentAttack.damage, 1.0f, status.entityMaxHealth);
+                //NEEDS TO BE MADE SO EVERY LIMB CONTRIBUTES TO THE HEALTH
 
                 if (debugMode)
                     Debug.Log("Combat: Damage applied -> " + currentAttack.damage);
@@ -75,11 +50,9 @@ public class Combat : MonoBehaviour
         currentCollision = null;
     }
 
-    public Collider HitboxDetector()
-    {
-        foreach (Collider col in ownerHitboxes)
-        {
-            BoxCollider box = col as BoxCollider;
+    public Collider HitboxDetector() {
+        foreach (Limb limb in ownerHitboxes) {
+            BoxCollider box = limb.limbHitbox as BoxCollider;
             if (box == null)
                 continue;
 
@@ -89,11 +62,10 @@ public class Combat : MonoBehaviour
 
             Collider[] hits = Physics.OverlapBox(center, halfExtents, rotation);
 
-            foreach (Collider hit in hits)
-            {
-                if (hit == col)
+            foreach (Collider hit in hits) {
+                if (hit == limb.limbHitbox)
                     continue;
-                if (ownerHitboxes.Contains(hit))
+                if (ownerHitboxes.Exists(l => l.limbHitbox == hit))
                     continue;
                 if (hit.transform.IsChildOf(transform))
                     continue;
@@ -110,16 +82,14 @@ public class Combat : MonoBehaviour
         return null;
     }
 
-    public EntityStatus DetectEntityStatus(Collider hit)
-    {
+    public EntityStatus DetectEntityStatus(Collider hit) {
         if (hit != null)
             return hit.GetComponentInParent<EntityStatus>();
 
         return null;
     }
 
-    public Collider DamageCollider(Collider damage)
-    {
+    public Collider DamageCollider(Collider damage) {
         if (damage == null)
             return null;
 

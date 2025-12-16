@@ -3949,6 +3949,7 @@ MonoBehaviour:
   entitySanity: 100
   entityTiredness: 0
   entityStamina: 0
+  entityBodyTemp: 0
   entityMaxHealth: 100
   entityMaxHunger: 100
   entityMaxThirst: 100
@@ -3959,7 +3960,14 @@ MonoBehaviour:
   fats: 0
   carbs: 0
   calories: 0
+  nauseaTime: 0
+  poisonTime: 0
+  illTime: 0
+  diareahTime: 0
+  drunkTime: 0
   effects: 
+  mentalStates: 
+  mentalEffects: []
 --- !u!114 &1594721600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3974,12 +3982,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugMode: 1
   ownerHitboxes:
-  - {fileID: 253502939}
-  - {fileID: 727715439}
-  - {fileID: 98131496}
-  - {fileID: 207047734}
-  - {fileID: 1729309772}
-  - {fileID: 655767284}
+  - name: Head
+    limbHitbox: {fileID: 253502939}
+    health: 20
+    damageMultiplier: 2
+    severed: 0
+  - name: Body
+    limbHitbox: {fileID: 727715439}
+    health: 20
+    damageMultiplier: 0.6
+    severed: 0
+  - name: LeftUpperArm
+    limbHitbox: {fileID: 98131496}
+    health: 20
+    damageMultiplier: 1
+    severed: 0
+  - name: LeftLowerArm
+    limbHitbox: {fileID: 207047734}
+    health: 20
+    damageMultiplier: 1
+    severed: 0
+  - name: RightUpperArm
+    limbHitbox: {fileID: 1729309772}
+    health: 20
+    damageMultiplier: 1
+    severed: 0
+  - name: RightUpperArm
+    limbHitbox: {fileID: 1729309772}
+    health: 20
+    damageMultiplier: 1
+    severed: 0
   damageHitboxNameList:
   - LeftLowerArm
   - RightLowerArm
@@ -4005,9 +4037,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3fa99c57f739c43e8ef5c3edee6904c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
+  debugMode: 1
   test: 0
-  currentItem: {fileID: 11400000, guid: 3f4d28f245d1ce252ba7037dfde1287d, type: 2}
+  currentItem: {fileID: 11400000, guid: a572c797d4867f8b6b9f470d9d46a4df, type: 2}
   entityType: 1
   entityHealth: 0
   entityHunger: 0
@@ -4015,22 +4047,25 @@ MonoBehaviour:
   entitySanity: 0
   entityTiredness: 0
   entityStamina: 0
-  entityMaxHealth: 0
-  entityMaxHunger: 0
-  entityMaxThirst: 0
-  entityMaxSanity: 0
-  entityMaxTiredness: 0
-  entityMaxStamina: 0
+  entityBodyTemp: 0
+  entityMaxHealth: 100
+  entityMaxHunger: 100
+  entityMaxThirst: 100
+  entityMaxSanity: 100
+  entityMaxTiredness: 100
+  entityMaxStamina: 100
   protein: 0
   fats: 0
   carbs: 0
   calories: 0
+  nauseaTime: 0
+  poisonTime: 0
+  illTime: 0
+  diareahTime: 0
+  drunkTime: 0
   effects: 
---- !u!136 &1601314915 stripped
-CapsuleCollider:
-  m_CorrespondingSourceObject: {fileID: 696598461608497336, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
-  m_PrefabInstance: {fileID: 2552905297457024581}
-  m_PrefabAsset: {fileID: 0}
+  mentalStates: 
+  mentalEffects: []
 --- !u!114 &1601314916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4044,8 +4079,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugMode: 0
-  ownerHitboxes:
-  - {fileID: 1601314915}
+  ownerHitboxes: []
   damageHitboxNameList:
   - LeftLowerArm
   - RightLowerArm
