@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [CreateAssetMenu(fileName = "FoodItem", menuName = "Inventory/ItemByType/FoodItem")]
 public class FoodItem : Item
@@ -22,6 +23,7 @@ public class FoodItem : Item
         rottenRaw
     }
 
+
     public enum Effect
     {
         none,
@@ -32,7 +34,10 @@ public class FoodItem : Item
         drunk
     }
     public FoodState foodState;
-    public Effect effect;
+    public List<Effect> effects;
+    public float protein;
+    public float fats;
+    public float carbs;
     public float calories;
     public float nurishment;
     public float hydration;

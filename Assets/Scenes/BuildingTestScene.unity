@@ -3939,8 +3939,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3fa99c57f739c43e8ef5c3edee6904c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugMode: 1
+  test: 0
+  currentItem: {fileID: 0}
   entityType: 2
   entityHealth: 100
+  entityHunger: 100
+  entityThirst: 100
+  entitySanity: 100
+  entityTiredness: 0
+  entityStamina: 0
+  entityMaxHealth: 100
+  entityMaxHunger: 100
+  entityMaxThirst: 100
+  entityMaxSanity: 100
+  entityMaxTiredness: 100
+  entityMaxStamina: 100
+  protein: 0
+  fats: 0
+  carbs: 0
+  calories: 0
+  effects: 
 --- !u!114 &1594721600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3965,6 +3984,8 @@ MonoBehaviour:
   - LeftLowerArm
   - RightLowerArm
   hitboxTag: Hitbox
+  attackTemplates: []
+  currentAttack: {fileID: 0}
   currentCollision: {fileID: 0}
   canAttack: 1
 --- !u!1 &1601314908 stripped
@@ -3984,8 +4005,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3fa99c57f739c43e8ef5c3edee6904c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugMode: 0
+  test: 0
+  currentItem: {fileID: 11400000, guid: 3f4d28f245d1ce252ba7037dfde1287d, type: 2}
   entityType: 1
-  entityHealth: 100
+  entityHealth: 0
+  entityHunger: 0
+  entityThirst: 0
+  entitySanity: 0
+  entityTiredness: 0
+  entityStamina: 0
+  entityMaxHealth: 0
+  entityMaxHunger: 0
+  entityMaxThirst: 0
+  entityMaxSanity: 0
+  entityMaxTiredness: 0
+  entityMaxStamina: 0
+  protein: 0
+  fats: 0
+  carbs: 0
+  calories: 0
+  effects: 
 --- !u!136 &1601314915 stripped
 CapsuleCollider:
   m_CorrespondingSourceObject: {fileID: 696598461608497336, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
@@ -4010,6 +4050,8 @@ MonoBehaviour:
   - LeftLowerArm
   - RightLowerArm
   hitboxTag: Hitbox
+  attackTemplates: []
+  currentAttack: {fileID: 0}
   currentCollision: {fileID: 0}
   canAttack: 0
 --- !u!1 &1639663438

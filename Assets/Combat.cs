@@ -8,28 +8,77 @@ public class Combat : MonoBehaviour
 
     [Header("References")]
     public List<Collider> ownerHitboxes = new List<Collider>();
-    public List<string> damageHitboxNameList = new List<string>(); //Zapytac Pawla czy woli jak to bedzie obiekt nie nazwa
+    public List<string> damageHitboxNameList = new List<string>();
     public string hitboxTag;
-    AttackTemplate currentAttack;
+
+    [Header("Attack Templates")]
+    public List<AttackTemplate> attackTemplates = new List<AttackTemplate>();
+    public AttackTemplate currentAttack;
+
     public Collider currentCollision;
     public bool canAttack;
 
-    void FixedUpdate() {
-        if(canAttack)
+    void FixedUpdate()
+    {
+        if (canAttack && currentAttack != null)
             ApplyDamage();
     }
-    
-    
-    public void ApplyDamage(){
-        currentCollision = HitboxDetector();
-        if(DamageCollider(currentCollision) != null){
-            EntityStatus status = DetectEntityStatus(currentCollision);
-            status.ApplyDamage(20f);
+
+    public void AddAttackTemplate(AttackTemplate attack)
+    {
+        if (attack == null)
+            return;
+
+        if (!attackTemplates.Contains(attack))
+        {
+            attackTemplates.Add(attack);
+
+            if (debugMode)
+                Debug.Log("Combat: Added attack template -> " + attack.name);
         }
+    }
+
+    public void SetCurrentAttack(AttackTemplate attack)
+    {
+        if (attack == null)
+            return;
+
+        if (!attackTemplates.Contains(attack))
+        {
+            if (debugMode)
+                Debug.Log("Combat: Attack not registered -> " + attack.name);
+            return;
+        }
+
+        currentAttack = attack;
+
+        if (debugMode)
+            Debug.Log("Combat: Current attack set -> " + attack.name);
+    }
+
+    public void ApplyDamage()
+    {
+        currentCollision = HitboxDetector();
+
+        if (DamageCollider(currentCollision) != null)
+        {
+            EntityStatus status = DetectEntityStatus(currentCollision);
+            if (status != null)
+            {
+                status.entityHealth = status.CalculateStat(status.entityHealth, -currentAttack.damage, 1.0f, status.entityMaxHealth);
+
+                if (debugMode)
+                    Debug.Log("Combat: Damage applied -> " + currentAttack.damage);
+            }
+        }
+
         currentCollision = null;
     }
-    public Collider HitboxDetector(){
-        foreach (Collider col in ownerHitboxes){
+
+    public Collider HitboxDetector()
+    {
+        foreach (Collider col in ownerHitboxes)
+        {
             BoxCollider box = col as BoxCollider;
             if (box == null)
                 continue;
@@ -40,7 +89,8 @@ public class Combat : MonoBehaviour
 
             Collider[] hits = Physics.OverlapBox(center, halfExtents, rotation);
 
-            foreach (Collider hit in hits){
+            foreach (Collider hit in hits)
+            {
                 if (hit == col)
                     continue;
                 if (ownerHitboxes.Contains(hit))
@@ -49,8 +99,10 @@ public class Combat : MonoBehaviour
                     continue;
                 if (!hit.CompareTag(hitboxTag))
                     continue;
-                if(debugMode)
-                    Debug.Log("Hit: " + hit.name);
+
+                if (debugMode)
+                    Debug.Log("Combat: Hit detected -> " + hit.name);
+
                 return hit;
             }
         }
@@ -58,23 +110,22 @@ public class Combat : MonoBehaviour
         return null;
     }
 
+    public EntityStatus DetectEntityStatus(Collider hit)
+    {
+        if (hit != null)
+            return hit.GetComponentInParent<EntityStatus>();
 
-
-
-    public EntityStatus DetectEntityStatus(Collider hit){
-        if (hit != null){
-            EntityStatus status = hit.GetComponentInParent<EntityStatus>();
-            if (status != null)
-                return status;
-        }
         return null;
     }
-    
-    public Collider DamageCollider(Collider damage){
+
+    public Collider DamageCollider(Collider damage)
+    {
         if (damage == null)
             return null;
+
         if (damageHitboxNameList.Contains(damage.name))
             return damage;
-        return null;    
+
+        return null;
     }
 }
