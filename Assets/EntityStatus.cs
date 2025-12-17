@@ -12,7 +12,7 @@ public class EntityStatus : MonoBehaviour
         Neutral
     }
 
-    public enum MentalState
+    public enum Mood
     {
         None,
         Happy,
@@ -69,21 +69,13 @@ public class EntityStatus : MonoBehaviour
     public float drunkTime;
 
     public List<FoodItem.Effect> effects;
-    public List<MentalState> mentalStates;
-    public List<MentalStateEffect> mentalEffects;
+    public List<Mood> moods;
 
     Coroutine poisonCoroutine;
     Coroutine nauseaCoroutine;
     Coroutine illCoroutine;
     Coroutine diareahCoroutine;
     Coroutine drunkCoroutine;
-
-    [System.Serializable]
-    public class MentalStateEffect
-    {
-        public MentalState state;
-        public float duration;
-    }
 
     private void Awake(){
         SetDefaults();
@@ -96,8 +88,8 @@ public class EntityStatus : MonoBehaviour
             EffectEffects();
             
         }
-        ApplyMentalEffects();
-        UpdateMentalStatModifiers();
+        //ApplyMentalEffects();
+        //UpdateMentalStatModifiers();
     }
 
     public void EffectEffects(){
@@ -155,10 +147,10 @@ public class EntityStatus : MonoBehaviour
         effects.Remove(FoodItem.Effect.nausea);
     }
 
-    public void Consume(FoodItem itemToBeUsed){
-        if(debugMode)
+    public void Consume(FoodItem itemToBeUsed) {
+        if (debugMode)
             Debug.Log("Consumed: " + itemToBeUsed.name);
-        
+
         calories += itemToBeUsed.calories;
         entityHunger = CalculateStat(entityHunger, itemToBeUsed.nurishment, 1.0f, entityMaxHunger);
         entityThirst = CalculateStat(entityThirst, itemToBeUsed.hydration, 1.0f, entityMaxThirst);
@@ -167,13 +159,13 @@ public class EntityStatus : MonoBehaviour
         carbs = CalcMacro(carbs, itemToBeUsed.carbs);
         fats = CalcMacro(fats, itemToBeUsed.fats);
 
-        foreach(FoodItem.Effect itemsEffect in itemToBeUsed.effects){
-            if(!effects.Contains(itemsEffect))
+        foreach (FoodItem.Effect itemsEffect in itemToBeUsed.effects) {
+            if (!effects.Contains(itemsEffect))
                 effects.Add(itemsEffect);
         }
     }
 
-    public void ApplyMentalEffects(){
+   /*public void ApplyMentalEffects(){
         foreach(MentalStateEffect stateEffect in mentalEffects){
             stateEffect.duration -= Time.deltaTime;
             if(debugMode && stateEffect.duration > 0)
@@ -182,8 +174,9 @@ public class EntityStatus : MonoBehaviour
 
         mentalEffects.RemoveAll(x => x.duration <= 0f);
     }
+    */
 
-    public void AddMentalState(MentalState state, float duration){
+    /*public void AddMentalState(Mood state, float duration){
         MentalStateEffect existing = mentalEffects.Find(x => x.state == state);
         if(existing != null){
             existing.duration = duration;
@@ -194,24 +187,24 @@ public class EntityStatus : MonoBehaviour
         if(debugMode)
             Debug.Log("Added Mental State: " + state + " Duration: " + duration);
     }
-
-    void UpdateMentalStatModifiers(){
+    */
+    /*void UpdateMentalStatModifiers(){
         float staminaModifier = 0f;
         float sanityModifier = 0f;
 
         foreach(MentalStateEffect stateEffect in mentalEffects){
             switch(stateEffect.state){
-                case MentalState.Bored:
+                case Mood.Bored:
                     staminaModifier -= 20f;
                     break;
-                case MentalState.Stressed:
+                case Mood.Stressed:
                     staminaModifier += 15f;
                     sanityModifier -= 20f;
                     break;
-                case MentalState.Happy:
+                case Mood.Happy:
                     sanityModifier += 10f;
                     break;
-                case MentalState.Depressed:
+                case Mood.Depressed:
                     staminaModifier -= 15f;
                     sanityModifier -= 25f;
                     break;
@@ -221,7 +214,7 @@ public class EntityStatus : MonoBehaviour
         entityMaxStamina = Mathf.Clamp(0f + staminaModifier, 0f, 130f);
         entitySanity = Mathf.Clamp(entitySanity + sanityModifier * Time.deltaTime, 0f, entityMaxSanity);
     }
-
+    */
     public float CalculateStat(float current, float change, float multiplier, float max)
     {
         current = Mathf.Clamp(current + change * multiplier, 0f, max);
@@ -234,8 +227,8 @@ public class EntityStatus : MonoBehaviour
 
     public void SetDefaults(){
         effects = new List<FoodItem.Effect>();
-        mentalStates = new List<MentalState>();
-        mentalEffects = new List<MentalStateEffect>();
+        moods = new List<Mood>();
+        //mentalEffects = new List<MentalStateEffect>();
 
         entityHealth = entityMaxHealth;
         entityHunger = entityMaxHunger;
