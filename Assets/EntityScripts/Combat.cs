@@ -41,6 +41,7 @@ public class Combat : MonoBehaviour {
     public List<AttackTemplate> attackTemplates = new List<AttackTemplate>();
 
     [Header("Combat ios")]
+    public bool combatActive;
     public bool canAttack;
     public AttackTemplate currentAttack;
     public Collider currentCollision;
@@ -50,6 +51,9 @@ public class Combat : MonoBehaviour {
     private float cooldownTimer;
 
     void FixedUpdate() {
+        if (combatActive == false)
+            return; 
+            
         if (cooldownTimer > 0f) {
             cooldownTimer -= Time.fixedDeltaTime;
             return;
