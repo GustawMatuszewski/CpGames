@@ -63,12 +63,8 @@ public class KCC : MonoBehaviour
         Crouch,
         Prone,
         Climbing,
-<<<<<<< HEAD
         Hanging,
         Attack
-=======
-        Hanging
->>>>>>> origin/enemy
     }
 
     public State state;
