@@ -3305,6 +3305,59 @@ Transform:
   - {fileID: 1713255894}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1277490313
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1277490314}
+  - component: {fileID: 1277490315}
+  m_Layer: 0
+  m_Name: LeftUpperArm
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1277490314
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1277490313}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.05, z: -0.007}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1601314917}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1277490315
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1277490313}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1297033524
 GameObject:
   m_ObjectHideFlags: 0
@@ -3941,6 +3994,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugMode: 1
   test: 0
+  combat: {fileID: 1594721600}
   currentItem: {fileID: 0}
   entityType: 2
   entityHealth: 100
@@ -3967,6 +4021,7 @@ MonoBehaviour:
   drunkTime: 0
   effects: 
   moods: 
+  limbs: []
 --- !u!114 &1594721600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3985,32 +4040,50 @@ MonoBehaviour:
     limbHitbox: {fileID: 253502939}
     health: 20
     damageMultiplier: 2
+    severeMultiplier: 1
+    limbDamageList: 
     severed: 0
+    beatStacks: 0
   - name: Body
     limbHitbox: {fileID: 727715439}
     health: 20
     damageMultiplier: 0.6
+    severeMultiplier: 1
+    limbDamageList: 
     severed: 0
+    beatStacks: 0
   - name: LeftUpperArm
     limbHitbox: {fileID: 98131496}
     health: 20
     damageMultiplier: 1
+    severeMultiplier: 1
+    limbDamageList: 
     severed: 0
+    beatStacks: 0
   - name: LeftLowerArm
     limbHitbox: {fileID: 207047734}
     health: 20
     damageMultiplier: 1
+    severeMultiplier: 1
+    limbDamageList: 
     severed: 0
+    beatStacks: 0
   - name: RightUpperArm
     limbHitbox: {fileID: 1729309772}
     health: 20
     damageMultiplier: 1
+    severeMultiplier: 1
+    limbDamageList: 
     severed: 0
-  - name: RightUpperArm
-    limbHitbox: {fileID: 1729309772}
+    beatStacks: 0
+  - name: RightLowerArm
+    limbHitbox: {fileID: 655767284}
     health: 20
     damageMultiplier: 1
+    severeMultiplier: 1
+    limbDamageList: 
     severed: 0
+    beatStacks: 0
   damageHitboxNameList:
   - LeftLowerArm
   - RightLowerArm
@@ -4018,7 +4091,7 @@ MonoBehaviour:
   attackTemplates: []
   currentAttack: {fileID: 11400000, guid: 2e9f53c0e149c15fe8ad846ae901327d, type: 2}
   currentCollision: {fileID: 0}
-  canAttack: 1
+  canAttack: 0
 --- !u!1 &1601314908 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7578279795465060126, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
@@ -4038,6 +4111,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugMode: 1
   test: 0
+  combat: {fileID: 1601314916}
   currentItem: {fileID: 11400000, guid: a572c797d4867f8b6b9f470d9d46a4df, type: 2}
   entityType: 1
   entityHealth: 0
@@ -4064,6 +4138,7 @@ MonoBehaviour:
   drunkTime: 0
   effects: 
   moods: 
+  limbs: []
 --- !u!136 &1601314915 stripped
 CapsuleCollider:
   m_CorrespondingSourceObject: {fileID: 696598461608497336, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
@@ -4081,21 +4156,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2701a4885403c5a390bf1af237eaffd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
+  debugMode: 1
   ownerHitboxes:
   - name: PlayerBody
     limbHitbox: {fileID: 1601314915}
     health: 20
     damageMultiplier: 1
+    severeMultiplier: 1
+    limbDamageList: 
     severed: 0
+    beatStacks: 0
+  - name: DamageLimbTEST
+    limbHitbox: {fileID: 1277490315}
+    health: 20
+    damageMultiplier: 1
+    severeMultiplier: 1
+    limbDamageList: 
+    severed: 0
+    beatStacks: 0
   damageHitboxNameList:
   - LeftLowerArm
   - RightLowerArm
   hitboxTag: Hitbox
   attackTemplates: []
-  currentAttack: {fileID: 0}
+  currentAttack: {fileID: 11400000, guid: 2e9f53c0e149c15fe8ad846ae901327d, type: 2}
   currentCollision: {fileID: 0}
-  canAttack: 0
+  canAttack: 1
+--- !u!4 &1601314917 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1398962963462337352, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
+  m_PrefabInstance: {fileID: 2552905297457024581}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1639663438
 GameObject:
   m_ObjectHideFlags: 0
@@ -5932,7 +6023,10 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 4973312968209784323, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1398962963462337352, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1277490314}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 7578279795465060126, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
       insertIndex: -1

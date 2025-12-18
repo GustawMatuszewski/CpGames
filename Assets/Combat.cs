@@ -1,53 +1,203 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class Combat : MonoBehaviour {
     [System.Serializable]
     public class Limb {
+        public enum DamageType {
+            None,
+            Beat,
+            Fractured,
+            Scratched,
+            DeepWound,
+            HeavyBleeding,
+            Infected,
+            Bleeding,
+            Splinted,
+            Bandaged,
+            Suttered,
+            Bit,
+            Fucked
+        }
+
         public string name;
         public Collider limbHitbox;
-        public float health = 50;
+        public float health = 50f;
         public float damageMultiplier = 1f;
-        public bool severed = false;
+        public float severeMultiplier = 1f;
+        public List<DamageType> limbDamageList = new List<DamageType>();
+        public bool severed;
+        public int beatStacks;
     }
 
-    [Header("Debug Mode!!!!!!")]
     public bool debugMode;
-
-    [Header("References")]
-    [SerializeField]public List<Limb> ownerHitboxes;
-
+    [SerializeField] public List<Limb> ownerHitboxes = new List<Limb>();
     public List<string> damageHitboxNameList = new List<string>();
     public string hitboxTag;
 
-    [Header("Attack Templates")]
     public List<AttackTemplate> attackTemplates = new List<AttackTemplate>();
     public AttackTemplate currentAttack;
 
     public Collider currentCollision;
     public bool canAttack;
 
+    private bool attackInProgress;
+    private float attackTimer;
+    private float cooldownTimer;
+
     void FixedUpdate() {
-        if (canAttack && currentAttack != null)
-            ApplyDamage();
+        if (cooldownTimer > 0f) {
+            cooldownTimer -= Time.fixedDeltaTime;
+            return;
+        }
+
+        if (!attackInProgress && canAttack && currentAttack != null) {
+            attackInProgress = true;
+            attackTimer = currentAttack.timeToAttack;
+        }
+
+        if (attackInProgress) {
+            attackTimer -= Time.fixedDeltaTime;
+            if (attackTimer <= 0f) {
+                ApplyDamage(currentAttack);
+                attackInProgress = false;
+                cooldownTimer = currentAttack.cooldown;
+            }
+        }
     }
 
-    public void ApplyDamage() {
+    public void ApplyDamage(AttackTemplate attackToApply) {
         currentCollision = HitboxDetector();
+        if (currentCollision == null)
+            return;
 
-        if (DamageCollider(currentCollision) != null) {
-            EntityStatus status = DetectEntityStatus(currentCollision);
-            if (status != null) {
-                status.entityHealth = status.CalculateStat(status.entityHealth, -currentAttack.damage, 1.0f, status.entityMaxHealth);
-                //NEEDS TO BE MADE SO EVERY LIMB CONTRIBUTES TO THE HEALTH
+        Combat targetCombat = currentCollision.GetComponentInParent<Combat>();
+        if (targetCombat == null)
+            return;
 
-                if (debugMode)
-                    Debug.Log("Combat: Damage applied -> " + currentAttack.damage);
-            }
+        Limb hitLimb = targetCombat.ownerHitboxes.Find(l => l.limbHitbox == currentCollision);
+        if (hitLimb == null)
+            return;
+
+        switch (attackToApply.attackType) {
+            case AttackTemplate.AttackType.Fast:
+                FastAttackDamageCalc(attackToApply, hitLimb);
+                break;
+            case AttackTemplate.AttackType.Normal:
+                NormalAttackDamageCalc(attackToApply, hitLimb);
+                break;
+            case AttackTemplate.AttackType.Heavy:
+                HeavyAttackDamageCalc(attackToApply, hitLimb);
+                break;
         }
 
         currentCollision = null;
+    }
+
+    void AddBeat(Limb limb, int amount) {
+        limb.beatStacks += amount;
+
+        if (!limb.limbDamageList.Contains(Limb.DamageType.Beat))
+            limb.limbDamageList.Add(Limb.DamageType.Beat);
+
+        if (limb.beatStacks >= 3) {
+            limb.limbDamageList.Remove(Limb.DamageType.Beat);
+            if (!limb.limbDamageList.Contains(Limb.DamageType.Fractured))
+                limb.limbDamageList.Add(Limb.DamageType.Fractured);
+        }
+    }
+
+    void AddBleeding(Limb limb) {
+        if (!limb.limbDamageList.Contains(Limb.DamageType.Bleeding))
+            limb.limbDamageList.Add(Limb.DamageType.Bleeding);
+    }
+
+    void AddDeepShot(Limb limb) {
+        if (!limb.limbDamageList.Contains(Limb.DamageType.DeepWound))
+            limb.limbDamageList.Add(Limb.DamageType.DeepWound);
+        if (!limb.limbDamageList.Contains(Limb.DamageType.HeavyBleeding))
+            limb.limbDamageList.Add(Limb.DamageType.HeavyBleeding);
+    }
+
+    public void FastAttackDamageCalc(AttackTemplate attack, Limb limb) {
+        float damage = attack.damage * limb.damageMultiplier * 0.8f;
+        limb.health -= damage;
+
+        foreach (AttackTemplate.AttackEffect effect in attack.attackEffects) {
+            if (effect == AttackTemplate.AttackEffect.Slash) {
+                AddBleeding(limb);
+                TrySever(limb, 0.2f);
+            }
+
+            if (effect == AttackTemplate.AttackEffect.Blunt) {
+                AddBeat(limb, 1);
+            }
+
+            if (effect == AttackTemplate.AttackEffect.Shot) {
+                AddDeepShot(limb);
+            }
+        }
+
+        if (debugMode)
+            Debug.Log("Fast attack -> " + limb.name + " dmg: " + damage);
+    }
+
+    public void NormalAttackDamageCalc(AttackTemplate attack, Limb limb) {
+        float damage = attack.damage * limb.damageMultiplier;
+        limb.health -= damage;
+
+        foreach (AttackTemplate.AttackEffect effect in attack.attackEffects) {
+            if (effect == AttackTemplate.AttackEffect.Slash) {
+                AddBleeding(limb);
+                TrySever(limb, 0.25f);
+            }
+
+            if (effect == AttackTemplate.AttackEffect.Blunt) {
+                AddBeat(limb, 1);
+            }
+
+            if (effect == AttackTemplate.AttackEffect.Shot) {
+                AddDeepShot(limb);
+            }
+        }
+
+        if (debugMode)
+            Debug.Log("Normal attack -> " + limb.name + " dmg: " + damage);
+    }
+
+    public void HeavyAttackDamageCalc(AttackTemplate attack, Limb limb) {
+        float damage = attack.damage * limb.damageMultiplier * 1.3f;
+        limb.health -= damage;
+
+        foreach (AttackTemplate.AttackEffect effect in attack.attackEffects) {
+            if (effect == AttackTemplate.AttackEffect.Slash) {
+                AddBleeding(limb);
+                TrySever(limb, 0.6f);
+            }
+
+            if (effect == AttackTemplate.AttackEffect.Blunt) {
+                AddBeat(limb, 2);
+            }
+
+            if (effect == AttackTemplate.AttackEffect.Shot) {
+                AddDeepShot(limb);
+            }
+        }
+
+        if (debugMode)
+            Debug.Log("Heavy attack -> " + limb.name + " dmg: " + damage);
+    }
+
+    private void TrySever(Limb limb, float chance) {
+        if (limb.severed)
+            return;
+
+        if (Random.value < chance) {
+            limb.severed = true;
+            limb.health = 0f;
+            if (debugMode)
+                Debug.Log("LIMB SEVERED -> " + limb.name);
+        }
     }
 
     public Collider HitboxDetector() {
@@ -73,29 +223,25 @@ public class Combat : MonoBehaviour {
                     continue;
 
                 if (debugMode)
-                    Debug.Log("Combat: Hit detected -> " + hit.name);
+                    Debug.Log("Combat: Hit detected ----> " + hit.name);
 
                 return hit;
             }
         }
-
         return null;
     }
 
     public EntityStatus DetectEntityStatus(Collider hit) {
         if (hit != null)
             return hit.GetComponentInParent<EntityStatus>();
-
         return null;
     }
 
     public Collider DamageCollider(Collider damage) {
         if (damage == null)
             return null;
-
         if (damageHitboxNameList.Contains(damage.name))
             return damage;
-
         return null;
     }
 }

@@ -37,6 +37,7 @@ public class EntityStatus : MonoBehaviour
 
     public bool debugMode;
     public bool test;
+    public Combat combat;
     public FoodItem currentItem;
 
     public EntityType entityType;
@@ -70,6 +71,7 @@ public class EntityStatus : MonoBehaviour
 
     public List<FoodItem.Effect> effects;
     public List<Mood> moods;
+    public List<Combat.Limb> limbs;
 
     Coroutine poisonCoroutine;
     Coroutine nauseaCoroutine;
@@ -86,10 +88,8 @@ public class EntityStatus : MonoBehaviour
             test = false;
             Consume(currentItem);
             EffectEffects();
-            
         }
-        //ApplyMentalEffects();
-        //UpdateMentalStatModifiers();
+        LimbTracker();
     }
 
     public void EffectEffects(){
@@ -165,56 +165,6 @@ public class EntityStatus : MonoBehaviour
         }
     }
 
-   /*public void ApplyMentalEffects(){
-        foreach(MentalStateEffect stateEffect in mentalEffects){
-            stateEffect.duration -= Time.deltaTime;
-            if(debugMode && stateEffect.duration > 0)
-                Debug.Log("Mental State: " + stateEffect.state + " Duration: " + stateEffect.duration);
-        }
-
-        mentalEffects.RemoveAll(x => x.duration <= 0f);
-    }
-    */
-
-    /*public void AddMentalState(Mood state, float duration){
-        MentalStateEffect existing = mentalEffects.Find(x => x.state == state);
-        if(existing != null){
-            existing.duration = duration;
-        } else {
-            mentalEffects.Add(new MentalStateEffect(){ state = state, duration = duration });
-        }
-
-        if(debugMode)
-            Debug.Log("Added Mental State: " + state + " Duration: " + duration);
-    }
-    */
-    /*void UpdateMentalStatModifiers(){
-        float staminaModifier = 0f;
-        float sanityModifier = 0f;
-
-        foreach(MentalStateEffect stateEffect in mentalEffects){
-            switch(stateEffect.state){
-                case Mood.Bored:
-                    staminaModifier -= 20f;
-                    break;
-                case Mood.Stressed:
-                    staminaModifier += 15f;
-                    sanityModifier -= 20f;
-                    break;
-                case Mood.Happy:
-                    sanityModifier += 10f;
-                    break;
-                case Mood.Depressed:
-                    staminaModifier -= 15f;
-                    sanityModifier -= 25f;
-                    break;
-            }
-        }
-
-        entityMaxStamina = Mathf.Clamp(0f + staminaModifier, 0f, 130f);
-        entitySanity = Mathf.Clamp(entitySanity + sanityModifier * Time.deltaTime, 0f, entityMaxSanity);
-    }
-    */
     public float CalculateStat(float current, float change, float multiplier, float max)
     {
         current = Mathf.Clamp(current + change * multiplier, 0f, max);
@@ -225,10 +175,31 @@ public class EntityStatus : MonoBehaviour
         return macro + val;
     }
 
-    public void SetDefaults(){
+    public void LimbTracker() {
+        for (int i = 0; i < limbs.Count; i++) {
+            Combat.Limb limb = limbs[i];
+            if (limb.severed) {
+                limb.health = 0f;
+                if (debugMode)
+                    Debug.Log("Limb severed and locked: " + limb.name);
+            }
+        }
+    }
+
+
+
+    public void SetDefaults()
+    {
+        if (combat == null)
+        {
+            combat = GetComponent<Combat>();
+            if (combat == null && debugMode)
+                Debug.LogWarning("Combat component not found on " + gameObject.name);
+        }
+
         effects = new List<FoodItem.Effect>();
         moods = new List<Mood>();
-        //mentalEffects = new List<MentalStateEffect>();
+        limbs = combat.ownerHitboxes;
 
         entityHealth = entityMaxHealth;
         entityHunger = entityMaxHunger;
