@@ -4,8 +4,12 @@
 TagManager:
   serializedVersion: 3
   tags:
+<<<<<<< HEAD
   - ClimbableTag
   - Hitbox
+=======
+  - Enemies
+>>>>>>> origin/enemy
   layers:
   - Default
   - TransparentFX
@@ -13,8 +17,13 @@ TagManager:
   - 
   - Water
   - UI
+<<<<<<< HEAD
   - ClimbableLayer
   - GroundLayer
+=======
+  - Player
+  - Enemies
+>>>>>>> origin/enemy
   - 
   - 
   - 
