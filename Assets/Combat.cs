@@ -25,21 +25,25 @@ public class Combat : MonoBehaviour {
         public float health = 50f;
         public float damageMultiplier = 1f;
         public float severeMultiplier = 1f;
+        public float fractureMultiplier = 1f;
         public List<DamageType> limbDamageList = new List<DamageType>();
         public bool severed;
         public int beatStacks;
     }
 
+    [Header("Debug Mode!!!")]
     public bool debugMode;
+
+    [Header("References")]
     [SerializeField] public List<Limb> ownerHitboxes = new List<Limb>();
     public List<string> damageHitboxNameList = new List<string>();
     public string hitboxTag;
-
     public List<AttackTemplate> attackTemplates = new List<AttackTemplate>();
-    public AttackTemplate currentAttack;
 
-    public Collider currentCollision;
+    [Header("Combat ios")]
     public bool canAttack;
+    public AttackTemplate currentAttack;
+    public Collider currentCollision;
 
     private bool attackInProgress;
     private float attackTimer;
@@ -126,7 +130,7 @@ public class Combat : MonoBehaviour {
         foreach (AttackTemplate.AttackEffect effect in attack.attackEffects) {
             if (effect == AttackTemplate.AttackEffect.Slash) {
                 AddBleeding(limb);
-                TrySever(limb, 0.2f);
+                TrySever(limb, 0.05f);
             }
 
             if (effect == AttackTemplate.AttackEffect.Blunt) {

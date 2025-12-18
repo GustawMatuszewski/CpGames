@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [CreateAssetMenu(fileName = "WeaponItem", menuName = "Inventory/ItemByType/WeaponItem")]
 public class WeaponItem : Item
@@ -27,9 +28,8 @@ public class WeaponItem : Item
 
     [Header("Weapon Configuration")]
     public WeaponType weaponType = WeaponType.none;
-    public DamageType damageType = DamageType.none;
     public UseType useType = UseType.none;
-
     public float damage;
+    public List<AttackTemplate> attacksList;
 
 }

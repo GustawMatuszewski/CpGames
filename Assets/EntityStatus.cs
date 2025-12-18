@@ -35,13 +35,24 @@ public class EntityStatus : MonoBehaviour
         Sleepy
     }
 
+    [Header("Debug Mode!!!!")]
     public bool debugMode;
     public bool test;
-    public Combat combat;
     public FoodItem currentItem;
-
+    
+    [Header("References")]
+    public Combat combat;
+    
+    [Header("Entity Settings")]
     public EntityType entityType;
+    public float entityMaxHealth = 100f;
+    public float entityMaxHunger = 100f;
+    public float entityMaxThirst = 100f;
+    public float entityMaxSanity = 100f;
+    public float entityMaxTiredness = 100f;
+    public float entityMaxStamina = 100f;
 
+    [Header("Entity Outputs")]
     public float entityHealth;
     public float entityHunger;
     public float entityThirst;
@@ -49,13 +60,6 @@ public class EntityStatus : MonoBehaviour
     public float entityTiredness;
     public float entityStamina;
     public float entityBodyTemp;
-
-    public float entityMaxHealth = 100f;
-    public float entityMaxHunger = 100f;
-    public float entityMaxThirst = 100f;
-    public float entityMaxSanity = 100f;
-    public float entityMaxTiredness = 100f;
-    public float entityMaxStamina = 100f;
 
     public float protein;
     public float fats;
@@ -165,8 +169,7 @@ public class EntityStatus : MonoBehaviour
         }
     }
 
-    public float CalculateStat(float current, float change, float multiplier, float max)
-    {
+    public float CalculateStat(float current, float change, float multiplier, float max){
         current = Mathf.Clamp(current + change * multiplier, 0f, max);
         return current;
     }
@@ -180,18 +183,28 @@ public class EntityStatus : MonoBehaviour
             Combat.Limb limb = limbs[i];
             if (limb.severed) {
                 limb.health = 0f;
+
+                if(!moods.Contains(Mood.Depressed))
+                    moods.Add(Mood.Depressed);
+
                 if (debugMode)
                     Debug.Log("Limb severed and locked: " + limb.name);
+            }
+
+            if(limb.limbDamageList.Contains(Combat.Limb.DamageType.Fractured)){
+                limb.health = 0f;
+
+                if(!moods.Contains(Mood.Depressed))
+                    moods.Add(Mood.Depressed);
+                    
+                if (debugMode)
+                    Debug.Log("Limb fractured and locked: " + limb.name);
             }
         }
     }
 
-
-
-    public void SetDefaults()
-    {
-        if (combat == null)
-        {
+    public void SetDefaults(){
+        if (combat == null){
             combat = GetComponent<Combat>();
             if (combat == null && debugMode)
                 Debug.LogWarning("Combat component not found on " + gameObject.name);

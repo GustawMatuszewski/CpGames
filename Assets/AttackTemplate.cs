@@ -5,7 +5,6 @@ using System.Collections.Generic;
 public class AttackTemplate : ScriptableObject
 {
     [Header("Settings")]
-    public Item weapon;
     public float damage;
     public float attackSpeed;
     public float timeToAttack;
@@ -13,12 +12,12 @@ public class AttackTemplate : ScriptableObject
     //Add Animation Here for attack
     public GameObject attackPrefab;
 
-    public float attackFromOriginPointOffset;
-    public float attackFromOriginTimer;
+    //public float attackFromOriginPointOffset;
+    //public float attackFromOriginTimer;
 
     public float cooldown;
-    public float range;
-    public float radius;
+    //public float range;
+    //public float radius;
 
     public enum AttackType
     {
