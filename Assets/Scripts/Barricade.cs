@@ -1,24 +1,29 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-public class Barricade : MonoBehaviour
-{
+public class Barricade : MonoBehaviour, IInteractable {
+    public bool useSnapping = true;
+    public List<Transform> snapPoints = new List<Transform>();
+    public bool UseSnapping => useSnapping;
+    public List<Transform> InteractionPositions => snapPoints;
+
     public float barricadeHp = 0f;
     public int barricadeLevel = 0;
 
-    [Header("Barricade Hp Values")]
     public float woodHp = 10;
     public float metalHp = 30;
 
-    [Header("Barricade Visual Prefabs")]
     public GameObject plank;
     public GameObject metalSheet;
 
-    [Header("Barricade Visual Settings")]
     public float plankHeight = 0.5f;
     public float metalSheetHeight = 2f;
 
-    public enum Material
-    {
+    public float buildCooldownPerLevel = 2f;
+
+    float nextBuildTime;
+
+    public enum Material {
         none,
         wood,
         metal
@@ -26,22 +31,26 @@ public class Barricade : MonoBehaviour
 
     public Material material = Material.none;
 
-    [Header("Debug MODE!!!")]
     public bool debugMode = false;
-    public bool debugLevel0;
-    public bool debugLevel1;
-    public bool debugLevel2;
-    public bool debugLevel3;
-    public bool debugLevel4;
-    public bool debugLevel5;
+    public bool debugLevel0, debugLevel1, debugLevel2, debugLevel3, debugLevel4, debugLevel5;
 
-    void Update(){
+    List<GameObject> spawnedParts = new List<GameObject>();
+
+    void Update() {
         if (debugMode) DebugControls();
     }
 
-    void DebugControls(){
-        int newLevel = barricadeLevel;
+    public void OnInteract() {
+        if (Time.time < nextBuildTime) return;
+        if (barricadeLevel >= 5) return;
 
+        barricadeLevel++;
+        nextBuildTime = Time.time + buildCooldownPerLevel;
+        RefreshBarricade();
+    }
+
+    void DebugControls() {
+        int newLevel = barricadeLevel;
         if (debugLevel0) newLevel = 0;
         if (debugLevel1) newLevel = 1;
         if (debugLevel2) newLevel = 2;
@@ -49,73 +58,65 @@ public class Barricade : MonoBehaviour
         if (debugLevel4) newLevel = 4;
         if (debugLevel5) newLevel = 5;
 
-        if (newLevel != barricadeLevel){
+        if (newLevel != barricadeLevel) {
             barricadeLevel = newLevel;
             RefreshBarricade();
         }
     }
 
-    void calculateBarricadeHp(){
-        switch (material){
-            case Material.none:
-                barricadeHp = 0;
-                break;
-            case Material.wood:
-                barricadeHp = woodHp * barricadeLevel;
-                break;
-            case Material.metal:
-                barricadeHp = metalHp * barricadeLevel;
-                break;
-        }
+    void calculateBarricadeHp() {
+        if (material == Material.none) barricadeHp = 0;
+        if (material == Material.wood) barricadeHp = woodHp * barricadeLevel;
+        if (material == Material.metal) barricadeHp = metalHp * barricadeLevel;
     }
 
-    void visualizeBarricade()
-    {
-        // Delete old visuals
-        for (int i = transform.childCount - 1; i >= 0; i--){
-            DestroyImmediate(transform.GetChild(i).gameObject);
+    void visualizeBarricade() {
+        for (int i = spawnedParts.Count - 1; i >= 0; i--) {
+            if (spawnedParts[i] != null) {
+                if (Application.isPlaying) Destroy(spawnedParts[i]);
+                else DestroyImmediate(spawnedParts[i]);
+            }
         }
+        spawnedParts.Clear();
 
-        if (material == Material.none || barricadeLevel <= 0)
-            return;
-
-        if (material == Material.wood)
-            BuildWoodBarricade();
-        else if (material == Material.metal)
-            BuildMetalBarricade();
+        if (material == Material.none || barricadeLevel <= 0) return;
+        if (material == Material.wood) BuildWoodBarricade();
+        if (material == Material.metal) BuildMetalBarricade();
     }
 
-    void BuildWoodBarricade(){
+    void BuildWoodBarricade() {
         Collider col = GetComponent<Collider>();
-        float bottomY = -col.bounds.size.y / 2 + plankHeight / 2; // local space
+        if (col == null) return;
 
+        float bottomY = -col.bounds.size.y / 2 + plankHeight / 2;
         int normalPlanks = Mathf.Min(barricadeLevel, 4);
-        for (int i = 0; i < normalPlanks; i++){
-            GameObject newPlank = Instantiate(plank, transform);
-            newPlank.transform.localPosition = Vector3.up * (bottomY + i * plankHeight);
-            newPlank.transform.localRotation = Quaternion.identity; // aligned with barricade
+
+        for (int i = 0; i < normalPlanks; i++) {
+            GameObject p = Instantiate(plank, transform);
+            p.transform.localPosition = Vector3.up * (bottomY + i * plankHeight);
+            p.transform.localRotation = Quaternion.identity;
+            spawnedParts.Add(p);
         }
 
-        if (barricadeLevel >= 5){
-            float centerY = bottomY + (normalPlanks - 1) * plankHeight / 2f; // middle of previous planks
-
-            GameObject crossPlank = Instantiate(plank, transform);
-            crossPlank.transform.localPosition = new Vector3(0, centerY, 0.1f);
-            crossPlank.transform.localRotation = Quaternion.Euler(0, 0, Random.value < 0.5f ? -45f : 45f);
-        }
-    }
-
-
-
-    void BuildMetalBarricade(){
-        for (int i = 0; i < barricadeLevel; i++){
-            GameObject newSheet = Instantiate(metalSheet, transform);
-            newSheet.transform.localPosition = new Vector3(0f,0f,0f);
-            newSheet.transform.localRotation = Quaternion.identity;
+        if (barricadeLevel >= 5) {
+            float centerY = bottomY + (normalPlanks - 1) * plankHeight / 2f;
+            GameObject c = Instantiate(plank, transform);
+            c.transform.localPosition = new Vector3(0, centerY, 0.1f);
+            c.transform.localRotation = Quaternion.Euler(0, 0, Random.value < 0.5f ? -45f : 45f);
+            spawnedParts.Add(c);
         }
     }
 
-    public void RefreshBarricade(){
+    void BuildMetalBarricade() {
+        for (int i = 0; i < barricadeLevel; i++) {
+            GameObject m = Instantiate(metalSheet, transform);
+            m.transform.localPosition = Vector3.zero;
+            m.transform.localRotation = Quaternion.identity;
+            spawnedParts.Add(m);
+        }
+    }
+
+    public void RefreshBarricade() {
         calculateBarricadeHp();
         visualizeBarricade();
     }

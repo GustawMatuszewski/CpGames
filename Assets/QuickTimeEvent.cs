@@ -1,17 +1,28 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-
+using System.Collections;
+using System.Collections.Generic;
 public class QuickTimeEvent : MonoBehaviour, IInteractable {
-    public void OnInteract(){
+    [Header("Interaction Settings")]
+    public bool useSnapping = true;
+    public List<Transform> snapPoints = new List<Transform>();
+    
+    public bool UseSnapping => useSnapping;
+    public List<Transform> InteractionPositions => snapPoints;
+
+    public bool IsActive => eventActive;
+
+
+    public void OnInteract()
+    {
         if (eventActive || (interactOnlyOnce && hasFinishedSuccessfully)) return;
 
-        if (playerInteractionPosition != null){
-            player.enableMovement = false;
-            player.enableClimbing = false;
-            player.transform.position = playerInteractionPosition.position;
-        }  
-        
-        ResetEvent();
+        player.enableMovement = false;
+        player.enableClimbing = false;
+
+        eventActive = true;
+        if (resetOnNextUse)
+            ResetEvent();
     }
     
     private bool hasFinishedSuccessfully;
@@ -21,7 +32,6 @@ public class QuickTimeEvent : MonoBehaviour, IInteractable {
 
     [Header("References")]
     public KCC player;
-    public Transform playerInteractionPosition;
 
     public enum EventType {
         None,
@@ -37,6 +47,7 @@ public class QuickTimeEvent : MonoBehaviour, IInteractable {
 
     [Header("Settings")]
     public bool interactOnlyOnce;
+    public bool resetOnNextUse;
 
     [Header("Tap Event Settings")]
     public int completeProcent = 100;
@@ -79,7 +90,6 @@ public class QuickTimeEvent : MonoBehaviour, IInteractable {
         if (moveInput.magnitude > 0.1f || jumpTriggered){
             eventActive = false;
             eventFail = true;
-            if (debugMode) Debug.Log("Event Canceled");
         }
     }
 
@@ -104,10 +114,7 @@ public class QuickTimeEvent : MonoBehaviour, IInteractable {
             eventActive = false;
             eventSucces = true;
             hasFinishedSuccessfully = true;
-            if (debugMode) Debug.Log("Event Succes");
         }
-
-        if (debugMode) Debug.Log("Tap Progress " + currentProcent);
     }
 
     void PerfectTimingEvent() {
@@ -120,11 +127,9 @@ public class QuickTimeEvent : MonoBehaviour, IInteractable {
             if (currentProcent >= (completeProcent - timingWindow) && currentProcent < completeProcent) {
                 eventSucces = true;
                 hasFinishedSuccessfully = true;
-                if (debugMode) Debug.Log("Succesful Timing");
             }
             else {
                 eventFail = true;
-                if (debugMode) Debug.Log("Shit timing failed");
             }
             eventActive = false;
         }
@@ -133,10 +138,7 @@ public class QuickTimeEvent : MonoBehaviour, IInteractable {
             currentProcent = completeProcent;
             eventFail = true;
             eventActive = false;
-            if (debugMode) Debug.Log("Didnt even try to time it u idiot");
         }
-
-        if (debugMode) Debug.Log("Timing Progress " + currentProcent);
     }
 
     public void ResetEvent() {
