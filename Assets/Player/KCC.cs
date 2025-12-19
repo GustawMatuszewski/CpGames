@@ -8,7 +8,7 @@ public class KCC : MonoBehaviour
     public bool debugMode = false;
 
     [Header("References")]
-    [SerializeField] private PlayerInput input;
+    [SerializeField] public PlayerInput input;
     [SerializeField] private CapsuleCollider capsule;
     [SerializeField] private Transform cameraTransform;
 

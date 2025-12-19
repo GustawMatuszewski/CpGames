@@ -720,8 +720,8 @@ Transform:
   m_GameObject: {fileID: 29391205}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0.3, z: 0}
+  m_LocalScale: {x: 5, y: 5.5, z: 0.08}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 246886542}
@@ -4134,7 +4134,7 @@ Transform:
   m_GameObject: {fileID: 1491819411}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -22.59, y: 2.78, z: -42.56}
+  m_LocalPosition: {x: -22.91, y: 2.52, z: -43.06}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4497,7 +4497,7 @@ MonoBehaviour:
   hitboxTag: Hitbox
   attackTemplates: []
   combatActive: 0
-  canAttack: 1
+  canAttack: 0
   currentAttack: {fileID: 11400000, guid: 2e9f53c0e149c15fe8ad846ae901327d, type: 2}
   currentCollision: {fileID: 0}
 --- !u!4 &1601314917 stripped
@@ -4505,20 +4505,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1398962963462337352, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
   m_PrefabInstance: {fileID: 2552905297457024581}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1601314921
+--- !u!114 &1601314924 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 7782414847407676457, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
+  m_PrefabInstance: {fileID: 2552905297457024581}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1601314908}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e40274e91eabe747a1aa5c780776f53, type: 3}
+  m_Script: {fileID: 11500000, guid: 4c650a78a78247a438f61deebb380961, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundLevel: 0
-  soundMultiplier: 1
 --- !u!1001 &1620137544
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5691,6 +5688,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1905247211}
+  - component: {fileID: 1905247212}
+  - component: {fileID: 1905247213}
   m_Layer: 0
   m_Name: HangarDoorInteract
   m_TagString: Untagged
@@ -5713,6 +5712,41 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1905247212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905247210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a000d28b52acad7a5824c595a7b20333, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  door: {fileID: 0}
+  tapsNeeded: 0
+  tapsCurrent: 0
+--- !u!114 &1905247213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905247210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b916119a3c917ccf9f3fa8e9856595b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debugMode: 1
+  player: {fileID: 1601314924}
+  eventActive: 1
+  eventSucces: 0
+  eventFail: 0
+  completeProcent: 100
+  currentProcent: 0
+  decreaseProcent: 1
 --- !u!1 &1920663336
 GameObject:
   m_ObjectHideFlags: 0
@@ -6503,9 +6537,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7578279795465060126, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1601314916}
-    - targetCorrespondingSourceObject: {fileID: 7578279795465060126, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1601314921}
   m_SourcePrefab: {fileID: 100100000, guid: 4ec2c20a8ef73655bb00d8cd42039d7e, type: 3}
 --- !u!1001 &5643050262814580530
 PrefabInstance:
