@@ -53,7 +53,6 @@ public class KCC : MonoBehaviour
     public bool useGravity = true;
     public bool enableMovement = true;
     public bool enableClimbing = true;
-    public bool enableDash = true;
     public bool allowAirDash = false;
 
     float lastSprintTapTime = -1f;
@@ -141,6 +140,19 @@ public class KCC : MonoBehaviour
         transform.rotation = Quaternion.Euler(0f, camEuler.y, 0f);
     }
 
+    bool CanFit(float targetHeight)
+    {
+        float currentHalf = capsuleHeight / 2f;
+        float targetHalf = targetHeight / 2f;
+        Vector3 feetPos = transform.position - Vector3.up * currentHalf;
+        Vector3 newCenter = feetPos + Vector3.up * targetHalf;
+
+        Vector3 point1 = newCenter + Vector3.up * (targetHalf - capsuleRadius);
+        Vector3 point2 = newCenter - Vector3.up * (targetHalf - capsuleRadius);
+
+        return !Physics.CheckCapsule(point1, point2, capsuleRadius - 0.01f, collisionMask);
+    }
+
     void StateController()
     {
         Vector2 moveInput = input.PlayerInputMap.MoveInput.ReadValue<Vector2>();
@@ -152,6 +164,19 @@ public class KCC : MonoBehaviour
 
         bool sprintPressed = sprintHeld && !sprintHeldLastFrame;
         sprintHeldLastFrame = sprintHeld;
+
+        if (!prone && !crouch)
+        {
+            if (!CanFit(standingHeight))
+            {
+                if (CanFit(crouchHeight)) crouch = true;
+                else prone = true;
+            }
+        }
+        else if (!prone && crouch)
+        {
+            if (!CanFit(crouchHeight)) prone = true;
+        }
 
         if (sprintPressed)
         {
@@ -165,7 +190,7 @@ public class KCC : MonoBehaviour
         float prevHeight = capsuleHeight;
         Vector3 ledgePosition = Vector3.zero;
 
-        if (isDashing && enableDash)
+        if (isDashing)
         {
             state = State.Dash;
             moveSpeed = dashSpeed;
@@ -233,7 +258,17 @@ public class KCC : MonoBehaviour
     Vector3 RequestedMovement()
     {
         if (input.PlayerInputMap.JumpInput.ReadValue<float>() != 0 && SlopeCheck() <= maxSlopeAngle) jumpRequested = true;
-        if (isGrounded() && jumpRequested) velocity.y = jumpForce;
+        if (isGrounded() && jumpRequested)
+        {
+            if (state == State.Crouch || state == State.Prone)
+            {
+                if (CanFit(standingHeight)) velocity.y = jumpForce;
+            }
+            else
+            {
+                velocity.y = jumpForce;
+            }
+        }
 
         if (isDashing) return dashDirection * dashSpeed;
 
