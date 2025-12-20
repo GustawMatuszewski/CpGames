@@ -40,6 +40,7 @@ public class PlayerInteraction : MonoBehaviour {
                 player.transform.rotation = currentSnapPoint.rotation;
                 snapExitTimer = 0;
                 player.enableMovement = false;
+                player.enableClimbing = false;
             }
         }
 
@@ -58,6 +59,7 @@ public class PlayerInteraction : MonoBehaviour {
                 currentSnapPoint = null;
                 snapExitTimer = 0;
                 player.enableMovement = true;
+                player.enableClimbing = true;
             }
         } else {
             snapExitTimer = 0;

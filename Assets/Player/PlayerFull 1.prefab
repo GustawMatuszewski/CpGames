@@ -2416,7 +2416,6 @@ GameObject:
   - component: {fileID: 7782414847407676457}
   - component: {fileID: 4973312968209784323}
   - component: {fileID: 1413418276867631777}
-  - component: {fileID: 4959867286891806555}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -2484,6 +2483,9 @@ MonoBehaviour:
   sprintSpeed: 8
   crouchSpeed: 2
   proneSpeed: 1
+  dashTime: 0.1
+  dashSpeed: 20
+  dashCooldown: 0.5
   jumpForce: 6
   gravityStrength: 20
   skinWidth: 0.05
@@ -2495,10 +2497,10 @@ MonoBehaviour:
   capsuleRadius: 0.5
   collisionMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
   groundMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
   ledgeTag: ClimbableTag
   forwardCheckDistance: 1
   downCheckDistance: 3
@@ -2506,6 +2508,7 @@ MonoBehaviour:
   useGravity: 1
   enableMovement: 1
   enableClimbing: 1
+  allowAirDash: 0
   state: 0
 --- !u!114 &4973312968209784323
 MonoBehaviour:
@@ -2538,25 +2541,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugMode: 1
-  inventory: []
   outsideInventory: {fileID: 0}
   itemDatabase: {fileID: 11400000, guid: 8f36d94712b894c1db42db15f9bfba36, type: 2}
---- !u!114 &4959867286891806555
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7578279795465060126}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fee76f79d6902a2178e1b484dbf4098b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  debugMode: 1
-  playerInventory: {fileID: 1413418276867631777}
-  playerCamera: {fileID: 7816888016438970423}
-  interactDistance: 3
+  inventory: []
 --- !u!1 &7779495548410326883
 GameObject:
   m_ObjectHideFlags: 0
