@@ -34,7 +34,7 @@ public class PlayerInteraction : MonoBehaviour {
         if (interactable == null) return;
 
         if (interactable.UseSnapping && interactable.InteractionPositions != null && interactable.InteractionPositions.Count > 0) {
-            currentSnapPoint = GetClosestSnapPoint(interactable.InteractionPositions);
+            currentSnapPoint = GetClosestSnapPoint(interactable.InteractionPositions, hit.point);
             if (currentSnapPoint != null) {
                 player.transform.position = currentSnapPoint.position;
                 player.transform.rotation = currentSnapPoint.rotation;
@@ -66,30 +66,19 @@ public class PlayerInteraction : MonoBehaviour {
         }
     }
 
-    Transform GetClosestSnapPoint(List<Transform> points) {
+    Transform GetClosestSnapPoint(List<Transform> points, Vector3 hitPoint) {
         Transform closest = null;
         float minDist = Mathf.Infinity;
-        Vector3 currentPos = player.transform.position;
-        Vector3 forward = player.transform.forward;
-        Transform fallback = null;
-        float fallbackDist = Mathf.Infinity;
 
         foreach (Transform t in points) {
             if (t == null) continue;
-            Vector3 dir = t.position - currentPos;
-            float dist = dir.magnitude;
-            if (dist < fallbackDist) {
-                fallbackDist = dist;
-                fallback = t;
-            }
-            float facingDot = Vector3.Dot(forward, dir.normalized);
-            if (facingDot < 0.3f) continue;
+            float dist = Vector3.Distance(hitPoint, t.position);
             if (dist < minDist) {
                 minDist = dist;
                 closest = t;
             }
         }
 
-        return closest != null ? closest : fallback;
+        return closest;
     }
 }
