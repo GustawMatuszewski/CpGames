@@ -15,6 +15,11 @@ public class Build : MonoBehaviour
     [Header("Settings")]
     public bool requireGroundEvenWhenSnapped = false;
     public float blockCheckScale = 0.45f; 
+    
+    [Header("Rotation Settings")]
+    public bool useContinuousRotation = false;
+    public float continuousRotationSpeed = 2f;
+    public float snapRotationDegrees = 15f;
 
     [Header("Placement")]
     public bool canBuild = true;
@@ -24,6 +29,7 @@ public class Build : MonoBehaviour
 
     [Header("Snapping")]
     public float snapDistance = 0.5f;
+    public bool snapRotation = true;
 
     GameObject ghost;
     Construction ghostConstruction;
@@ -43,6 +49,7 @@ public class Build : MonoBehaviour
 
         float interactVal = player.input.PlayerInputMap.InteractInput.ReadValue<float>();
         float swapVal = player.input.PlayerInputMap.CrouchInput.ReadValue<float>();
+
         float rotateVal = player.input.PlayerInputMap.RKey.ReadValue<float>();
 
         if (interactVal > 0 && canBuild && isGrounded && !isBlocked){
@@ -52,8 +59,17 @@ public class Build : MonoBehaviour
 
         if (swapVal > 0) SpawnGhost();
         
-        if (rotateVal > 0 && ghost != null) {
-            ghost.transform.Rotate(0, 2f, 0); 
+        if (ghost != null){
+            if (useContinuousRotation)
+            {
+                if (rotateVal > 0){
+                    ghost.transform.Rotate(0, continuousRotationSpeed, 0); 
+                }
+            }else{
+                if (player.input.PlayerInputMap.RKey.WasPressedThisFrame()){
+                    ghost.transform.Rotate(0, snapRotationDegrees, 0);
+                }
+            }
         }
 
         if (interactVal <= 0) canBuild = true;
@@ -119,6 +135,20 @@ public class Build : MonoBehaviour
 
         bool isSnapped = false;
         if (bestGhostConn != null && bestTargetConn != null){
+            if (snapRotation){
+                Quaternion delta =
+                    bestTargetConn.transform.rotation *
+                    Quaternion.Inverse(bestGhostConn.transform.rotation);
+
+                ghost.transform.rotation = delta * ghost.transform.rotation;
+
+                if (snapRotationDegrees > 0f){
+                    Vector3 e = ghost.transform.eulerAngles;
+                    e.y = Mathf.Round(e.y / snapRotationDegrees) * snapRotationDegrees;
+                    ghost.transform.eulerAngles = e;
+                }
+            }
+
             Vector3 offsetFromRoot = bestGhostConn.transform.position - ghost.transform.position;
             ghost.transform.position = bestTargetConn.transform.position - offsetFromRoot;
             currentSnappedObject = bestTargetConn.transform.root.gameObject;
@@ -132,15 +162,17 @@ public class Build : MonoBehaviour
         foreach (var b in blockers) {
             if (b.transform.root == ghost.transform.root) continue;
             if (isSnapped && b.transform.root == currentSnappedObject.transform) continue;
-            
             isBlocked = true;
             break;
         }
 
-        Vector3 rayStart = ghostCollider.bounds.center;
-        float rayLength = (ghostCollider.size.y * ghost.transform.localScale.y * 0.5f) + 0.15f;
-        bool hasGroundUnderneath = Physics.Raycast(rayStart, Vector3.down, rayLength, groundMask | buildMask);
-        isGrounded = isSnapped || hasGroundUnderneath;
+        Vector3 rayStart = ghost.transform.TransformPoint(ghostCollider.center);
+        float rayLength = (ghostCollider.size.y * ghost.transform.lossyScale.y * 0.5f) + 0.15f;
+
+        if (isSnapped && !requireGroundEvenWhenSnapped)
+            isGrounded = true;
+        else
+            isGrounded = Physics.Raycast(rayStart, Vector3.down, rayLength, groundMask | buildMask);
 
         if (debugMode){
             DrawConnectorBoxes();
