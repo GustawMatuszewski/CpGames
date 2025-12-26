@@ -49,24 +49,24 @@ public class BaseEntity : MonoBehaviour
 
     void FixedUpdate()
     {
-        DetectEntitiesInSphere(transform.position, 20f, entityMask, groundMask, entities); //Detection sphere can be insta create and it will add entities to entitiy list u choose
+        // DetectEntitiesInSphere(transform.position, 20f, entityMask, groundMask, entities); //Detection sphere can be insta create and it will add entities to entitiy list u choose
 
-        if (entities.Count > 0)
-        {
-            if (currentTarget != entities[0])
-                currentTarget = entities[0];
+        // if (entities.Count > 0)
+        // {
+        //     if (currentTarget != entities[0])
+        //         currentTarget = entities[0];
 
-            FollowTarget(currentTarget);    //Follows set target
-        }
-        else
-        {
-            currentTarget = null;
-            if (agent != null && agent.hasPath)
-                agent.ResetPath();
-        }
+        //     FollowTarget(currentTarget);    //Follows set target
+        // }
+        // else
+        // {
+        //     currentTarget = null;
+        //     if (agent != null && agent.hasPath)
+        //         agent.ResetPath();
+        // }
     }
 
-    void DetectEntitiesInSphere(Vector3 origin, float radius, LayerMask entityMask, LayerMask groundMask, List<GameObject> entitiesList)
+    public void DetectEntitiesInSphere(Vector3 origin, float radius, LayerMask entityMask, LayerMask groundMask, List<GameObject> entitiesList)
     {
         Collider[] hits = Physics.OverlapSphere(origin, radius, entityMask);
         List<GameObject> currentEntities = new List<GameObject>();
