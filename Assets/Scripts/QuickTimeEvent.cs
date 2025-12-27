@@ -2,13 +2,16 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
 using System.Collections.Generic;
+
 public class QuickTimeEvent : MonoBehaviour, IInteractable {
     [Header("Interaction Settings")]
     public bool useSnapping = true;
     public List<Transform> snapPoints = new List<Transform>();
+    public Transform lookAtPoint;
     
     public bool UseSnapping => useSnapping;
     public List<Transform> InteractionPositions => snapPoints;
+    public Transform LookAtTarget => lookAtPoint;
 
     public bool IsActive => eventActive;
 

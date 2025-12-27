@@ -1,10 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.Cinemachine;
 
 public interface IInteractable {
     void OnInteract();
     bool UseSnapping { get; }
     List<Transform> InteractionPositions { get; }
+    Transform LookAtTarget { get; }
 }
 
 public class PlayerInteraction : MonoBehaviour {
@@ -16,6 +18,23 @@ public class PlayerInteraction : MonoBehaviour {
 
     Transform currentSnapPoint;
     float snapExitTimer;
+    CinemachineCamera internalCinemachine;
+
+    // List of component names to disable when locked (New Cinemachine v3)
+    string[] componentsToLock = {
+        "CinemachineInputAxisController",
+        "CinemachinePanTilt",
+        "CinemachineOrbitalFollow",
+        "CinemachineRotationHandler"
+    };
+
+    void Start() {
+        if (playerCamera != null) {
+            // Try to find the component on the camera or its parent
+            internalCinemachine = playerCamera.GetComponent<CinemachineCamera>();
+            if (internalCinemachine == null) internalCinemachine = playerCamera.GetComponentInParent<CinemachineCamera>();
+        }
+    }
 
     void Update() {
         LookForInteraction();
@@ -26,14 +45,12 @@ public class PlayerInteraction : MonoBehaviour {
         if (!player.input.PlayerInputMap.InteractInput.WasPressedThisFrame()) return;
 
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        RaycastHit hit;
-
-        if (!Physics.Raycast(ray, out hit, interactionDistance)) return;
+        if (!Physics.Raycast(ray, out RaycastHit hit, interactionDistance)) return;
 
         IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
         if (interactable == null) return;
 
-        if (interactable.UseSnapping && interactable.InteractionPositions != null && interactable.InteractionPositions.Count > 0) {
+        if (interactable.UseSnapping && interactable.InteractionPositions?.Count > 0) {
             currentSnapPoint = GetClosestSnapPoint(interactable.InteractionPositions, hit.point);
             if (currentSnapPoint != null) {
                 player.transform.position = currentSnapPoint.position;
@@ -41,6 +58,18 @@ public class PlayerInteraction : MonoBehaviour {
                 snapExitTimer = 0;
                 player.enableMovement = false;
                 player.enableClimbing = false;
+
+                if (internalCinemachine != null) {
+                    if (interactable.LookAtTarget != null) {
+                        internalCinemachine.LookAt = interactable.LookAtTarget;
+                    }
+
+                    // Disable all input/rotation components
+                    foreach (string name in componentsToLock) {
+                        var comp = internalCinemachine.GetComponent(name) as Behaviour;
+                        if (comp != null) comp.enabled = false;
+                    }
+                }
             }
         }
 
@@ -56,20 +85,33 @@ public class PlayerInteraction : MonoBehaviour {
         if (moveInput.magnitude > 0.1f || jumpInput) {
             snapExitTimer += Time.deltaTime;
             if (snapExitTimer >= snapExitDelay) {
-                currentSnapPoint = null;
-                snapExitTimer = 0;
-                player.enableMovement = true;
-                player.enableClimbing = true;
+                ReleaseSnap();
             }
         } else {
             snapExitTimer = 0;
         }
     }
 
+    void ReleaseSnap() {
+        currentSnapPoint = null;
+        snapExitTimer = 0;
+        player.enableMovement = true;
+        player.enableClimbing = true;
+
+        if (internalCinemachine != null) {
+            internalCinemachine.LookAt = null;
+
+            // Re-enable all input/rotation components
+            foreach (string name in componentsToLock) {
+                var comp = internalCinemachine.GetComponent(name) as Behaviour;
+                if (comp != null) comp.enabled = true;
+            }
+        }
+    }
+
     Transform GetClosestSnapPoint(List<Transform> points, Vector3 hitPoint) {
         Transform closest = null;
         float minDist = Mathf.Infinity;
-
         foreach (Transform t in points) {
             if (t == null) continue;
             float dist = Vector3.Distance(hitPoint, t.position);
@@ -78,7 +120,6 @@ public class PlayerInteraction : MonoBehaviour {
                 closest = t;
             }
         }
-
         return closest;
     }
 }

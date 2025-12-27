@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 public class Resourcing : MonoBehaviour {
     public enum Type { Tree }
+    public List<GameObject> interactions;
 
     public List<Vector3> cutPositions = new List<Vector3>();
     public float portionSize = 2f;
@@ -18,7 +19,7 @@ public class Resourcing : MonoBehaviour {
 
 
     public void GenerateShitPieceSize(){
-            
+
     }
     
     
