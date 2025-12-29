@@ -53,18 +53,29 @@ public class PlayerInteraction : MonoBehaviour {
         if (interactable.UseSnapping && interactable.InteractionPositions?.Count > 0) {
             currentSnapPoint = GetClosestSnapPoint(interactable.InteractionPositions, hit.point);
             if (currentSnapPoint != null) {
+                // 1. Snap Player Body Position & Rotation
                 player.transform.position = currentSnapPoint.position;
                 player.transform.rotation = currentSnapPoint.rotation;
+                
                 snapExitTimer = 0;
                 player.enableMovement = false;
                 player.enableClimbing = false;
 
                 if (internalCinemachine != null) {
-                    if (interactable.LookAtTarget != null) {
-                        internalCinemachine.LookAt = interactable.LookAtTarget;
+                    // 2. Determine what to look at
+                    // Priority: Explicit LookAtTarget > The object we hit > The snap point forward
+                    Transform targetToLookAt = interactable.LookAtTarget;
+                    if (targetToLookAt == null) targetToLookAt = hit.transform;
+
+                    internalCinemachine.LookAt = targetToLookAt;
+
+                    // 3. FORCE the camera to face the target immediately
+                    // (We must do this manually because we are about to disable the components that usually do it)
+                    if (targetToLookAt != null) {
+                        playerCamera.transform.LookAt(targetToLookAt);
                     }
 
-                    // Disable all input/rotation components
+                    // 4. Disable all input/rotation components to FREEZE it there
                     foreach (string name in componentsToLock) {
                         var comp = internalCinemachine.GetComponent(name) as Behaviour;
                         if (comp != null) comp.enabled = false;
