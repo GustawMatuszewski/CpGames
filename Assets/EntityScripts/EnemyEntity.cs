@@ -27,6 +27,7 @@ public class EnemyEntity : BaseEntity
     private Vector3 lastKnownTargetPos;
     private float investigateTimer;
     private bool isWaiting;
+    private Combat combat;
 
     void Awake()
     {
