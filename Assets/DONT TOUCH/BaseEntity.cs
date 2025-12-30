@@ -12,7 +12,7 @@ public class BaseEntity : MonoBehaviour
     public LayerMask entityMask;
     public bool debugMode = false;
     public float followDistance = 1f;
-    private GameObject currentTarget;
+    protected GameObject currentTarget;
 
     public EntityStatus status;
 
