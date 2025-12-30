@@ -151,6 +151,7 @@ GameObject:
   - component: {fileID: 1724956127438865243}
   - component: {fileID: -1382368988937247556}
   - component: {fileID: -1836297785196642117}
+  - component: {fileID: 4838742986915129527}
   m_Layer: 0
   m_Name: BaseEnemy
   m_TagString: Untagged
@@ -203,7 +204,7 @@ MonoBehaviour:
   viewAngle: 90
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   hearingRadius: 10
   patrolRange: 12
   minPatrolInterval: 4
@@ -232,3 +233,24 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &4838742986915129527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3575543358195197379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2701a4885403c5a390bf1af237eaffd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debugMode: 0
+  ownerHitboxes: []
+  damageHitboxNameList: []
+  hitboxTag: 
+  attackTemplates: []
+  combatActive: 0
+  canAttack: 0
+  currentAttack: {fileID: 0}
+  currentCollision: {fileID: 0}

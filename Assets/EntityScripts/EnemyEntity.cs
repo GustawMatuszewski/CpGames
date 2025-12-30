@@ -58,6 +58,9 @@ public class EnemyEntity : BaseEntity
             case EntityState.Search:
                 InvestigateBehavior();
                 break;
+            case EntityState.Attack:
+                AttackBehavior();
+                break;
         }
     }
 
@@ -92,6 +95,7 @@ public class EnemyEntity : BaseEntity
 
     void PatrolBehavior()
     {
+        //
         if (isWaiting)
         {
             patrolTimer -= Time.deltaTime;
@@ -103,7 +107,7 @@ public class EnemyEntity : BaseEntity
             }
             return;
         }
-
+        //setting random patrol interval
         if (!agent.hasPath || agent.remainingDistance <= agent.stoppingDistance)
         {
             isWaiting = true;
@@ -141,6 +145,11 @@ public class EnemyEntity : BaseEntity
         {
             TrySetDestination(lastKnownTargetPos);
         }
+    }
+
+    void AttackBehavior()
+    {
+        
     }
 
     Vector3 GetRandomPatrolPoint()

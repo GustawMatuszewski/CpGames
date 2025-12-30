@@ -47,24 +47,24 @@ public class BaseEntity : MonoBehaviour
         Prone   //Stands up after crawing needs to be checked wheter it can if there is space for him to stand
     }
 
-    void FixedUpdate()
-    {
-        // DetectEntitiesInSphere(transform.position, 20f, entityMask, groundMask, entities); //Detection sphere can be insta create and it will add entities to entitiy list u choose
+    // void FixedUpdate()
+    // {
+    //     // DetectEntitiesInSphere(transform.position, 20f, entityMask, groundMask, entities); //Detection sphere can be insta create and it will add entities to entitiy list u choose
 
-        // if (entities.Count > 0)
-        // {
-        //     if (currentTarget != entities[0])
-        //         currentTarget = entities[0];
+    //     // if (entities.Count > 0)
+    //     // {
+    //     //     if (currentTarget != entities[0])
+    //     //         currentTarget = entities[0];
 
-        //     FollowTarget(currentTarget);    //Follows set target
-        // }
-        // else
-        // {
-        //     currentTarget = null;
-        //     if (agent != null && agent.hasPath)
-        //         agent.ResetPath();
-        // }
-    }
+    //     //     FollowTarget(currentTarget);    //Follows set target
+    //     // }
+    //     // else
+    //     // {
+    //     //     currentTarget = null;
+    //     //     if (agent != null && agent.hasPath)
+    //     //         agent.ResetPath();
+    //     // }
+    // }
 
     public void DetectEntitiesInSphere(Vector3 origin, float radius, LayerMask entityMask, LayerMask groundMask, List<GameObject> entitiesList)
     {
