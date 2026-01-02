@@ -90,9 +90,23 @@ public class BaseEntity : MonoBehaviour
     GameObject GetTopParent(GameObject obj)
     {
         Transform current = obj.transform;
+        GameObject foundEntity = null;
+        if(current.GetComponent<EntityStatus>() != null)
+        {
+            foundEntity=current.gameObject;
+        }
+
         while (current.parent != null)
-            current = current.parent;
-        return current.gameObject;
+        {
+            current=current.parent;
+
+            if (current.GetComponent<EntityStatus>() != null)
+            {
+                foundEntity=current.gameObject;
+            }
+        }
+
+        return foundEntity;
     }
 
     public bool TrySetDestination(Vector3 target, bool useSmallerCollider = true, bool moveToNearest = true) //check wheter it need smaller hitbox or normal one can fit Crawl: state
