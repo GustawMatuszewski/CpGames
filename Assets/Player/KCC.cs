@@ -364,4 +364,23 @@ public class KCC : MonoBehaviour
 
         return false;
     }
+
+
+    // theoritically this should fix the leak issue unity sometimes warns about but the issue appears randomly when reloading domain so can't really test it
+    private void OnDisable()
+    {
+        if (input != null)
+        {
+            input.PlayerInputMap.Disable();
+            input.Disable();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (input != null)
+        {
+            input.Dispose();
+        }
+    }
 }

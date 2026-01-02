@@ -70,6 +70,7 @@ public class Combat : MonoBehaviour {
                 ApplyDamage(currentAttack);
                 attackInProgress = false;
                 cooldownTimer = currentAttack.cooldown;
+                // canAttack=false;
             }
         }
     }
