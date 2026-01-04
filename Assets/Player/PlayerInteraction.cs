@@ -20,7 +20,6 @@ public class PlayerInteraction : MonoBehaviour {
     float snapExitTimer;
     CinemachineCamera internalCinemachine;
 
-    // List of component names to disable when locked (New Cinemachine v3)
     string[] componentsToLock = {
         "CinemachineInputAxisController",
         "CinemachinePanTilt",
@@ -30,7 +29,7 @@ public class PlayerInteraction : MonoBehaviour {
 
     void Start() {
         if (playerCamera != null) {
-            // Try to find the component on the camera or its parent
+
             internalCinemachine = playerCamera.GetComponent<CinemachineCamera>();
             if (internalCinemachine == null) internalCinemachine = playerCamera.GetComponentInParent<CinemachineCamera>();
         }
@@ -53,7 +52,7 @@ public class PlayerInteraction : MonoBehaviour {
         if (interactable.UseSnapping && interactable.InteractionPositions?.Count > 0) {
             currentSnapPoint = GetClosestSnapPoint(interactable.InteractionPositions, hit.point);
             if (currentSnapPoint != null) {
-                // 1. Snap Player Body Position & Rotation
+
                 player.transform.position = currentSnapPoint.position;
                 player.transform.rotation = currentSnapPoint.rotation;
                 
@@ -62,20 +61,16 @@ public class PlayerInteraction : MonoBehaviour {
                 player.enableClimbing = false;
 
                 if (internalCinemachine != null) {
-                    // 2. Determine what to look at
-                    // Priority: Explicit LookAtTarget > The object we hit > The snap point forward
+
                     Transform targetToLookAt = interactable.LookAtTarget;
                     if (targetToLookAt == null) targetToLookAt = hit.transform;
 
                     internalCinemachine.LookAt = targetToLookAt;
 
-                    // 3. FORCE the camera to face the target immediately
-                    // (We must do this manually because we are about to disable the components that usually do it)
                     if (targetToLookAt != null) {
                         playerCamera.transform.LookAt(targetToLookAt);
                     }
 
-                    // 4. Disable all input/rotation components to FREEZE it there
                     foreach (string name in componentsToLock) {
                         var comp = internalCinemachine.GetComponent(name) as Behaviour;
                         if (comp != null) comp.enabled = false;
@@ -112,7 +107,6 @@ public class PlayerInteraction : MonoBehaviour {
         if (internalCinemachine != null) {
             internalCinemachine.LookAt = null;
 
-            // Re-enable all input/rotation components
             foreach (string name in componentsToLock) {
                 var comp = internalCinemachine.GetComponent(name) as Behaviour;
                 if (comp != null) comp.enabled = true;
