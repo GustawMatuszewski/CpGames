@@ -143,9 +143,19 @@ public class EnemyEntity : BaseEntity
             return;
         }
         lastKnownTargetPos=visibleTarget.transform.position;
+
+        Collider hit = combat.HitboxDetector();
+        if (hit != null)
+        {
+            enemyState=EntityState.Attack;
+            agent.ResetPath();
+            if(debugMode) Debug.Log("Switch to attack state, found ");
+            return;
+        }
+        
         float distanceToTarget = Vector3.Distance(transform.position,lastKnownTargetPos);
 
-        if(distanceToTarget<=attackRange+0.2f)
+        if(distanceToTarget<=agent.stoppingDistance+0.1f)
         {
             enemyState=EntityState.Attack;
             agent.ResetPath();
@@ -154,6 +164,7 @@ public class EnemyEntity : BaseEntity
         {
             TrySetDestination(lastKnownTargetPos);
         }
+
 
         if(debugMode) Debug.Log("Chase, Distance: "+distanceToTarget);
     }

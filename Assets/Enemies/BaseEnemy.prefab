@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 3099797120823742627}
   - component: {fileID: 910629527889462864}
   - component: {fileID: 1537707577707380132}
-  - component: {fileID: 306057609472468183}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -31,7 +30,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 8091485402700537157}
   m_Father: {fileID: 7308596756608858026}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &910629527889462864
@@ -87,27 +87,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &306057609472468183
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1146919451635378941}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3131431432291576219
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,7 +130,7 @@ GameObject:
   - component: {fileID: 2523237557743688364}
   - component: {fileID: 3008504646760742804}
   m_Layer: 0
-  m_Name: h1
+  m_Name: AttackHitbox
   m_TagString: Hitbox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -166,8 +145,8 @@ Transform:
   m_GameObject: {fileID: 3274697059996969610}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
-  m_LocalScale: {x: 1, y: 2, z: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1724956127438865243}
@@ -227,8 +206,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7308596756608858026}
   - {fileID: 2523237557743688364}
+  - {fileID: 7308596756608858026}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &-1382368988937247556
@@ -332,9 +311,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugMode: 1
   ownerHitboxes:
-  - name: EnemyBody
+  - name: Body
+    limbHitbox: {fileID: 3129750913480344478}
+    health: 30
+    damageMultiplier: 1
+    severeMultiplier: 1
+    fractureMultiplier: 1
+    limbDamageList: 
+    severed: 0
+    beatStacks: 0
+  - name: AttackHitbox
     limbHitbox: {fileID: 3008504646760742804}
-    health: 100
+    health: 0
     damageMultiplier: 1
     severeMultiplier: 1
     fractureMultiplier: 1
@@ -342,7 +330,7 @@ MonoBehaviour:
     severed: 0
     beatStacks: 0
   damageHitboxNameList:
-  - EnemyBody
+  - AttackHitbox
   hitboxTag: Hitbox
   attackTemplates: []
   combatActive: 0
@@ -394,3 +382,56 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!1 &7687535433705850145
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8091485402700537157}
+  - component: {fileID: 3129750913480344478}
+  m_Layer: 0
+  m_Name: Body
+  m_TagString: Hitbox
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8091485402700537157
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7687535433705850145}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3099797120823742627}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &3129750913480344478
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7687535433705850145}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
