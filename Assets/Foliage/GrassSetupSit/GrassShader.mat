@@ -108,7 +108,7 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _Scale: 0.1
-    - _Smoothness: 0.2
+    - _Smoothness: -0.26
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -118,7 +118,7 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     - _currentFpsTim: 0
-    - _fadeEnd: 200
+    - _fadeEnd: 1000
     - _fadeStart: 30
     - _noiseStrength: 1.9
     - _randomness: 1
