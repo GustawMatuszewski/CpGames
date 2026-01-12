@@ -12,6 +12,7 @@ public class EnemyEntity : BaseEntity
 
     [Header("Hearing settings")]
     public float hearingRadius = 10f;
+    public float minVelocityThreshold =5f;
 
     [Header("Patrol settings")]
     public float patrolRange = 12f;
@@ -51,6 +52,12 @@ public class EnemyEntity : BaseEntity
         DetectEntitiesInSphere(transform.position, viewDistance, entityMask, groundMask, entities);
         GameObject visibleTarget = CheckForVisibleTarget();
 
+        Vector3? heardNoisePos = null;
+        if(visibleTarget==null && enemyState != EntityState.Attack)
+        {
+            heardNoisePos=CheckForNoise();
+        }
+
         if (visibleTarget != null)
         {
             currentTarget = visibleTarget;
@@ -59,6 +66,16 @@ public class EnemyEntity : BaseEntity
                 enemyState = EntityState.Sprint;
             }
             investigateTimer = investigateTime;
+        } else if (heardNoisePos.HasValue)
+        {
+            if(enemyState!=EntityState.Attack && enemyState != EntityState.Sprint)
+            {
+                lastKnownTargetPos=heardNoisePos.Value;
+                enemyState=EntityState.Search;
+                investigateTimer=investigateTime;
+
+                if(debugMode) Debug.Log("Noise heard from: "+lastKnownTargetPos);
+            }
         }
 
         switch (enemyState)
@@ -107,9 +124,40 @@ public class EnemyEntity : BaseEntity
         return true;
     }
 
+    Vector3? CheckForNoise()
+    {
+        Collider[] collidersInRange = Physics.OverlapSphere(transform.position,hearingRadius);
+
+        SoundController loudest = null;
+        float maxSpeed = 0f;
+        bool foundSound = false;
+
+        for(int i=0; i < collidersInRange.Length; i++)
+        {
+            SoundController sc = collidersInRange[i].GetComponent<SoundController>();
+
+            if (sc != null)
+            {
+                float speed = sc.GetVelocity().magnitude;
+                if(speed<minVelocityThreshold) continue;
+                if (speed > maxSpeed)
+                {
+                    maxSpeed=speed;
+                    loudest=sc;
+                    foundSound=true;
+                }
+            }
+        }
+        if (foundSound && loudest != null)
+        {
+            return loudest.transform.position;
+        }
+
+        return null;
+    }
+
     void PatrolBehavior()
     {
-        //
         if (isWaiting)
         {
             patrolTimer -= Time.deltaTime;
@@ -171,6 +219,7 @@ public class EnemyEntity : BaseEntity
 
     void InvestigateBehavior()
     {
+        TrySetDestination(lastKnownTargetPos);
         if (agent.remainingDistance <= agent.stoppingDistance)
         {
             investigateTimer -= Time.deltaTime;
