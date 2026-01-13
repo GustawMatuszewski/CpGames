@@ -37,11 +37,10 @@ Możesz komunikować się z interfejsem za pomocą poniższych metod publicznych
 | `HideInventory()` | Minimalizuje/ukrywa interfejs ekwipunku. | `UI_Script.Instance.HideInventory();` |
 | `ShowInventory()` | Wyświetla interfejs ekwipunku. | `UI_Script.Instance.ShowInventory();` |
 | `RemoveItem(string name, int amount)` | Usuwa określoną ilość przedmiotu z interfejsu. | `UI_Script.Instance.RemoveItem("Apple", 1);` |
+| `addItem(Item_Object)` | Dodaje Pojedynczy item do UI_EQ | `UI_Script.Instance.addItem(Item);` |
 
-> [!WARNING]
-> Funkcja `RemoveItem` w tej wersji działa poprawnie tylko wtedy, gdy przedmiot znajduje się bezpośrednio na liście `List`.
 
-### Pobieranie Danych (Getters)
+### Pobieranie Danych
 
 * **`GetOriginalItemFromSlot(int index)`**
     * Pobiera dane o przedmiotach w slotach szybkiego wyboru (Quick Slots).
@@ -51,5 +50,3 @@ Możesz komunikować się z interfejsem za pomocą poniższych metod publicznych
     * Zwracają dane o przedmiocie trzymanym odpowiednio w lewej lub prawej ręce.
     * Zwraca: obiekt typu `Item`.
 
----
-*Dokumentacja wygenerowana dla UI Branch - Styczeń 2026*
