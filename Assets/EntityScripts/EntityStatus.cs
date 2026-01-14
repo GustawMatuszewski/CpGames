@@ -15,6 +15,7 @@ public class EntityStatus : MonoBehaviour
     public enum Mood
     {
         None,
+        VeryHappy,
         Happy,
         Excited,
         Calm,
@@ -24,6 +25,7 @@ public class EntityStatus : MonoBehaviour
         Curious,
         Sad,
         Depressed,
+        DeepDepression,
         Angry,
         Anxious,
         Stressed,
@@ -32,8 +34,12 @@ public class EntityStatus : MonoBehaviour
         Hungry,
         Thirsty,
         Tired,
-        Sleepy
+        Sleepy,
+        Suicidal,
+        PsychDeath
     }
+
+
 
     [Header("Debug Mode!!!!")]
     public bool debugMode;
@@ -42,6 +48,17 @@ public class EntityStatus : MonoBehaviour
     
     [Header("References")]
     public Combat combat;
+
+    [Header("Sanity_stuff")]
+    public MentalState mentalState;
+    public float sanityLockTimer;           // blokada leczenia
+    public float depressionTimer;           // 15 min
+    public float deepDepressionExitTimer;   // 30 min
+    public float antidepressantCooldown;    // tydzień
+    public int antidepressantAbuseCount;
+
+    float dropItemTimer;
+    float freezeTimer;
     
     [Header("Entity Settings")]
     public EntityType entityType;
@@ -94,7 +111,74 @@ public class EntityStatus : MonoBehaviour
             EffectEffects();
         }
         LimbTracker();
+        UpdatePsychika();
     }
+
+
+    void UpdatePsychika()
+    {
+        entitySanity = Mathf.Clamp(entitySanity, 0f, 100f);
+
+        if (sanityLockTimer > 0f)
+        {
+            sanityLockTimer -= Time.fixedDeltaTime;
+            entitySanity = Mathf.MoveTowards(entitySanity, 25f, Time.fixedDeltaTime * 0.02f);
+            return;
+        }
+
+        switch (GetMentalState())
+        {
+            case MentalState.VeryHappy:
+                ApplyVeryHappy();
+                break;
+
+            case MentalState.Happy:
+                ApplyHappy();
+                break;
+
+            case MentalState.None:
+                ResetMentalModifiers();
+                break;
+
+            case MentalState.Depression:
+                ApplyDepression();
+                break;
+
+            case MentalState.DeepDepression:
+                ApplyDeepDepression();
+                break;
+
+            case MentalState.Suicidal:
+                ApplySuicidal();
+                break;
+
+            case MentalState.PsychDeath:
+                ApplyPsych();
+                break;
+        }
+    }
+
+    MentalState GetMentalState()
+    {
+        if (entitySanity >= 95f) return mentalState = Mood.VeryHappy;
+        if (entitySanity >= 83f) return mentalState = Mood.Happy;
+        if (entitySanity >= 50f) return mentalState = Mood.Normal;
+
+        if (entitySanity >= 25f)
+        {
+            depressionTimer += Time.fixedDeltaTime;
+            if (depressionTimer >= 900f)
+                return mentalState = Mood.Depression;
+
+            return mentalState = Mood.Normal;
+        }
+
+        if (entitySanity >= 5f) return mentalState = Mood.DeepDepression;
+        if (entitySanity > 0f) return mentalState = Mood.Suicidal;
+
+        return mentalState = Mood.PsychDeath;
+    }
+
 
     public void EffectEffects(){
         foreach(FoodItem.Effect applyEffects in effects){
