@@ -66,7 +66,7 @@ public class KCC : MonoBehaviour
 
     public enum State
     {
-        None,
+        None, // speed = 0
         Idle,
         Air,
         Walk,
@@ -77,7 +77,7 @@ public class KCC : MonoBehaviour
         Climbing,
         Hanging,
         Attack,
-        Dash
+        Dash // speed = 11
     }
 
     public State state;
