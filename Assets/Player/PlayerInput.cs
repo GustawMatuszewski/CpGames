@@ -172,6 +172,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RKey"",
+                    ""type"": ""Button"",
+                    ""id"": ""f39db4d7-d90e-4b79-903a-a54cb6c13585"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -372,6 +381,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""ProneInput"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a17e079b-feeb-4195-b648-edbc42e7e655"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RKey"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -389,6 +409,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_PlayerInputMap_InteractInput = m_PlayerInputMap.FindAction("InteractInput", throwIfNotFound: true);
         m_PlayerInputMap_RunInput = m_PlayerInputMap.FindAction("RunInput", throwIfNotFound: true);
         m_PlayerInputMap_ProneInput = m_PlayerInputMap.FindAction("ProneInput", throwIfNotFound: true);
+        m_PlayerInputMap_RKey = m_PlayerInputMap.FindAction("RKey", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -478,6 +499,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerInputMap_InteractInput;
     private readonly InputAction m_PlayerInputMap_RunInput;
     private readonly InputAction m_PlayerInputMap_ProneInput;
+    private readonly InputAction m_PlayerInputMap_RKey;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerInputMap".
     /// </summary>
@@ -525,6 +547,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "PlayerInputMap/ProneInput".
         /// </summary>
         public InputAction @ProneInput => m_Wrapper.m_PlayerInputMap_ProneInput;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerInputMap/RKey".
+        /// </summary>
+        public InputAction @RKey => m_Wrapper.m_PlayerInputMap_RKey;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -578,6 +604,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ProneInput.started += instance.OnProneInput;
             @ProneInput.performed += instance.OnProneInput;
             @ProneInput.canceled += instance.OnProneInput;
+            @RKey.started += instance.OnRKey;
+            @RKey.performed += instance.OnRKey;
+            @RKey.canceled += instance.OnRKey;
         }
 
         /// <summary>
@@ -616,6 +645,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ProneInput.started -= instance.OnProneInput;
             @ProneInput.performed -= instance.OnProneInput;
             @ProneInput.canceled -= instance.OnProneInput;
+            @RKey.started -= instance.OnRKey;
+            @RKey.performed -= instance.OnRKey;
+            @RKey.canceled -= instance.OnRKey;
         }
 
         /// <summary>
@@ -719,5 +751,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnProneInput(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RKey" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRKey(InputAction.CallbackContext context);
     }
 }
