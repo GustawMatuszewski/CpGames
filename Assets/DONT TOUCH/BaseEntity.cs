@@ -12,7 +12,7 @@ public class BaseEntity : MonoBehaviour
     public LayerMask entityMask;
     public bool debugMode = false;
     public float followDistance = 1f;
-    private GameObject currentTarget;
+    protected GameObject currentTarget;
 
     public EntityStatus status;
 
@@ -47,26 +47,26 @@ public class BaseEntity : MonoBehaviour
         Prone   //Stands up after crawing needs to be checked wheter it can if there is space for him to stand
     }
 
-    void FixedUpdate()
-    {
-        DetectEntitiesInSphere(transform.position, 20f, entityMask, groundMask, entities); //Detection sphere can be insta create and it will add entities to entitiy list u choose
+    // void FixedUpdate()
+    // {
+    //     // DetectEntitiesInSphere(transform.position, 20f, entityMask, groundMask, entities); //Detection sphere can be insta create and it will add entities to entitiy list u choose
 
-        if (entities.Count > 0)
-        {
-            if (currentTarget != entities[0])
-                currentTarget = entities[0];
+    //     // if (entities.Count > 0)
+    //     // {
+    //     //     if (currentTarget != entities[0])
+    //     //         currentTarget = entities[0];
 
-            FollowTarget(currentTarget);    //Follows set target
-        }
-        else
-        {
-            currentTarget = null;
-            if (agent != null && agent.hasPath)
-                agent.ResetPath();
-        }
-    }
+    //     //     FollowTarget(currentTarget);    //Follows set target
+    //     // }
+    //     // else
+    //     // {
+    //     //     currentTarget = null;
+    //     //     if (agent != null && agent.hasPath)
+    //     //         agent.ResetPath();
+    //     // }
+    // }
 
-    void DetectEntitiesInSphere(Vector3 origin, float radius, LayerMask entityMask, LayerMask groundMask, List<GameObject> entitiesList)
+    public void DetectEntitiesInSphere(Vector3 origin, float radius, LayerMask entityMask, LayerMask groundMask, List<GameObject> entitiesList)
     {
         Collider[] hits = Physics.OverlapSphere(origin, radius, entityMask);
         List<GameObject> currentEntities = new List<GameObject>();
@@ -90,9 +90,23 @@ public class BaseEntity : MonoBehaviour
     GameObject GetTopParent(GameObject obj)
     {
         Transform current = obj.transform;
+        GameObject foundEntity = null;
+        if(current.GetComponent<EntityStatus>() != null)
+        {
+            foundEntity=current.gameObject;
+        }
+
         while (current.parent != null)
-            current = current.parent;
-        return current.gameObject;
+        {
+            current=current.parent;
+
+            if (current.GetComponent<EntityStatus>() != null)
+            {
+                foundEntity=current.gameObject;
+            }
+        }
+
+        return foundEntity;
     }
 
     public bool TrySetDestination(Vector3 target, bool useSmallerCollider = true, bool moveToNearest = true) //check wheter it need smaller hitbox or normal one can fit Crawl: state

@@ -16,7 +16,7 @@ public class AttackTemplate : ScriptableObject
     //public float attackFromOriginTimer;
 
     public float cooldown;
-    //public float range;
+    public float range;
     //public float radius;
 
     public enum AttackType

@@ -70,6 +70,7 @@ public class Combat : MonoBehaviour {
                 ApplyDamage(currentAttack);
                 attackInProgress = false;
                 cooldownTimer = currentAttack.cooldown;
+                // canAttack=false;
             }
         }
     }
@@ -231,7 +232,7 @@ public class Combat : MonoBehaviour {
                     continue;
 
                 if (debugMode)
-                    Debug.Log("Combat: Hit detected ----> " + hit.name);
+                    Debug.Log("Attacker: "+transform.root.name+" Combat: Hit detected ----> " + hit.name);
 
                 return hit;
             }

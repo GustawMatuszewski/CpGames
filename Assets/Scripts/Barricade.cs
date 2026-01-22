@@ -4,8 +4,10 @@ using System.Collections.Generic;
 public class Barricade : MonoBehaviour, IInteractable {
     public bool useSnapping = true;
     public List<Transform> snapPoints = new List<Transform>();
+    public Transform lookAtPoint;
     public bool UseSnapping => useSnapping;
     public List<Transform> InteractionPositions => snapPoints;
+    public Transform LookAtTarget => lookAtPoint;
 
     public float barricadeHp = 0f;
     public int barricadeLevel = 0;
