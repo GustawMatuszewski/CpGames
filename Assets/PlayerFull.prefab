@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 2912097335666613828}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -47.670124, y: 8.15138, z: -16.583927}
+  m_LocalPosition: {x: -33.103527, y: 10.448717, z: -21.322388}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -287,7 +287,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerLogic: {fileID: 319013317773352581}
   animator: {fileID: 5076522597391097931}
-  playerState: 0
+  currentState: 0
 --- !u!136 &4262611054609343931
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -340,7 +340,7 @@ MonoBehaviour:
   maxSlideIterations: 5
   maxSlopeAngle: 45
   standingHeight: 1.8
-  proneHeight: 0
+  proneHeight: 1.1
   crouchHeight: 1.2
   capsuleRadius: 0.5
   collisionMask:
