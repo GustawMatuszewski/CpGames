@@ -55,19 +55,15 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Depth: 9.95
-    - _High_Frequency: 20.93
-    - _Normal_Strength: 1.75
+    - _Depth: 3.71
+    - _Normal_Strength: 0
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Refraction_Speed: 0.02
+    - _Refraction_Speed: 0.04
     - _Refraction_Strength: 0.08
-    - _Smoothness: 0.72
-    - _Wave_Amplitude: 0.22
-    - _Wave_Speed: 0.76
     m_Colors:
     - _Deep_Water_Color: {r: 0.07489497, g: 0.21147273, b: 0.5924529, a: 0.6745098}
-    - _Refraction_Scale: {r: 7, g: 3, b: 0, a: 0}
+    - _Refraction_Scale: {r: 7.13, g: 9.29, b: 0, a: 0}
     - _Shallow_Water_Color: {r: 0.16130286, g: 0.7433963, b: 0.63681585, a: 0.69411767}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
