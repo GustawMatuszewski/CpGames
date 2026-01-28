@@ -567,13 +567,25 @@ public class UI_Script : MonoBehaviour
             }
         }
 
-
-        public void HideInventory()
+    public void ShowCrafting()
+    {
+        ShowInventory();
+        var Crafting = root.Q<VisualElement>("Crafting");
+        Crafting.style.display = DisplayStyle.Flex;
+    }
+    public void HideCrafing()
+    {
+        
+        var Crafting = root.Q<VisualElement>("Crafting");
+        Crafting.style.display = DisplayStyle.None;
+    }
+    public void HideInventory()
             {
                 var BSlots = root.Q<VisualElement>("BSlots");
                 var Title = root.Q<VisualElement>("Title");
                 var QSlots = root.Q<VisualElement>("QSlots");
-
+                var Crafting = root.Q<VisualElement>("Crafting");
+                Crafting.style.display = DisplayStyle.None;
 
 
             LHand.style.display = DisplayStyle.None;
