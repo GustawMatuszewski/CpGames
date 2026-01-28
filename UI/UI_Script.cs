@@ -1,4 +1,4 @@
-using System;
+﻿using System;
     using System.Collections.Generic;
     using System.Drawing;
     using System.Linq;
@@ -60,7 +60,10 @@ public class UI_Script : MonoBehaviour
         bool dropSucceeded;
 
 
-
+    private void Start()
+    {
+        HideInventory();
+    }
 
     void Awake()
         {
@@ -239,7 +242,7 @@ public class UI_Script : MonoBehaviour
                 if (currentDragSource == DragSourceType.List)
                 {
                     // Przywróć do listy
-                    addItem(draggedItemData.originalItem);
+                    addItem(draggedItemData.name, draggedItemData.category, 1, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
                 }
                 else if (currentDragSource == DragSourceType.QSlot && draggedFromSlot != null)
                 {
@@ -248,7 +251,7 @@ public class UI_Script : MonoBehaviour
                     if (icon != null) icon.image = draggedItemData.icon.texture;
                     draggedFromSlot.userData = draggedItemData;
 
-                    // PRZYWRACANIE TEKSTU
+                    // PRZYWRACANIE TEKSTU (bo w PointerDown go czyścisz)
                     Label slotLabel = draggedFromSlot.Q<Label>("Slot_Info");
                     if (slotLabel != null) slotLabel.text = draggedItemData.name;
                 }
@@ -284,7 +287,7 @@ public class UI_Script : MonoBehaviour
             // Wstawiamy ciągnięty przedmiot do nowego slotu
             SetSlotData(target, draggedItemData);
 
-            // swap
+            // Jeśli w docelowym slocie coś było, przenieś to do starego slotu (Swap)
             if (targetData != null)
             {
                 SetSlotData(draggedFromSlot, targetData);
@@ -296,7 +299,7 @@ public class UI_Script : MonoBehaviour
         else if (currentDragSource == DragSourceType.QSlot &&
                 (target.name == "Items_scrol" || target.ClassListContains("BSlots") || target.ClassListContains("Item")))
         {
-            addItem(draggedItemData.originalItem);
+            addItem(draggedItemData.name, draggedItemData.category, 1, draggedItemData.weight, draggedItemData.icon,draggedItemData.originalItem);
             dropSucceeded = true;
         }
         // PRZYPADEK: Lista -> Slot
@@ -308,7 +311,7 @@ public class UI_Script : MonoBehaviour
         }
     }
 
-    
+    // Pomocnicza metoda, żeby nie powtarzać kodu:
     void SetSlotData(VisualElement slot, ItemData data)
     {
         if (slot == null || data == null) return;
@@ -365,16 +368,10 @@ public class UI_Script : MonoBehaviour
 
 
         }
-
-
-        public void addItem(Item original)
+        public void addItem(string name, string category, int quantity, float weight, Sprite icon,Item original)
         {
-             int quantity = 1;
-            string name = original.itemName;
-            float weight = original.weight;
-            Sprite icon = original.icon;
-            Item.ItemType type = original.itemType;
-            string category = type.ToString(); 
+
+ 
 
             ScrollView scroll = root.Q<ScrollView>("Items_scrol");
 
@@ -542,6 +539,12 @@ public class UI_Script : MonoBehaviour
 
         }
 
+  
+
+
+
+
+
         public void SendItemList(List<Item> items)
         {
             Debug.Log("UI dostało listę itemów:");
@@ -552,11 +555,18 @@ public class UI_Script : MonoBehaviour
                 string name = item.itemName;
                 float weight = item.weight;
                 Sprite icon = item.icon;
-                Item.ItemType type = item.itemType;
-                string typeString = type.ToString(); // ✅ This is correct
-                addItem(item);
+                 Item.ItemType type = item.itemType;
+                  string typeString = type.ToString(); // ✅ This is correct
+
+
+
+
+
+
+            addItem(name, typeString, 1, 10.5f,icon, item);
             }
         }
+
 
         public void HideInventory()
             {
@@ -606,29 +616,14 @@ public class UI_Script : MonoBehaviour
                 slot[i].style.opacity = 1f;
 
             }
-     
+        RemoveItem("Coal");
 
             // ustawiamy direction parenta
-            var slots = QSlots.parent; 
+            var slots = QSlots.parent; // to powinien być "Slots"
             slots.style.flexDirection = FlexDirection.Row;
         }
 
 
-    private void ClearSlot(VisualElement slot)
-    {
-        if (slot == null) return;
-
-        // 1. Czyścimy ikonę
-        Image icon = slot.Q<Image>("Item_Icon");
-        if (icon != null) icon.image = null;
-
-        // 2. Czyścimy tekst/etykietę
-        Label infoLabel = slot.Q<Label>("Slot_Info");
-        if (infoLabel != null) infoLabel.text = string.Empty;
-
-        // 3. Usuwamy dane przedmiotu
-        slot.userData = null;
-    }
 
 
     public void RemoveItem(string itemName, int amount = 1)
@@ -639,19 +634,7 @@ public class UI_Script : MonoBehaviour
 
         VisualElement itemRoot = scroll.contentContainer.Q(itemName);
         if (itemRoot == null)
-        {
-
-            int index = QSlotFind(itemName);
-            if (index != -1)
-            {
-                ClearSlot(qSlotsList[index]);
-                Debug.Log($"Usunięto {itemName} z QSlotu o indeksie {index}");
-            }
             return;
-
-
-
-        }
 
         Label qtyLabel = itemRoot.Q<Label>("ItemQty");
         Label weightLabel = itemRoot.Q<Label>("ItemWeight");
@@ -664,14 +647,14 @@ public class UI_Script : MonoBehaviour
 
         if (newQty <= 0)
         {
-            
+            // 🔥 usuń cały item z listy
             itemRoot.RemoveFromHierarchy();
         }
         else
         {
             qtyLabel.text = newQty.ToString();
 
-            
+            // oblicz wagę jednostkową
             float totalWeight = float.Parse(weightLabel.text);
             float singleWeight = totalWeight / currentQty;
 
@@ -696,34 +679,17 @@ public class UI_Script : MonoBehaviour
         // 2. Pobieramy VisualElement slotu
         VisualElement slot = qSlotsList[index];
 
-        
+        // 3. Pobieramy dane z userData i rzutujemy na ItemData
         ItemData data = slot.userData as ItemData;
 
         if (data == null)
         {
-            //Debug.Log($"Slot {index} jest pusty.");
+            Debug.Log($"Slot {index} jest pusty.");
             return null;
         }
 
         return data;
     }
-
-    int QSlotFind(string name)
-    {
-        for (int i = 0; i < qSlotsList.Count; i++)
-        {
-            ItemData data = GetItemFromQSlot(i);
-
-            if (data == null)
-                continue;
-
-            if (data.name == name)
-                return i;
-        }
-
-        return -1;
-    }
-
     public Item GetItemLeftHand()
     {
         ItemData data = GetItemFromQSlot(9);
@@ -736,18 +702,7 @@ public class UI_Script : MonoBehaviour
     }
     void Update()
         {
-            if (Keyboard.current.hKey.wasPressedThisFrame)
-            {
-                
-                HideInventory();
-           
-            
-            }
-            if (Keyboard.current.eKey.wasPressedThisFrame)
-            {
 
-                ShowInventory();
-            }
         }
 
 
