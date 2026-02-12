@@ -7,7 +7,7 @@ QualitySettings:
   m_CurrentQuality: 1
   m_QualitySettings:
   - serializedVersion: 4
-    name: Mobile
+    name: Pc
     pixelLightCount: 2
     shadows: 2
     shadowResolution: 1
@@ -17,7 +17,7 @@ QualitySettings:
     shadowNearPlaneOffset: 3
     shadowCascade2Split: 0.33333334
     shadowCascade4Split: {x: 0.06666667, y: 0.2, z: 0.46666667}
-    shadowmaskMode: 0
+    shadowmaskMode: 1
     skinWeights: 2
     globalTextureMipmapLimit: 0
     textureMipmapLimitSettings: []
@@ -47,7 +47,7 @@ QualitySettings:
     asyncUploadBufferSize: 16
     asyncUploadPersistentBuffer: 1
     resolutionScalingFixedDPIFactor: 1
-    customRenderPipeline: {fileID: 11400000, guid: 5e6cbd92db86f4b18aec3ed561671858, type: 2}
+    customRenderPipeline: {fileID: 11400000, guid: 80feec0d882084a4aabea2701bbaecb1, type: 2}
     terrainQualityOverrides: 0
     terrainPixelError: 1
     terrainDetailDensityScale: 1
@@ -60,7 +60,7 @@ QualitySettings:
     excludedTargetPlatforms:
     - Standalone
   - serializedVersion: 4
-    name: PC
+    name: mobile
     pixelLightCount: 2
     shadows: 2
     shadowResolution: 1
@@ -71,10 +71,10 @@ QualitySettings:
     shadowCascade2Split: 0.33333334
     shadowCascade4Split: {x: 0.06666667, y: 0.2, z: 0.46666667}
     shadowmaskMode: 1
-    skinWeights: 4
+    skinWeights: 2
     globalTextureMipmapLimit: 0
     textureMipmapLimitSettings: []
-    anisotropicTextures: 2
+    anisotropicTextures: 1
     antiAliasing: 0
     softParticles: 0
     softVegetation: 1
@@ -86,9 +86,9 @@ QualitySettings:
     realtimeGICPUUsage: 100
     adaptiveVsyncExtraA: 0
     adaptiveVsyncExtraB: 0
-    lodBias: 2
+    lodBias: 1
     maximumLODLevel: 0
-    enableLODCrossFade: 0
+    enableLODCrossFade: 1
     streamingMipmapsActive: 0
     streamingMipmapsAddAllCameras: 1
     streamingMipmapsMemoryBudget: 512
@@ -100,7 +100,7 @@ QualitySettings:
     asyncUploadBufferSize: 16
     asyncUploadPersistentBuffer: 1
     resolutionScalingFixedDPIFactor: 1
-    customRenderPipeline: {fileID: 11400000, guid: 4b83569d67af61e458304325a23e5dfd, type: 2}
+    customRenderPipeline: {fileID: 11400000, guid: 80feec0d882084a4aabea2701bbaecb1, type: 2}
     terrainQualityOverrides: 0
     terrainPixelError: 1
     terrainDetailDensityScale: 1
@@ -111,21 +111,20 @@ QualitySettings:
     terrainFadeLength: 5
     terrainMaxTrees: 50
     excludedTargetPlatforms:
-    - Android
-    - iPhone
+    - Standalone
   m_TextureMipmapLimitGroupNames: []
   m_PerPlatformDefaultQuality:
     Android: 0
-    GameCoreScarlett: 1
-    GameCoreXboxOne: 1
+    GameCoreScarlett: 0
+    GameCoreXboxOne: 0
     Lumin: 0
-    Nintendo Switch: 1
-    Nintendo Switch 2: 1
-    PS4: 1
-    PS5: 1
+    Nintendo Switch: 0
+    Nintendo Switch 2: 0
+    PS4: 0
+    PS5: 0
     Server: 0
     Stadia: 0
-    Standalone: 1
+    Standalone: 0
     WebGL: 0
     Windows Store Apps: 0
     XboxOne: 0
