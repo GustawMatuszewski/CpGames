@@ -2,11 +2,7 @@
     "m_SGVersion": 3,
     "m_Type": "UnityEditor.ShaderGraph.GraphData",
     "m_ObjectId": "08851c1276584a2d94af75b299b1f0cc",
-    "m_Properties": [
-        {
-            "m_Id": "c72023b558cf4e659a3436bc75a3e195"
-        }
-    ],
+    "m_Properties": [],
     "m_Keywords": [],
     "m_Dropdowns": [],
     "m_CategoryData": [
@@ -234,43 +230,11 @@
 }
 
 {
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
-    "m_ObjectId": "c72023b558cf4e659a3436bc75a3e195",
-    "m_Guid": {
-        "m_GuidSerialized": "fb1eeff3-4068-461e-a4f6-812ef13b663f"
-    },
-    "m_Name": "Resolution",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "Resolution",
-    "m_DefaultReferenceName": "_Resolution",
-    "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_Value": 0.0,
-    "m_FloatType": 0,
-    "m_RangeValues": {
-        "x": 0.0,
-        "y": 1.0
-    }
-}
-
-{
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.CategoryData",
     "m_ObjectId": "d716edfce8934c6b868732b3ae352c75",
     "m_Name": "",
-    "m_ChildObjectList": [
-        {
-            "m_Id": "c72023b558cf4e659a3436bc75a3e195"
-        }
-    ]
+    "m_ChildObjectList": []
 }
 
 {
