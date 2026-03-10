@@ -23,13 +23,20 @@ public class crafting : MonoBehaviour
 
             craft = false;
         }
-    }
 
-    bool CanCraft(){
+    }
+    //to aby móg³ widziec funkcje z UI
+    public static crafting Instance;
+    void Awake()
+    {
+        Instance = this;
+    }
+    //koniec to
+    public bool CanCraft(){
         if (outcomeItem == null || outcomeItem.craftingRecipe == null)
             return false;
         CraftingRecipe recipe = outcomeItem.craftingRecipe;
-
+        Debug.Log("Wywoluje CANCRAFT Poprawnie");
         neededItems.Clear();
         foreach (var ingredient in recipe.itemsList)
             neededItems.Add(ingredient);

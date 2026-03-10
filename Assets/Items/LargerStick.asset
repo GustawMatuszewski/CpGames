@@ -14,12 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: 4
   itemName: LargeSick
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 0b2ea5cb21b586e71852d06f21cdc9c2, type: 3}
   description: "Can be used as a weapon a large n heavy stick\t."
+  useScript: {fileID: 0}
+  craftingRecipe: {fileID: 0}
   weight: 4
   durability: 100
   usesLeft: 100
-  craftable: 1
   burnCalories: 300
   itemType: 4
   materialType: 1

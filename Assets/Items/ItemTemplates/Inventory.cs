@@ -20,7 +20,12 @@ public class Inventory : MonoBehaviour
                 Debug.Log("Added "+ item.itemName);
         }
     }
+    void Start()
+    {
 
+        UI_Script.Instance.SendItemList(inventory);
+        UI_Script.Instance.HideInventory();
+    }
     public void Add(Item item, int quantity = 1){
         AddToInventory(inventory, quantity, item);
     }

@@ -1,5 +1,25 @@
-<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">    <Style src="project://database/Assets/UI/style.uss?fileID=7433441132597879392&amp;guid=8605e4e9e6cc1c1448067906f37590a0&amp;type=3#style"/>
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/style.uss?fileID=7433441132597879392&amp;guid=8605e4e9e6cc1c1448067906f37590a0&amp;type=3#style"/>
     <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: column; flex-wrap: wrap-reverse;">
+        <ui:VisualElement name="Crafting" style="position: absolute;">
+            <ui:VisualElement name="CrafTitle" style="height: 10%;">
+                <ui:Label text="Crafting" name="CrafTitleText" style="font-size: 45px;"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="CraftTable" style="flex-grow: 1;">
+                <ui:VisualElement name="Table" style="flex-grow: 1; justify-content: center; align-items: center;">
+                    <ui:VisualElement name="TableMultiSlot" style="flex-grow: 0;"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="Actions" style="flex-grow: 1;">
+                    <ui:VisualElement name="MakeButton" style="flex-grow: 1;">
+                        <ui:Button text="Button" name="CraftingButton"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="CraftingInfo" style="flex-grow: 1;"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="CraftAvalible" style="flex-grow: 1;">
+                <ui:ScrollView name="CraftableList"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
         <ui:VisualElement name="Inventory" style="flex-grow: 1; position: relative;">
             <ui:VisualElement name="Title" style="flex-grow: 0; display: flex;">
                 <ui:Label text="Player INventory" name="PInventory" class="font" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; position: relative;"/>
