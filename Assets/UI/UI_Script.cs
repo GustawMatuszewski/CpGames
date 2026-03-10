@@ -801,7 +801,7 @@ public class UI_Script : MonoBehaviour
     }
     void Update()
         {
-        ShowCrafting();
+        
     }
 
     void AddItemToTable(VisualElement table, ItemData data,Vector2 localPos, int quantity)
