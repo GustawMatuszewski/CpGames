@@ -5,7 +5,7 @@ using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.Rendering;
 using Unity.VisualScripting;
 
-public class DayAndNightCycle : MonoBehaviour
+public class EnviromentManager : MonoBehaviour
 {
     [Header("Time settings")]
     [Range(0, 24)]
@@ -32,11 +32,22 @@ public class DayAndNightCycle : MonoBehaviour
     public AnimationCurve moonIntensityMultiplier;
     public AnimationCurve moonTemperatureCurve;
 
+    [Header("Cloud settings")]
+    public Volume globalVolume;
+    public AnimationCurve cloudsDensityCurve;
+    public AnimationCurve cloudsAltitudeCurve;
+    private VolumetricClouds volumetricClouds;
+
+
     
     void Start()
     {
         UpdateTimeText();
         CheckShadowStatus();
+        if (globalVolume.profile.TryGet<VolumetricClouds>(out var component))
+        {
+            volumetricClouds = component;
+        }
     }
     void Update()
     {
@@ -50,6 +61,7 @@ public class DayAndNightCycle : MonoBehaviour
         UpdateTimeText();
         UpdateLight();
         CheckShadowStatus();
+        UpdateClouds();
     }
     private void OnValidate()
     {
@@ -137,5 +149,17 @@ public class DayAndNightCycle : MonoBehaviour
             moonLight.gameObject.SetActive(true);
             moonActive=true;
         }
+    }
+
+    // Clouds
+    void UpdateClouds()
+    {
+        if(volumetricClouds == null) return;
+        float normalizedTime = currentTime/24f;
+        volumetricClouds.densityMultiplier.overrideState = true;
+        volumetricClouds.bottomAltitude.overrideState = true;
+        volumetricClouds.densityMultiplier.value = cloudsDensityCurve.Evaluate(normalizedTime);
+        volumetricClouds.bottomAltitude.value = cloudsAltitudeCurve.Evaluate(normalizedTime);
+        
     }
 }
