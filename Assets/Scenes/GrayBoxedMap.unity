@@ -7847,7 +7847,7 @@ GameObject:
   - component: {fileID: 233803207}
   - component: {fileID: 233803208}
   m_Layer: 0
-  m_Name: EnviromentController
+  m_Name: EnvironmentController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7880,7 +7880,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a78cedd2bd370a40a9278c1a57d5fda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentTime: 14.5
+  currentTime: 7.1
   timeSpeed: 1
   currentTimeString: 
   sunLight: {fileID: 582311861}
@@ -7992,7 +7992,7 @@ MonoBehaviour:
   sunActive: 1
   moonActive: 0
   moonLight: {fileID: 544621901}
-  moonIntensity: 6450
+  moonIntensity: 1658
   moonIntensityMultiplier:
     serializedVersion: 2
     m_Curve:
@@ -8276,10 +8276,28 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   windSpeed: 0
-  windDirection: {x: 0, y: 0}
+  windDirection: {x: 1, y: 0}
   windSpeedCurve:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 35
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 35
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -8291,36 +8309,36 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
-      inSlope: 2
-      outSlope: 2
+      value: 100
+      inSlope: -240
+      outSlope: -240
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 0.25
-      value: 0.5
-      inSlope: 2.0027804
-      outSlope: 2.0027804
-      tangentMode: 34
+      value: 40
+      inSlope: -421.58078
+      outSlope: -421.58078
+      tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
+      inWeight: 0.47482014
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 0.49930683
-      value: 1
-      inSlope: 0.0055454373
-      outSlope: 0.0055454373
+      value: 1000
+      inSlope: 329.76245
+      outSlope: 329.76245
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 0.75
-      value: 0.5
-      inSlope: -1.9972351
-      outSlope: -1.9972351
+      value: 200
+      inSlope: -1995.5759
+      outSlope: -1995.5759
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -8328,8 +8346,8 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: -2
-      outSlope: -2
+      inSlope: -800
+      outSlope: -800
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -18010,7 +18028,7 @@ Light:
   serializedVersion: 11
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 5559.2554
+  m_Intensity: 1004.0696
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -18072,7 +18090,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 544621899}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.4422718, y: -0.007826592, z: -0.0038596475, w: -0.8968386}
+  m_LocalRotation: {x: 0.9896137, y: -0.0012521929, z: -0.008636228, w: -0.1434871}
   m_LocalPosition: {x: 335.19864, y: 49.52468, z: 114.37758}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -19654,7 +19672,7 @@ Light:
   serializedVersion: 11
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 43095.004
+  m_Intensity: 30279.541
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -19697,7 +19715,7 @@ Light:
   m_LightShadowCasterMode: 2
   m_AreaSize: {x: 0.5, y: 0.5}
   m_BounceIntensity: 1
-  m_ColorTemperature: 8619.001
+  m_ColorTemperature: 6055.908
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
@@ -19716,7 +19734,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 582311859}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.8968386, y: 0.0038596478, z: -0.007826592, w: 0.44227183}
+  m_LocalRotation: {x: 0.14348716, y: 0.008636228, z: -0.0012521935, w: 0.9896137}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
