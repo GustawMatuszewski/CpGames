@@ -5,7 +5,7 @@ using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.Rendering;
 using Unity.VisualScripting;
 
-public class EnviromentManager : MonoBehaviour
+public class EnvironmentManager : MonoBehaviour
 {
     [Header("Time settings")]
     [Range(0, 24)]
@@ -38,15 +38,52 @@ public class EnviromentManager : MonoBehaviour
     public AnimationCurve cloudsAltitudeCurve;
     private VolumetricClouds volumetricClouds;
 
+    [Header("Weather parameters")]
+    public float currentTemperature;
+    public AnimationCurve temperatureCurve;
+
+    [Range(0,100)]
+    public float currentHumidity;
+    public AnimationCurve humidityCurve;
+
+    [Header("Wind settings")]
+    public float windSpeed;
+    public Vector2 windDirection = new Vector2(1f, 0f);
+    public AnimationCurve windSpeedCurve;
+    [Tooltip("The temperature perveived with the wind, can be used for things like making the player feel colder when the wind is strong")]
+    public float perceivedWindTemperature; // for player status stuff
+    public float windChillFactor = 0.5f; // how much the wind affects the perceived temperature
+    [Tooltip("Wind zone is used for plants and other things that react to wind")]
+    public WindZone windZone; // for plants and other things that react to wind
+
+    [Header("Fog settings")]
+    public AnimationCurve fogDensityCurve;
+    private Fog volumetricFog;
+
+
+    private VisualEnvironment visualEnv;
 
     
     void Start()
     {
         UpdateTimeText();
         CheckShadowStatus();
-        if (globalVolume.profile.TryGet<VolumetricClouds>(out var component))
+        // Get vol clouds component :P
+        if (globalVolume.profile.TryGet<VolumetricClouds>(out var clouds))
         {
-            volumetricClouds = component;
+            volumetricClouds = clouds;
+        }
+        // Get fog component
+        if (globalVolume.profile.TryGet<Fog>(out var fog))
+        {
+            volumetricFog = fog;
+        }
+        //get visual enviroment
+        if(globalVolume.profile.TryGet<VisualEnvironment>(out var env))
+        {
+            visualEnv = env;
+            visualEnv.windSpeed.overrideState = true;
+            visualEnv.windOrientation.overrideState = true;
         }
     }
     void Update()
@@ -62,6 +99,7 @@ public class EnviromentManager : MonoBehaviour
         UpdateLight();
         CheckShadowStatus();
         UpdateClouds();
+        UpdateWeather();
     }
     private void OnValidate()
     {
@@ -150,16 +188,57 @@ public class EnviromentManager : MonoBehaviour
             moonActive=true;
         }
     }
-
-    // Clouds
     void UpdateClouds()
     {
         if(volumetricClouds == null) return;
+
         float normalizedTime = currentTime/24f;
+        
         volumetricClouds.densityMultiplier.overrideState = true;
         volumetricClouds.bottomAltitude.overrideState = true;
         volumetricClouds.densityMultiplier.value = cloudsDensityCurve.Evaluate(normalizedTime);
         volumetricClouds.bottomAltitude.value = cloudsAltitudeCurve.Evaluate(normalizedTime);
         
+        volumetricClouds.globalWindSpeed.overrideState = true;
+
+        volumetricClouds.globalWindSpeed.value= new WindParameter.WindParamaterValue
+        {
+            mode = WindParameter.WindOverrideMode.Custom,
+            customValue =  windSpeed
+        };
+    }
+    void UpdateWeather()
+    {
+        float normalizedTime = currentTime/24f;
+        //wind temperature and humidity levels taken from curves
+        currentTemperature = temperatureCurve.Evaluate(normalizedTime);
+        currentHumidity = humidityCurve.Evaluate(normalizedTime);
+        windSpeed = windSpeedCurve.Evaluate(normalizedTime);
+
+        if(windSpeed>0)
+        {
+            perceivedWindTemperature = currentTemperature - (windSpeed * windChillFactor);
+        }else
+        {
+            perceivedWindTemperature = currentTemperature;
+        }
+
+        if(windZone != null)
+        {
+            windZone.windMain = windSpeed;
+            //rotate wind zone in wind direction so grass moves correctly
+            Vector3 windDir3D = new Vector3(windDirection.x, 0f, windDirection.y);
+            if(windDir3D != Vector3.zero)
+            {
+                windZone.transform.rotation = Quaternion.LookRotation(windDir3D);
+            }
+        }
+
+        if(volumetricFog != null)
+        {
+            volumetricFog.meanFreePath.overrideState = true;
+            // the distance you see the fog from, ex. 10 fog is close, 1000 is far
+            volumetricFog.meanFreePath.value = fogDensityCurve.Evaluate(normalizedTime);
+        }
     }
 }
