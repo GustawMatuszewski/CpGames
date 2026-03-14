@@ -69183,6 +69183,18 @@ PrefabInstance:
       propertyPath: modelTransform
       value: 
       objectReference: {fileID: 1404757712}
+    - target: {fileID: 1088881675855902518, guid: d5953b72dbd973d4498b472b516646a6, type: 3}
+      propertyPath: anim_Walk_Backward
+      value: Walking_Backwards
+      objectReference: {fileID: 0}
+    - target: {fileID: 1088881675855902518, guid: d5953b72dbd973d4498b472b516646a6, type: 3}
+      propertyPath: anim_Walk_Backward_Left
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1088881675855902518, guid: d5953b72dbd973d4498b472b516646a6, type: 3}
+      propertyPath: Simple_Animations_Changing_Directions
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2003810916690581702, guid: d5953b72dbd973d4498b472b516646a6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 4
