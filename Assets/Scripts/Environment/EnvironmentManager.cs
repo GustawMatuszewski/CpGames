@@ -7,6 +7,8 @@ using Unity.VisualScripting;
 
 public class EnvironmentManager : MonoBehaviour
 {
+    [Header("Preset")]
+    public WeatherPreset activePreset;
     [Header("Time settings")]
     [Range(0, 24)]
     public float currentTime;
@@ -34,22 +36,15 @@ public class EnvironmentManager : MonoBehaviour
 
     [Header("Cloud settings")]
     public Volume globalVolume;
-    public AnimationCurve cloudsDensityCurve;
-    public AnimationCurve cloudsAltitudeCurve;
     private VolumetricClouds volumetricClouds;
 
-    [Header("Weather parameters")]
+    [Header("Weather parameters (Read-only)")]
     public float currentTemperature;
-    public AnimationCurve temperatureCurve;
-
-    [Range(0,100)]
-    public float currentHumidity;
-    public AnimationCurve humidityCurve;
+    [Range(0,100)] public float currentHumidity;
+    public float windSpeed;
 
     [Header("Wind settings")]
-    public float windSpeed;
-    public Vector2 windDirection = new Vector2(1f, 0f);
-    public AnimationCurve windSpeedCurve;
+    public Vector2 windDirection = new Vector2(1f, 0f); 
     [Tooltip("The temperature perveived with the wind, can be used for things like making the player feel colder when the wind is strong")]
     public float perceivedWindTemperature; // for player status stuff
     public float windChillFactor = 0.5f; // how much the wind affects the perceived temperature
@@ -57,8 +52,8 @@ public class EnvironmentManager : MonoBehaviour
     public WindZone windZone; // for plants and other things that react to wind
 
     [Header("Fog settings")]
-    public AnimationCurve fogDensityCurve;
     private Fog volumetricFog;
+    public Color baseFogColor = Color.white;
 
 
     private VisualEnvironment visualEnv;
@@ -71,11 +66,15 @@ public class EnvironmentManager : MonoBehaviour
     {
         volumetricClouds.densityMultiplier.overrideState = true;
         volumetricClouds.bottomAltitude.overrideState = true;
+        volumetricClouds.shapeFactor.overrideState = true;
+        volumetricClouds.erosionFactor.overrideState = true;
+        volumetricClouds.altitudeRange.overrideState = true;
     }
 
     if (globalVolume.profile.TryGet<Fog>(out volumetricFog))
     {
-        volumetricFog.meanFreePath.overrideState = true;
+        volumetricFog.meanFreePath.overrideState = true; // fog density
+        volumetricFog.albedo.overrideState = true; // fog color
     }
 
     if (globalVolume.profile.TryGet<VisualEnvironment>(out visualEnv))
@@ -115,9 +114,9 @@ public class EnvironmentManager : MonoBehaviour
     {
         float normalizedTime = currentTime/24f;
 
-        currentTemperature = temperatureCurve.Evaluate(normalizedTime);
-        currentHumidity = humidityCurve.Evaluate(normalizedTime);
-        windSpeed = windSpeedCurve.Evaluate(normalizedTime);
+        currentTemperature = activePreset.temperatureCurve.Evaluate(normalizedTime);
+        currentHumidity = activePreset.humidityCurve.Evaluate(normalizedTime);
+        windSpeed = activePreset.windSpeedCurve.Evaluate(normalizedTime);
 
         if (windSpeed > 0)
         {
@@ -179,16 +178,22 @@ public class EnvironmentManager : MonoBehaviour
     }
     void ApplyCloudsAndFog()
     {
+        if (activePreset == null) return;
         float normalizedTime = currentTime/24f;
         if(volumetricClouds != null)
         {
-            volumetricClouds.densityMultiplier.value = cloudsDensityCurve.Evaluate(normalizedTime);
-            volumetricClouds.bottomAltitude.value = cloudsAltitudeCurve.Evaluate(normalizedTime);
+            volumetricClouds.densityMultiplier.value = activePreset.cloudsDensityCurve.Evaluate(normalizedTime);
+            volumetricClouds.bottomAltitude.value = activePreset.cloudsBottomAltitudeCurve.Evaluate(normalizedTime);
+
+            volumetricClouds.shapeFactor.value = activePreset.shapeFactor;
+            volumetricClouds.erosionFactor.value = activePreset.erosionFactor;
+            volumetricClouds.altitudeRange.value = activePreset.AltitudeRange;
         }
 
         if(volumetricFog != null)
         {
-            volumetricFog.meanFreePath.value = fogDensityCurve.Evaluate(normalizedTime);
+            volumetricFog.meanFreePath.value = activePreset.fogDensityCurve.Evaluate(normalizedTime);
+            volumetricFog.albedo.value = Color.Lerp(baseFogColor, activePreset.rainFogColor, activePreset.rainIntensity); // if it's raining, lerp the fog color towards the rain fog color based on the rain intensity
         }
     }
     void ApplyWind()
@@ -205,10 +210,11 @@ public class EnvironmentManager : MonoBehaviour
         
         if(visualEnv != null)
         {
-            visualEnv.windSpeed.value = windSpeed;
+            visualEnv.windSpeed.value = windSpeed * 20f;
             //converting the 2D wind direction to an angle for the shader, where (1,0) is 0 degrees, (0,1) is 90 degrees, (-1,0) is 180 degrees and (0,-1) is 270 degrees
-            float windAngle = Mathf.Atan2(windDirection.x, windDirection.y) * Mathf.Rad2Deg;
-            visualEnv.windOrientation.value = windAngle;
+            // float windAngle = Mathf.Atan2(windDirection.y, windDirection.x) * Mathf.Rad2Deg;
+            // visualEnv.windOrientation.value = windAngle;
+            visualEnv.windOrientation.value = windZone.transform.eulerAngles.y;
         }
     }
 }
