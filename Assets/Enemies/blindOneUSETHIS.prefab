@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7308596756608858026}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: BaseEnemyBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42,7 +42,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2523237557743688364}
   - component: {fileID: 3008504646760742804}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: AttackHitbox
   m_TagString: Hitbox
   m_Icon: {fileID: 0}
@@ -99,7 +99,7 @@ GameObject:
   - component: {fileID: 4838742986915129527}
   - component: {fileID: -1836297785196642117}
   - component: {fileID: 8927250200212894461}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: blindOneUSETHIS
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -144,12 +144,12 @@ MonoBehaviour:
     m_Bits: 8
   entityMask:
     serializedVersion: 2
-    m_Bits: 128
-  debugMode: 0
-  followDistance: 1
+    m_Bits: 64
+  debugMode: 1
+  followDistance: 20
   status: {fileID: 0}
   viewDistance: 15
-  viewAngle: 90
+  viewAngle: 139
   obstacleMask:
     serializedVersion: 2
     m_Bits: 8
@@ -167,7 +167,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3575543358195197379}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e3fa99c57f739c43e8ef5c3edee6904c, type: 3}
   m_Name: 
@@ -183,10 +183,10 @@ MonoBehaviour:
   entityMaxSanity: 100
   entityMaxTiredness: 100
   entityMaxStamina: 100
-  entityHealth: 0
-  entityHunger: 0
-  entityThirst: 0
-  entitySanity: 0
+  entityHealth: 100
+  entityHunger: 100
+  entityThirst: 50
+  entitySanity: 90
   entityTiredness: 0
   entityStamina: 0
   entityBodyTemp: 0
@@ -305,7 +305,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 822402990838255695}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ChangeThisForAnimationModel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -340,7 +340,7 @@ GameObject:
   - component: {fileID: 6351838026105169803}
   - component: {fileID: 3477100700464642098}
   - component: {fileID: 5305452941535365783}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: temporary
   m_TagString: Untagged
   m_Icon: {fileID: 0}
