@@ -39,6 +39,7 @@ public class Combat : MonoBehaviour {
     public List<string> damageHitboxNameList = new List<string>();
     public string hitboxTag;
     public List<AttackTemplate> attackTemplates = new List<AttackTemplate>();
+    public PlayerAnimationsController animationsController;
 
     [Header("Combat ios")]
     public bool combatActive;
@@ -70,7 +71,8 @@ public class Combat : MonoBehaviour {
                 ApplyDamage(currentAttack);
                 attackInProgress = false;
                 cooldownTimer = currentAttack.cooldown;
-                // canAttack=false;
+                if (animationsController != null && !string.IsNullOrEmpty(currentAttack.HittingAnimation))
+    animationsController.PlayCombatAnimation(currentAttack.HittingAnimation);
             }
         }
     }
