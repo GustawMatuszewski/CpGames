@@ -24,6 +24,8 @@ public class PlayerAnimationsController : MonoBehaviour
     public float rotationSpeed = 15f;
     private MovementStateController.mState lastState = MovementStateController.mState.None;
     private Quaternion targetRotation;
+    private bool isCombatAnimPlaying = false; // ← NOWE
+    private Coroutine combatCoroutine;
 
     [Header("Unique Animations")]
     public string anim_Jump = "";
@@ -63,7 +65,7 @@ public class PlayerAnimationsController : MonoBehaviour
     public string anim_Run_Backward_Left = "";
 
     [Header("Sprint Animations")]
-     public string anim_Sprint_Forward = "";
+    public string anim_Sprint_Forward = "";
     public string anim_Sprint_Forward_Right = "";
     public string anim_Sprint_Forward_Left = "";
     public string anim_Sprint_Right = "";
@@ -82,7 +84,7 @@ public class PlayerAnimationsController : MonoBehaviour
         if (MovementStateController == null || animator == null) return;
 
         MovementStateController.mState currentState = MovementStateController.currentBaseState;
-        if (currentState != lastState)
+        if (currentState != lastState && !isCombatAnimPlaying) // ← ZMIENIONE
         {
             Debug.Log("New Animation State: " + currentState);
             PlayAnimationForState(currentState);
@@ -96,9 +98,33 @@ public class PlayerAnimationsController : MonoBehaviour
         }
     }
 
-    void PlayAnimationForState(MovementStateController.mState state) // It plays animations!!
+    // ← NOWE: wywoływane przez Combat.cs
+   public void PlayCombatAnimation(string animName)
+{
+    if (string.IsNullOrEmpty(animName)) return;
+    
+    // Zatrzymaj poprzednią coroutine zanim odpalisz nową
+    if (combatCoroutine != null) StopCoroutine(combatCoroutine);
+    
+    isCombatAnimPlaying = true;
+    SafeCrossFade(animName);
+    combatCoroutine = StartCoroutine(CombatAnimCooldown());
+}
+
+private IEnumerator CombatAnimCooldown()
+{
+    yield return null;
+    yield return new WaitForSeconds(transitionDuration); // ← DODAJ TO, poczekaj na zakończenie CrossFade
+    float animLength = animator.GetCurrentAnimatorStateInfo(0).length;
+    yield return new WaitForSeconds(animLength);
+    isCombatAnimPlaying = false;
+    lastState = MovementStateController.mState.None;
+    combatCoroutine = null;
+}
+
+    void PlayAnimationForState(MovementStateController.mState state)
     {
-        if(Simple_Animations_Changing_Directions) // Simple animations
+        if(Simple_Animations_Changing_Directions)
         {
             switch (state)
             {
@@ -140,7 +166,7 @@ public class PlayerAnimationsController : MonoBehaviour
                     SafeCrossFade(anim_Sprint_Forward); break;
             }
         }
-        else if(!Simple_Animations_Changing_Directions) // Advenced animations
+        else if(!Simple_Animations_Changing_Directions)
         {
             switch (state)
             {
@@ -162,10 +188,10 @@ public class PlayerAnimationsController : MonoBehaviour
         }
     }
 
-    void SetTargetRotationForState(MovementStateController.mState state) // Rotating player if state is equal to smth
+    void SetTargetRotationForState(MovementStateController.mState state)
     {
-        float fRight = Forward_Side_ANGLE; //f = forward, s = side, b = backward
-        float fLeft = Forward_Side_ANGLE * -1; 
+        float fRight = Forward_Side_ANGLE;
+        float fLeft = Forward_Side_ANGLE * -1;
         float sRight = Side_ANGLE;
         float sLeft = Side_ANGLE * -1;
         float bRight = Backward_Side_ANGLE * -1;
@@ -183,9 +209,9 @@ public class PlayerAnimationsController : MonoBehaviour
             case MovementStateController.mState.Walk_Backward:
             case MovementStateController.mState.Run_Backward:
             case MovementStateController.mState.Sprint_Backward:
-                targetAngle = 0f; 
+                targetAngle = 0f;
                 break;
-                
+
             case MovementStateController.mState.Walk_Forward_Right or MovementStateController.mState.Run_Forward_Right
             or MovementStateController.mState.Sprint_Forward_Right or MovementStateController.mState.Crouch_Forward_Right:
                 targetAngle = fRight;

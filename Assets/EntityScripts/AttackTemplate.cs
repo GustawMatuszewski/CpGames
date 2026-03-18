@@ -8,6 +8,7 @@ public class AttackTemplate : ScriptableObject
     public float damage;
     public float attackSpeed;
     public float timeToAttack;
+    public string HittingAnimation;
 
     //Add Animation Here for attack
     public GameObject attackPrefab;
