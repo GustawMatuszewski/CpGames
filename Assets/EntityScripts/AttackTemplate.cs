@@ -18,7 +18,7 @@ public class AttackTemplate : ScriptableObject
     public float cooldown;
     public float range;
     //public float radius;
-
+    public string animationName;
     public enum AttackType
     {
         None,
