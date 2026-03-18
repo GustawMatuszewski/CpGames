@@ -49,8 +49,13 @@ public class EnemyEntity : BaseEntity
 
     void FixedUpdate()
     {
+        
         DetectEntitiesInSphere(transform.position, viewDistance, entityMask, groundMask, entities);
         GameObject visibleTarget = CheckForVisibleTarget();
+        if (player != null && CanSeeTarget(player.transform)) 
+        {
+            visibleTarget = player.gameObject;
+        }
 
         Vector3? heardNoisePos = null;
         if(visibleTarget==null && enemyState != EntityState.Attack)
@@ -110,16 +115,25 @@ public class EnemyEntity : BaseEntity
 
     bool CanSeeTarget(Transform target)
     {
-        Vector3 dirToTarget = (target.position - transform.position);
+        // Raise both the origin and the target destination so the ray doesn't clip the floor
+        Vector3 origin = transform.position + Vector3.up;
+        Vector3 targetPos = target.position + Vector3.up; 
+        
+        Vector3 dirToTarget = targetPos - origin;
         float distance = dirToTarget.magnitude;
 
         if (distance > viewDistance) return false;
 
         dirToTarget.Normalize();
 
-        if (Vector3.Angle(transform.forward, dirToTarget) > viewAngle * 0.5f) return false;
+        // Calculate angle using the flat direction (ignoring height differences)
+        Vector3 flatDir = (target.position - transform.position).normalized;
+        flatDir.y = 0;
+        
+        if (Vector3.Angle(transform.forward, flatDir) > viewAngle * 0.5f) return false;
 
-        if (Physics.Raycast(transform.position + Vector3.up, dirToTarget, distance, obstacleMask)) return false;
+        // Cast the ray. If it hits the Ground (obstacleMask), return false.
+        if (Physics.Raycast(origin, dirToTarget, distance, obstacleMask)) return false;
 
         return true;
     }
