@@ -1,11 +1,16 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+
+public enum InventoryType { Player, Chest, itemsCraftings ,Others,}
 public class Inventory : MonoBehaviour
 {
     [Header("DEBUG MODE!!!")]
     public bool debugMode = true;
 
+    [Header("Inventory Settings")]
+    public InventoryType type = InventoryType.Others;//po to aby tylko wysylcac liste gracza anie jakies losowe craftingii....
+    
     [Header("References")]
     public Inventory outsideInventory;
     public ItemDatabase itemDatabase;
@@ -22,9 +27,17 @@ public class Inventory : MonoBehaviour
     }
     void Start()
     {
-
-        UI_Script.Instance.SendItemList(inventory);
-        UI_Script.Instance.HideInventory();
+        // Only register with UI if this is the player's inventory
+        if (type == InventoryType.Player && UI_Script.Instance != null)
+        {
+            UI_Script.Instance.SendItemList(inventory);
+            
+            UI_Script.Instance.HideInventory();
+        }
+        if (type == InventoryType.Player && UI_Script.Instance != null)
+        {
+            UI_Script.Instance.SendItemCraftable(inventory);
+        }
     }
     public void Add(Item item, int quantity = 1){
         AddToInventory(inventory, quantity, item);

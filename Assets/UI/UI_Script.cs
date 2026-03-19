@@ -35,6 +35,7 @@ public class ItemWithPosition
 
 public class UI_Script : MonoBehaviour
     {
+    [SerializeField] int maxWeight;
     public Sprite defaultPlaceholderIcon;
 
         public static UI_Script Instance;
@@ -46,9 +47,10 @@ public class UI_Script : MonoBehaviour
         VisualElement dragOriginElement;
         List<Image> itemIcons;
         VisualElement  root;
-        List<Item> InitItemList;
         List<Item> ItemList;
-
+ 
+    bool crafintgIsOpen = false;
+    bool inventoryIsOpen = false;
         VisualElement dragIcon;
         bool isDragging = false;
         VisualElement draggedItemRoot;
@@ -56,12 +58,14 @@ public class UI_Script : MonoBehaviour
         Image draggedSourceImage;
         VisualElement LHand;
         VisualElement RHand;
+        List<Item> UIRecipes;
         List<VisualElement> qSlotsList;
             UnityColor style1;
             UnityColor style2;
             UnityColor style3;
             UnityColor style4;
             UnityColor style5;
+    public Sprite CraftbuttonIco;
         enum DragSourceType
         {
             List,
@@ -80,18 +84,24 @@ public class UI_Script : MonoBehaviour
        // ShowInventory();
     }
 
+    [Obsolete]
     void Awake()
-        {
+    {
 
             Instance = this;
-            InitItemList = new List<Item>();
-            UnityEngine.ColorUtility.TryParseHtmlString("#8693AB", out style1);
-            UnityEngine.ColorUtility.TryParseHtmlString("#BDD4E7", out style2);
-            UnityEngine.ColorUtility.TryParseHtmlString("#212227", out style3);
+           
+            UnityEngine.ColorUtility.TryParseHtmlString("#ADADAD", out style1);
+            style1.a = 0.5f;
+            UnityEngine.ColorUtility.TryParseHtmlString("#A46C27", out style2);
+            
+            UnityEngine.ColorUtility.TryParseHtmlString("#ADADAD", out style3);
+            style3.a = 0.5f;
             UnityEngine.ColorUtility.TryParseHtmlString("#637074", out style4);
-            UnityEngine.ColorUtility.TryParseHtmlString("#AAB9CF", out style5);
+            style4.a = 0.5f;
+            UnityEngine.ColorUtility.TryParseHtmlString("#272727", out style5);
+            style5.a = 0.5f;
 
-            root = UI_doc.rootVisualElement;
+        root = UI_doc.rootVisualElement;
             List<VisualElement> qSlots = root.Query<VisualElement>(className: "QSlot").ToList();
             // pobieramy listę QSlotów
             qSlotsList = root.Query<VisualElement>(className: "QSlot").ToList();
@@ -171,7 +181,7 @@ public class UI_Script : MonoBehaviour
 
 
 
-        }
+        }   
 
 
 
@@ -279,21 +289,105 @@ public class UI_Script : MonoBehaviour
 
 
             CleanupDrag();
+            weightRefresh();
         }
 
+        //gradient buttona
+        var gradient = new GradientElement();
+       // gradient.gradientType = GradientElement.GradientType.DiagonalLeftTopToRightBottom;
+        UnityEngine.ColorUtility.TryParseHtmlString("#3f3f3f", out UnityEngine.Color startColor);
+        UnityEngine.ColorUtility.TryParseHtmlString("#313131", out UnityEngine.Color endColor);
+        UnityEngine.ColorUtility.TryParseHtmlString("#2e2e2e", out UnityEngine.Color darkStart);
+        UnityEngine.ColorUtility.TryParseHtmlString("#202020", out UnityEngine.Color darkEnd);
+        gradient.startColor = startColor;
+        gradient.endColor = endColor;
 
 
+        var button = root.Q<Button>("CraftingButton");
 
+        gradient.style.position = Position.Absolute;
+        gradient.style.left = 0;
+        gradient.style.right = 0;
+        gradient.style.top = 0;
+        gradient.style.bottom = 0;
+        gradient.pickingMode = PickingMode.Ignore;
 
+        button.Insert(0, gradient);
 
+        var iconElement = new VisualElement();
+        iconElement.style.backgroundImage = new StyleBackground(CraftbuttonIco); // Ustawienie ikony
+        iconElement.style.flexGrow = 1;
 
-        
+        // Opcjonalne: Ustawienie sposobu skalowania ikony (np. zachowanie proporcji)
+        iconElement.style.unityBackgroundScaleMode = ScaleMode.ScaleToFit;
 
+        button.Add(iconElement);
 
+ 
+
+        // Efekt przycisku
+        button.clicked += () =>
+        {
+            // Przyciemnienie
+            gradient.startColor = darkStart;
+            gradient.endColor = darkEnd;
+            gradient.MarkDirtyRepaint();
+
+            // Przywrócenie po 0.1s
+            root.schedule.Execute(() =>
+            {
+                gradient.startColor = startColor;
+                gradient.endColor = endColor;
+                gradient.MarkDirtyRepaint();
+            }).StartingIn(100); // milisekundy
+        };
+        //gradient buttona end
+
+        var crafTitle = root.Q<VisualElement>("CrafTitle");
+        var title = root.Q<VisualElement>("Title");
+        AddGradientToElement(crafTitle);
+        AddGradientToElement(title);
+
+        var container = root.Q<VisualElement>("Items");
+        var items = container.Query<VisualElement>(className: "ItemsBG").ToList();
+        // Iterujemy po wszystkich elementach
+        for (int i = 0; i < items.Count; i++)
+        {
+            var element = items[i];
+            element.pickingMode = PickingMode.Ignore;
+            if (i % 2 == 0)
+            {
+                UnityEngine.ColorUtility.TryParseHtmlString("#1e1c16", out UnityEngine.Color tempColor);
+                element.style.backgroundColor = tempColor;
+            }
+
+        }
+    }
+
+        void AddGradientToElement(VisualElement element)
+    {
+        var gradient = new GradientElement();
+
+        // Ustaw kolory gradientu KOLORY GUSTAWA XD
+        UnityEngine.ColorUtility.TryParseHtmlString("#6d6d6d", out gradient.startColor);
+        UnityEngine.ColorUtility.TryParseHtmlString("#323232", out gradient.endColor);
+        //gradient.gradientType = GradientElement.GradientType.TopDown;
+        // Ustaw gradient jako absolutny i wypełniający cały element
+        gradient.style.position = Position.Absolute;
+        gradient.style.left = 0;
+        gradient.style.right = 0;
+        gradient.style.top = 0;
+        gradient.style.bottom = 0;
+
+        gradient.pickingMode = PickingMode.Ignore; // nie blokuje interakcji
+
+        // Dodajemy gradient jako pierwsze dziecko, żeby był w tle
+        element.Insert(0, gradient);
     }
     void HandleDrop(VisualElement target, Vector2 dropPosition)
     {
         if (draggedItemData == null) return;
+       
         bool isStack = draggedQuantity > 1;
 
         if (target.name == "Table" || target.ClassListContains("TableContent")) // Celujemy w stół
@@ -396,9 +490,11 @@ public class UI_Script : MonoBehaviour
 
         void StartDrag(Vector2 position, Texture texture)
         {
-            LHand.AddToClassList("Hand-Active");
-            RHand.AddToClassList("Hand-Active");
-
+            if (crafintgIsOpen == false)
+            {
+                LHand.AddToClassList("Hand-Active");
+                RHand.AddToClassList("Hand-Active");
+            }
             dragIcon = new VisualElement();
             dragIcon.style.width = 64;
             dragIcon.style.height = 64;
@@ -412,6 +508,7 @@ public class UI_Script : MonoBehaviour
 
             dragIcon.style.left = position.x - 32;
             dragIcon.style.top = position.y - 32;
+            weightRefresh();
         }
 
 
@@ -449,6 +546,8 @@ public class UI_Script : MonoBehaviour
                 // 🔹 NOWY ITEM (DIV)
                 VisualElement itemRoot = new VisualElement();
                 itemRoot.style.height = 40;
+            itemRoot.style.paddingRight = 5;
+            itemRoot.style.paddingLeft = 5;
 
                 itemRoot.name = name;
                 itemRoot.style.flexDirection = FlexDirection.Row;
@@ -512,6 +611,7 @@ public class UI_Script : MonoBehaviour
                 if (draggedQuantity >= totalAvailable)
                 {
                     itemRoot.RemoveFromHierarchy();
+                    RefreshItemsStyles();
                 }
                 else
                 {
@@ -536,7 +636,7 @@ public class UI_Script : MonoBehaviour
                 imgContainer.style.alignItems = Align.Center;
             
                 imgContainer.style.flexShrink = 0;
-                imgContainer.style.backgroundColor = style2;
+               // imgContainer.style.backgroundColor = style2;
 
                 Image imagediv = new Image();
                 imagediv.image = icon.texture;
@@ -547,29 +647,29 @@ public class UI_Script : MonoBehaviour
 
                 Label nameLabel = new Label(name);
                 nameLabel.name = "ItemName";
-                nameLabel.style.width= Length.Percent(40);
+                nameLabel.style.width= Length.Percent(35);
                 nameLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
-                nameLabel.style.backgroundColor = style1;
+               // nameLabel.style.backgroundColor = style1;
             
                 Label typeLabel = new Label(category);
-                typeLabel.style.width = Length.Percent(30);
+                typeLabel.style.width = Length.Percent(25);
                 typeLabel.name = "Type";  
                 typeLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
-                typeLabel.style.backgroundColor = style5;
+                //typeLabel.style.backgroundColor = style5;
 
                 Label qtyLabel = new Label(quantity.ToString());
                 qtyLabel.name = "ItemQty";
-                qtyLabel.style.width = Length.Percent(10);
+                qtyLabel.style.width = Length.Percent(20);
                 qtyLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
          
-                qtyLabel.style.backgroundColor = style1;
+               // qtyLabel.style.backgroundColor = style1;
 
                 Label weightLabel = new Label((weight * quantity).ToString());
                 weightLabel.name = "ItemWeight";
                 weightLabel.style.width = Length.Percent(10);
                 weightLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
           
-                weightLabel.style.backgroundColor = style5;
+             //   weightLabel.style.backgroundColor = style5;
 
 
 
@@ -602,7 +702,7 @@ public class UI_Script : MonoBehaviour
                 qtyLabel.text = newQty.ToString();
                 weightLabel.text = (newQty * weight).ToString();
             }
-
+        RefreshItemsStyles();
 
         }
 
@@ -615,12 +715,17 @@ public class UI_Script : MonoBehaviour
         public void SendItemList(List<Item> items)
         {
             Debug.Log("UI dostało listę itemów:");
-        InitItemList = new List<Item>(items);
+       
         ItemList = new List<Item>(items);
 
         foreach (Item item in items)
             {
-                string name = item.itemName;
+            if (item == null)
+            {
+                Debug.LogWarning("Znaleziono pusty element na liście przedmiotów!");
+                continue;
+            }
+            string name = item.itemName;//wyseitli bald 
                 float weight = item.weight;
                 Sprite icon = item.icon != null ? item.icon : defaultPlaceholderIcon;
                  Item.ItemType type = item.itemType;
@@ -631,15 +736,46 @@ public class UI_Script : MonoBehaviour
 
 
 
-            addItem(name, typeString, 1, 10.5f,icon, item);
+            addItem(name, typeString, 1, weight, icon, item);
             }
         }
+    private void RefreshItemsStyles()
+    {
+        ScrollView scroll = root.Q<ScrollView>("Items_scrol");
+    
+        var items = scroll.contentContainer.Children().ToList();
 
+        for (int i = 0; i < items.Count; i++)
+        {
+         
+            items[i].RemoveFromClassList("row-even");
+            items[i].RemoveFromClassList("row-odd");
+
+            
+            if (i % 2 == 0)
+                items[i].AddToClassList("row-even");
+            else
+                items[i].AddToClassList("row-odd");
+        }
+    }
     public void ShowCrafting()
     {
         ShowInventory();
         var Crafting = root.Q<VisualElement>("Crafting");
-        Crafting.style.display = DisplayStyle.Flex;
+        Crafting.style.display = DisplayStyle.Flex; 
+        crafintgIsOpen = true;
+
+
+    }
+    public void toggleCrafting() 
+    {
+        if (inventoryIsOpen == true)
+            HideInventory();
+        else
+            ShowCrafting();
+
+
+
 
     }
     public void HideCrafing()
@@ -647,6 +783,7 @@ public class UI_Script : MonoBehaviour
         
         var Crafting = root.Q<VisualElement>("Crafting");
         Crafting.style.display = DisplayStyle.None;
+        crafintgIsOpen = false;
     }
     public void HideInventory()
             {
@@ -659,11 +796,11 @@ public class UI_Script : MonoBehaviour
         UnityEngine.Cursor.visible = false;
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
 
-        LHand.style.display = DisplayStyle.None;
+            LHand.style.display = DisplayStyle.None;
             RHand.style.display = DisplayStyle.None;
             BSlots.style.display = DisplayStyle.None;
-                Title.style.display = DisplayStyle.None;
-            QSlots.style.backgroundColor = new UnityEngine.Color(0, 0, 0, 0.2f); // przyciemnienie
+            Title.style.display = DisplayStyle.None;
+            //QSlots.style.backgroundColor = new UnityEngine.Color(0, 0, 0, 0.2f); // przyciemnienie
 
 
             List<Label> slot = root.Query<Label>(className: "QSlot").ToList();
@@ -677,7 +814,8 @@ public class UI_Script : MonoBehaviour
                 // ustawiamy direction parenta
                 var slots = QSlots.parent; // to powinien być "Slots"
                 slots.style.flexDirection = FlexDirection.RowReverse;
-      
+        inventoryIsOpen = false;
+
     }
         public void ShowInventory()
         {
@@ -691,7 +829,7 @@ public class UI_Script : MonoBehaviour
             BSlots.style.display = DisplayStyle.Flex;
             Title.style.display = DisplayStyle.Flex;
 
-            QSlots.style.backgroundColor = new UnityEngine.Color(255, 0, 0, 1f);
+            //QSlots.style.backgroundColor = new UnityEngine.Color(255, 0, 0, 1f);
 
 
             List<Label> slot = root.Query<Label>(className: "QSlot").ToList();
@@ -706,7 +844,16 @@ public class UI_Script : MonoBehaviour
             // ustawiamy direction parenta
             var slots = QSlots.parent; // to powinien być "Slots"
             slots.style.flexDirection = FlexDirection.Row;
-        }
+     
+
+                
+                foreach (Item recipeItem in UIRecipes)
+                {
+                    // Wywołujemy AddUnique dla każdego elementu
+                    AddUnique(recipeItem);
+                }
+        inventoryIsOpen = true;
+    }
 
 
 
@@ -736,7 +883,7 @@ public class UI_Script : MonoBehaviour
         {
             if (ItemList[i].itemName == itemName)
             {
-                InitItemList.RemoveAt(i);
+                ItemList.RemoveAt(i);
                 removedCount++;
 
                 if (removedCount >= amount)
@@ -802,6 +949,7 @@ public class UI_Script : MonoBehaviour
     void Update()
         {
         
+        
     }
 
     void AddItemToTable(VisualElement table, ItemData data,Vector2 localPos, int quantity)
@@ -849,19 +997,19 @@ public class UI_Script : MonoBehaviour
             draggedQuantity = quantity;
             draggedItemData = tableData;
             draggedFromSlot = null; // To nie jest slot, tylko luźny obiekt
-            currentDragSource = DragSourceType.List; // Traktujemy to jak wyciąganie z listy (powrót do eq)
+            currentDragSource = DragSourceType.List; // (powrót do eq)
             dropSucceeded = false;
 
             StartDrag(evt.position, data.icon.texture);
 
-            // Usuwamy go ze stołu, bo "wisi" teraz pod myszką
+            // usunac go ze stołu, bo "wisi" teraz pod myszką
             itemOnTable.RemoveFromHierarchy();
         });
 
         table.Add(itemOnTable);
 
-        // Opcjonalnie: jeśli stół ma Layout ustawiony na 'Flex-Row' i 'Flex-Wrap: Wrap', 
-        // przedmioty będą się ładnie układać obok siebie.
+        
+        // przedmioty układają się obok siebie.
         table.style.flexDirection = FlexDirection.Row;
         table.style.flexWrap = Wrap.Wrap;
         
@@ -898,6 +1046,7 @@ public class UI_Script : MonoBehaviour
 
             await Task.Delay(100);
         }
+        Debug.Log(CraftingItems[0].weight);
         ClearTable();
         List<Item> CraftingRturn = craftingInventory.inventory;
         SpawnItemsOnTable(CraftingRturn);
@@ -911,9 +1060,10 @@ public class UI_Script : MonoBehaviour
 
         // Szukamy wszystkich elementów, które dodaliśmy jako przedmioty
         List<VisualElement> itemsToRemove = table.Query<VisualElement>(className: "TableItem").ToList();
-
+        
         foreach (var item in itemsToRemove)
         {
+            
             item.RemoveFromHierarchy();
         }
 
@@ -951,7 +1101,82 @@ public class UI_Script : MonoBehaviour
             AddItemToTable(table, data, pos, 1);
         }
     }
-    private Vector2 GetAverageItemPosition() //poprostu licze gdzie chce aby przedmiot poajiwl sie na stole
+
+
+
+    public float weightRefresh()
+    {
+        float totalWeight = 0f;
+
+        // 1. Sumujemy wagę z głównej listy (Scroll View)
+        var itemsInScroll = root.Q<ScrollView>("Items_scrol").contentContainer.Query<VisualElement>(className: "Item").ToList();
+        foreach (var itemRow in itemsInScroll)
+        {
+            if (itemRow.userData is ItemData data)
+            {
+                Label qtyLabel = itemRow.Q<Label>("ItemQty");
+                // Używamy TryParse, żeby uniknąć błędów przy pustych labelach
+                int quantity = (qtyLabel != null && int.TryParse(qtyLabel.text, out int q)) ? q : 1;
+                totalWeight += data.weight * quantity;
+            }
+        }
+
+        // 2. Sumujemy wagę ze slotów QSlot, LHand i RHand
+        float QslotWeight=0;
+        foreach (var slot in qSlotsList)
+        {
+            if (slot != null && slot.userData is ItemData data)
+            {
+                totalWeight += data.weight;
+                QslotWeight+= data.weight;
+            }
+        }
+
+        //draged item weight
+        if (isDragging && draggedItemData != null)
+        {
+            totalWeight += draggedItemData.weight * draggedQuantity;
+        }
+
+        Label weight = root.Q<Label>("Weight");
+        Label weightQslots = root.Q<Label>("WeightQslots");
+        weight.text = totalWeight + "kg / " + maxWeight +"kg";
+        weightQslots.text = QslotWeight + "kg / " + maxWeight/2 + "kg";
+        weightQslots.style.whiteSpace = WhiteSpace.NoWrap;
+
+        // Ustawiamy dynamiczne skalowanie (w nowszych wersjach Unity)
+        // Jeśli nie widzisz tego w edytorze, kodem wymusisz to tak:
+       
+       
+
+        // Dodajemy padding, aby tekst nie dotykał brzegów (efekt 90% wypełnienia)
+        weightQslots.style.paddingLeft = Length.Percent(5);
+        weightQslots.style.paddingRight = Length.Percent(5);
+        weightQslots.style.unityTextAlign = TextAnchor.MiddleCenter;
+        return totalWeight;
+    }
+    public void SendItemCraftable(List<Item> recipes)
+    {
+        UIRecipes = recipes;
+    }
+
+    public void AddUnique(Item item)
+    {
+        // ! oznacza "NOT" (jeśli na liście ItemList NIE MA przedmiotu o tej nazwie)
+        if (!ItemList.Exists(i => i.itemName == item.itemName))
+        {
+            // Jeśli robisz ItemList.Add, upewnij się, że ItemList to Twoja lista w UI
+            Item instance = Instantiate(item);
+            ItemList.Add(instance);
+        }
+    }
+
+
+
+
+
+
+    private Vector2 GetAverageItemPosition() //poprostu licze gdzie chce aby przedmiot poajiwl sie na stole //wylaczone czy cos na razie 
     {
         VisualElement table = root.Q<VisualElement>("Table");
         // Pobieramy wszystkie elementy, które są "przedmiotami" na stole

@@ -6259,8 +6259,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 037a299f20ba2ce4fb05ec04b1998e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxWeight: 100
+  defaultPlaceholderIcon: {fileID: 21300000, guid: 0b2ea5cb21b586e71852d06f21cdc9c2, type: 3}
   craftingInventory: {fileID: 1113670224}
   UI_doc: {fileID: 1634090271}
+  CraftbuttonIco: {fileID: 21300000, guid: c316afdb4cb0b664585542767bb0a7d7, type: 3}
 --- !u!1 &1639663438
 GameObject:
   m_ObjectHideFlags: 0
@@ -8773,7 +8776,6 @@ SceneRoots:
   - {fileID: 6533676911452196974}
   - {fileID: 5643050262814580530}
   - {fileID: 2063529274}
-  - {fileID: 1113670227}
   - {fileID: 1594721598}
   - {fileID: 1491819412}
   - {fileID: 1905247211}
@@ -8789,3 +8791,4 @@ SceneRoots:
   - {fileID: 386721045}
   - {fileID: 1880201039}
   - {fileID: 1634090272}
+  - {fileID: 1113670227}
