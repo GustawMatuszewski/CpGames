@@ -75,7 +75,7 @@ public class EntityStatus : MonoBehaviour
 
     public List<FoodItem.Effect> effects;
     public List<Mood> moods;
-    public List<Combat.Limb> limbs;
+    protected List<Combat.Limb> limbs;
 
     Coroutine poisonCoroutine;
     Coroutine nauseaCoroutine;
