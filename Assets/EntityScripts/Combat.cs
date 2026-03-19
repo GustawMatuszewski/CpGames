@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using System.Collections.Generic;
 
 public class Combat : MonoBehaviour {
@@ -39,7 +40,6 @@ public class Combat : MonoBehaviour {
     public List<string> damageHitboxNameList = new List<string>();
     public string hitboxTag;
     public List<AttackTemplate> attackTemplates = new List<AttackTemplate>();
-    public PlayerAnimationsController animationsController;
 
     [Header("Combat ios")]
     public bool combatActive;
@@ -47,14 +47,17 @@ public class Combat : MonoBehaviour {
     public AttackTemplate currentAttack;
     public Collider currentCollision;
 
+    [Header("Damage Received")]
+    public UnityEvent onDamageReceived;
+
     private bool attackInProgress;
     private float attackTimer;
     private float cooldownTimer;
 
     void FixedUpdate() {
         if (combatActive == false)
-            return; 
-            
+            return;
+
         if (cooldownTimer > 0f) {
             cooldownTimer -= Time.fixedDeltaTime;
             return;
@@ -71,8 +74,6 @@ public class Combat : MonoBehaviour {
                 ApplyDamage(currentAttack);
                 attackInProgress = false;
                 cooldownTimer = currentAttack.cooldown;
-                if (animationsController != null && !string.IsNullOrEmpty(currentAttack.HittingAnimation))
-    animationsController.PlayCombatAnimation(currentAttack.HittingAnimation);
             }
         }
     }
@@ -101,6 +102,11 @@ public class Combat : MonoBehaviour {
                 HeavyAttackDamageCalc(attackToApply, hitLimb);
                 break;
         }
+
+        if (debugMode)
+            Debug.Log("[DAMAGE RECEIVED] " + targetCombat.transform.root.name + " | Limb: " + hitLimb.name + " | HP left: " + hitLimb.health);
+
+        targetCombat.onDamageReceived.Invoke();
 
         currentCollision = null;
     }
