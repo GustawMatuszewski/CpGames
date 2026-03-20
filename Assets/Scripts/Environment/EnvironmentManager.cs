@@ -7,8 +7,22 @@ using Unity.VisualScripting;
 
 public class EnvironmentManager : MonoBehaviour
 {
-    [Header("Preset")]
+    [Header("Weather System")]
+    public List<WeatherPreset> availablePresets; // Add this so you can drag in multiple presets
     public WeatherPreset activePreset;
+    private WeatherPreset targetPreset;          // Add this to store where we are transitioning to
+    
+    [Header("Weather Change Settings")]
+    public float minTimeBetweenWeatherChange = 120f;
+    public float maxTimeBetweenWeatherChange = 300f;
+    public float weatherTransitionDuration = 20f; // How long it takes to blend presets
+    
+    private float nextWeatherChangeTime;
+    private float transitionProgress = 0f;
+    private bool isTransitioning = false;
+ 
+
+    
     [Header("Time settings")]
     [Range(0, 24)]
     public float currentTime;
@@ -57,6 +71,7 @@ public class EnvironmentManager : MonoBehaviour
 
 
     private VisualEnvironment visualEnv;
+    private WeatherPreset nextPreset;
 
     
     void Start()
@@ -98,6 +113,7 @@ public class EnvironmentManager : MonoBehaviour
         UpdateTimeText();
 
         CalculateWeatherLogic();
+        HandleWeatherTransitionTimer();
 
         ApplyVisuals();
     }
@@ -118,14 +134,21 @@ public class EnvironmentManager : MonoBehaviour
         currentHumidity = activePreset.humidityCurve.Evaluate(normalizedTime);
         windSpeed = activePreset.windSpeedCurve.Evaluate(normalizedTime);
 
-        if (windSpeed > 0)
+        if (isTransitioning && targetPreset != null)
         {
-            perceivedWindTemperature = currentTemperature - (windSpeed*windChillFactor);
+            currentTemperature = Mathf.Lerp(activePreset.temperatureCurve.Evaluate(normalizedTime), targetPreset.temperatureCurve.Evaluate(normalizedTime), transitionProgress);
+            currentHumidity = Mathf.Lerp(activePreset.humidityCurve.Evaluate(normalizedTime), targetPreset.humidityCurve.Evaluate(normalizedTime), transitionProgress);
+            windSpeed = Mathf.Lerp(activePreset.windSpeedCurve.Evaluate(normalizedTime), targetPreset.windSpeedCurve.Evaluate(normalizedTime), transitionProgress);
         }
         else
         {
-            perceivedWindTemperature = currentTemperature;
+            currentTemperature = activePreset.temperatureCurve.Evaluate(normalizedTime);
+            currentHumidity = activePreset.humidityCurve.Evaluate(normalizedTime);
+            windSpeed = activePreset.windSpeedCurve.Evaluate(normalizedTime);
         }
+        
+        perceivedWindTemperature = currentTemperature - (windSpeed*windChillFactor);
+        
     }
 
     void ApplyVisuals()
@@ -190,6 +213,8 @@ public class EnvironmentManager : MonoBehaviour
             volumetricClouds.altitudeRange.value = activePreset.AltitudeRange;
         }
 
+        // if(volumetricClouds != null && ) 
+
         if(volumetricFog != null)
         {
             volumetricFog.meanFreePath.value = activePreset.fogDensityCurve.Evaluate(normalizedTime);
@@ -216,5 +241,44 @@ public class EnvironmentManager : MonoBehaviour
             // visualEnv.windOrientation.value = windAngle;
             visualEnv.windOrientation.value = windZone.transform.eulerAngles.y;
         }
+    }
+    void HandleWeatherTransitionTimer()
+    {
+        if(!isTransitioning && Time.time >= nextWeatherChangeTime && availablePresets.Count > 1)
+        {
+            ChangeWeatherPreset();
+        }
+
+        if(isTransitioning)
+        {
+            transitionProgress += Time.deltaTime /weatherTransitionDuration;
+
+            if(transitionProgress>=1f)
+            {
+                transitionProgress = 1f;
+                isTransitioning = false;
+                activePreset = targetPreset;
+                SetNextWeatherChangeTimer();
+            }
+        }
+    }
+    void SetNextWeatherChangeTimer()
+    {
+        nextWeatherChangeTime = Time.time + Random.Range(minTimeBetweenWeatherChange, maxTimeBetweenWeatherChange);
+    }
+    void ChangeWeatherPreset()
+    {
+        if (availablePresets.Count <= 1) return;
+
+        // Pick a random preset that is different from the current one
+        WeatherPreset nextPreset = availablePresets[Random.Range(0, availablePresets.Count)];
+        while (nextPreset == activePreset)
+        {
+            nextPreset = availablePresets[Random.Range(0, availablePresets.Count)];
+        }
+
+        targetPreset = nextPreset;
+        transitionProgress = 0f;
+        isTransitioning = true;
     }
 }
