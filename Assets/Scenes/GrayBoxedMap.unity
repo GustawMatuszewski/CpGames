@@ -60750,14 +60750,21 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   enemyDrainRate: 10
-  depressionThreshold: 25
-  depressionDelay: 10
-  depressionDrainRate: 0.2
   entityStatus: {fileID: 1840330939}
   healthThreshold: 50
   injuryDrainRate: 0.5
-  depressionHealthDrainRate: 0.1
-  isDepressed: 0
+  thirstThreshold: 30
+  thirstDrainRate: 0.8
+  staminaThreshold: 20
+  staminaDrainRate: 0.6
+  depressionThreshold: 25
+  deepDepressionThreshold: 24
+  suicidalThreshold: 5
+  depressionDelay: 10
+  deepDepressionExitTime: 1800
+  hasAntidepressants: 0
+  antidepressantUsesThisWeek: 0
+  currentDepressionState: 0
 --- !u!114 &1840330932 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 460039210001888887, guid: d5953b72dbd973d4498b472b516646a6, type: 3}
@@ -69938,10 +69945,10 @@ PrefabInstance:
       addedObject: {fileID: 1840330930}
     - targetCorrespondingSourceObject: {fileID: 832884197373245616, guid: d5953b72dbd973d4498b472b516646a6, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1840330929}
+      addedObject: {fileID: 1840330939}
     - targetCorrespondingSourceObject: {fileID: 832884197373245616, guid: d5953b72dbd973d4498b472b516646a6, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1840330939}
+      addedObject: {fileID: 1840330929}
   m_SourcePrefab: {fileID: 100100000, guid: d5953b72dbd973d4498b472b516646a6, type: 3}
 --- !u!1001 &3525404382616985164
 PrefabInstance:
