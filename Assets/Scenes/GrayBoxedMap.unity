@@ -19482,11 +19482,6 @@ MonoBehaviour:
   m_LightUnit: 0
   m_LuxAtDistance: 1
   m_Intensity: 0
-  m_Version: 13
-  m_ObsoleteShadowResolutionTier: 1
-  m_ObsoleteUseShadowQualitySettings: 0
-  m_ObsoleteCustomShadowResolution: 512
-  m_ObsoleteContactShadows: 0
   m_InnerSpotPercent: 0
   m_SpotIESCutoffPercent: 100
   m_LightDimmer: 1
@@ -19605,6 +19600,11 @@ MonoBehaviour:
   m_AreaLightEmissiveMeshShadowCastingMode: 0
   m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
   m_AreaLightEmissiveMeshLayer: -1
+  m_Version: 13
+  m_ObsoleteShadowResolutionTier: 1
+  m_ObsoleteUseShadowQualitySettings: 0
+  m_ObsoleteCustomShadowResolution: 512
+  m_ObsoleteContactShadows: 0
 --- !u!108 &582311861
 Light:
   m_ObjectHideFlags: 0
@@ -23124,6 +23124,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -1382368988937247556, guid: 4dc46ec7926037dde8c8fae4321ddd79, type: 3}
+      propertyPath: debugMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -236366621250583860, guid: 4dc46ec7926037dde8c8fae4321ddd79, type: 3}
+      propertyPath: test
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -236366621250583860, guid: 4dc46ec7926037dde8c8fae4321ddd79, type: 3}
       propertyPath: limbs.Array.size
       value: 12
@@ -23445,9 +23453,37 @@ PrefabInstance:
       value: blindOneUSETHIS
       objectReference: {fileID: 0}
     - target: {fileID: 4838742986915129527, guid: 4dc46ec7926037dde8c8fae4321ddd79, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 314840714}
+    - target: {fileID: 4838742986915129527, guid: 4dc46ec7926037dde8c8fae4321ddd79, type: 3}
+      propertyPath: canAttack
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4838742986915129527, guid: 4dc46ec7926037dde8c8fae4321ddd79, type: 3}
+      propertyPath: debugMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4838742986915129527, guid: 4dc46ec7926037dde8c8fae4321ddd79, type: 3}
+      propertyPath: combatActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4838742986915129527, guid: 4dc46ec7926037dde8c8fae4321ddd79, type: 3}
+      propertyPath: attackInProgress
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4838742986915129527, guid: 4dc46ec7926037dde8c8fae4321ddd79, type: 3}
       propertyPath: ownerHitboxes.Array.size
       value: 14
       objectReference: {fileID: 0}
+    - target: {fileID: 4838742986915129527, guid: 4dc46ec7926037dde8c8fae4321ddd79, type: 3}
+      propertyPath: attackTemplates.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4838742986915129527, guid: 4dc46ec7926037dde8c8fae4321ddd79, type: 3}
+      propertyPath: 'attackTemplates.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: b1a95aa1505eba60288cb8946c533515, type: 2}
     - target: {fileID: 4838742986915129527, guid: 4dc46ec7926037dde8c8fae4321ddd79, type: 3}
       propertyPath: ownerHitboxes.Array.data[0].name
       value: 
@@ -31609,6 +31645,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugMode: 0
+  animator: {fileID: 509756486}
   ownerHitboxes:
   - name: LeftFoot
     limbHitbox: {fileID: 1617995582}
@@ -31712,7 +31749,8 @@ MonoBehaviour:
   damageHitboxNameList:
   - AttackHitbox
   hitboxTag: Hitbox
-  attackTemplates: []
+  attackTemplates:
+  - {fileID: 11400000, guid: 8e8d9e5793d1d2347b7645acc59e6c41, type: 2}
   combatActive: 0
   canAttack: 0
   currentAttack: {fileID: 0}
@@ -31720,6 +31758,7 @@ MonoBehaviour:
   onDamageReceived:
     m_PersistentCalls:
       m_Calls: []
+  attackInProgress: 0
 --- !u!114 &930407738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35387,11 +35426,6 @@ MonoBehaviour:
   m_LightUnit: 0
   m_LuxAtDistance: 1
   m_Intensity: 0
-  m_Version: 13
-  m_ObsoleteShadowResolutionTier: 1
-  m_ObsoleteUseShadowQualitySettings: 0
-  m_ObsoleteCustomShadowResolution: 512
-  m_ObsoleteContactShadows: 0
   m_InnerSpotPercent: 0
   m_SpotIESCutoffPercent: 100
   m_LightDimmer: 1
@@ -35510,6 +35544,11 @@ MonoBehaviour:
   m_AreaLightEmissiveMeshShadowCastingMode: 0
   m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
   m_AreaLightEmissiveMeshLayer: -1
+  m_Version: 13
+  m_ObsoleteShadowResolutionTier: 1
+  m_ObsoleteUseShadowQualitySettings: 0
+  m_ObsoleteCustomShadowResolution: 512
+  m_ObsoleteContactShadows: 0
 --- !u!1 &1058955925
 GameObject:
   m_ObjectHideFlags: 0
@@ -38080,6 +38119,58 @@ MonoBehaviour:
   largeBand0FadeToggle: 1
   largeBand1FadeToggle: 1
   ripplesFadeToggle: 1
+  surfaceType: 0
+  geometryType: 3
+  meshRenderers: []
+  timeMultiplier: 1
+  scriptInteractions: 1
+  cpuEvaluateRipples: 0
+  customMaterial: {fileID: 2100000, guid: 02d53ebf3d1b1834a80ead3401a45c16, type: 2}
+  startSmoothness: 0.95
+  endSmoothness: 0.85
+  smoothnessFadeStart: 100
+  smoothnessFadeDistance: 500
+  tessellation: 1
+  maxTessellationFactor: 3
+  tessellationFactorFadeStart: 150
+  tessellationFactorFadeRange: 1850
+  refractionColor: {r: 0.010022821, g: 0.21404114, b: 0.21404114, a: 1}
+  maxRefractionDistance: 0.5
+  absorptionDistance: 1.5
+  scatteringColor: {r: 0, g: 0.13286832, b: 0.13286832, a: 1}
+  ambientScattering: 0.2
+  heightScattering: 0.2
+  displacementScattering: 0.1
+  directLightTipScattering: 0.6
+  directLightBodyScattering: 0.5
+  maximumHeightOverride: 0
+  caustics: 0
+  causticsIntensity: 0.5
+  causticsPlaneBlendDistance: 1
+  causticsResolution: 256
+  causticsBand: 2
+  virtualPlaneDistance: 4
+  causticsTilingFactor: 1
+  causticsDirectionalShadow: 0
+  causticsDirectionalShadowDimmer: 0.25
+  renderingLayerMask: 1
+  debugMode: 0
+  waterMaskDebugMode: 0
+  waterCurrentDebugMode: 0
+  currentDebugMultiplier: 1
+  waterFoamDebugMode: 0
+  underWater: 0
+  volumeBounds: {fileID: 0}
+  volumeDepth: 50
+  volumeHeight: 0
+  volumePrority: 0
+  absorptionDistanceMultiplier: 1
+  underWaterAmbientProbeContribution: 1
+  underWaterScatteringColorMode: 0
+  underWaterScatteringColor: {r: 0, g: 0.27, b: 0.23, a: 1}
+  underWaterRefraction: 0
+  decalRegionSize: {x: 200, y: 200}
+  decalRegionAnchor: {fileID: 0}
   supportLargeCurrent: 0
   largeCurrentRes: 512
   largeCurrentSpeedValue: 0
@@ -38176,58 +38267,6 @@ MonoBehaviour:
   waterMaskRemap: {x: 0, y: 1}
   waterMaskExtent: {x: 100, y: 100}
   waterMaskOffset: {x: 0, y: 0}
-  surfaceType: 0
-  geometryType: 3
-  meshRenderers: []
-  timeMultiplier: 1
-  scriptInteractions: 1
-  cpuEvaluateRipples: 0
-  customMaterial: {fileID: 2100000, guid: 02d53ebf3d1b1834a80ead3401a45c16, type: 2}
-  startSmoothness: 0.95
-  endSmoothness: 0.85
-  smoothnessFadeStart: 100
-  smoothnessFadeDistance: 500
-  tessellation: 1
-  maxTessellationFactor: 3
-  tessellationFactorFadeStart: 150
-  tessellationFactorFadeRange: 1850
-  refractionColor: {r: 0.010022821, g: 0.21404114, b: 0.21404114, a: 1}
-  maxRefractionDistance: 0.5
-  absorptionDistance: 1.5
-  scatteringColor: {r: 0, g: 0.13286832, b: 0.13286832, a: 1}
-  ambientScattering: 0.2
-  heightScattering: 0.2
-  displacementScattering: 0.1
-  directLightTipScattering: 0.6
-  directLightBodyScattering: 0.5
-  maximumHeightOverride: 0
-  caustics: 0
-  causticsIntensity: 0.5
-  causticsPlaneBlendDistance: 1
-  causticsResolution: 256
-  causticsBand: 2
-  virtualPlaneDistance: 4
-  causticsTilingFactor: 1
-  causticsDirectionalShadow: 0
-  causticsDirectionalShadowDimmer: 0.25
-  renderingLayerMask: 1
-  debugMode: 0
-  waterMaskDebugMode: 0
-  waterCurrentDebugMode: 0
-  currentDebugMultiplier: 1
-  waterFoamDebugMode: 0
-  underWater: 0
-  volumeBounds: {fileID: 0}
-  volumeDepth: 50
-  volumeHeight: 0
-  volumePrority: 0
-  absorptionDistanceMultiplier: 1
-  underWaterAmbientProbeContribution: 1
-  underWaterScatteringColorMode: 0
-  underWaterScatteringColor: {r: 0, g: 0.27, b: 0.23, a: 1}
-  underWaterRefraction: 0
-  decalRegionSize: {x: 200, y: 200}
-  decalRegionAnchor: {fileID: 0}
 --- !u!4 &1164232177
 Transform:
   m_ObjectHideFlags: 0
@@ -68079,6 +68118,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1885826597611646683, guid: 67991db4adc8f699dae485a88c7fc0fb, type: 3}
+      propertyPath: currentAttack
+      value: 
+      objectReference: {fileID: 11400000, guid: b1a95aa1505eba60288cb8946c533515, type: 2}
+    - target: {fileID: 1885826597611646683, guid: 67991db4adc8f699dae485a88c7fc0fb, type: 3}
+      propertyPath: attackTemplates.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1885826597611646683, guid: 67991db4adc8f699dae485a88c7fc0fb, type: 3}
+      propertyPath: 'attackTemplates.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: b1a95aa1505eba60288cb8946c533515, type: 2}
+    - target: {fileID: 1885826597611646683, guid: 67991db4adc8f699dae485a88c7fc0fb, type: 3}
+      propertyPath: onDamageReceived.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1885826597611646683, guid: 67991db4adc8f699dae485a88c7fc0fb, type: 3}
+      propertyPath: onDamageReceived.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 7464650547655505025, guid: 67991db4adc8f699dae485a88c7fc0fb, type: 3}
       propertyPath: m_Name
       value: TestEntityDummy (1)
@@ -71629,6 +71688,10 @@ PrefabInstance:
     - target: {fileID: 6279222387704369061, guid: d5953b72dbd973d4498b472b516646a6, type: 3}
       propertyPath: m_Name
       value: PlayerFull
+      objectReference: {fileID: 0}
+    - target: {fileID: 7602263757250473946, guid: d5953b72dbd973d4498b472b516646a6, type: 3}
+      propertyPath: velocitySmoothTime
+      value: 0.15
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

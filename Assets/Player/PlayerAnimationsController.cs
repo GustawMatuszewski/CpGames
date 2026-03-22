@@ -24,8 +24,8 @@ public class PlayerAnimationsController : MonoBehaviour
     public float rotationSpeed = 15f;
     private MovementStateController.mState lastState = MovementStateController.mState.None;
     private Quaternion targetRotation;
-    private bool isCombatAnimPlaying = false; // ← NOWE
     private Coroutine combatCoroutine;
+    private Combat combat;
 
     [Header("Unique Animations")]
     public string anim_Jump = "";
@@ -76,6 +76,9 @@ public class PlayerAnimationsController : MonoBehaviour
         if (animator == null) animator = GetComponent<Animator>();
         if (MovementStateController == null) MovementStateController = GetComponent<MovementStateController>();
         if (modelTransform == null) modelTransform = transform;
+        
+        combat = GetComponent<Combat>();
+        
         targetRotation = modelTransform.localRotation;
     }
 
@@ -83,13 +86,26 @@ public class PlayerAnimationsController : MonoBehaviour
     {
         if (MovementStateController == null || animator == null) return;
 
+        // Pobieramy informację o ataku bezpośrednio ze skryptu Combat
+        Combat combat = GetComponent<Combat>();
+        bool attacking = (combat != null && combat.attackInProgress);
+
         MovementStateController.mState currentState = MovementStateController.currentBaseState;
-        if (currentState != lastState && !isCombatAnimPlaying) // ← ZMIENIONE
+
+        // Logika: Jeśli atakujemy, NIE pozwalamy zmieniać animacji ruchu
+        if (!attacking) 
         {
-            Debug.Log("New Animation State: " + currentState);
-            PlayAnimationForState(currentState);
-            SetTargetRotationForState(currentState);
-            lastState = currentState;
+            if (currentState != lastState)
+            {
+                PlayAnimationForState(currentState);
+                SetTargetRotationForState(currentState);
+                lastState = currentState;
+            }
+        }
+        else 
+        {
+            // Jeśli atakujemy, resetujemy lastState, żeby po ataku postać mogła wrócić do Idle/Biegu
+            lastState = MovementStateController.mState.None;
         }
 
         if (modelTransform != null)
@@ -97,31 +113,19 @@ public class PlayerAnimationsController : MonoBehaviour
             modelTransform.localRotation = Quaternion.Slerp(modelTransform.localRotation, targetRotation, Time.deltaTime * rotationSpeed);
         }
     }
-
-    // ← NOWE: wywoływane przez Combat.cs
-   public void PlayCombatAnimation(string animName)
-{
-    if (string.IsNullOrEmpty(animName)) return;
-    
-    // Zatrzymaj poprzednią coroutine zanim odpalisz nową
-    if (combatCoroutine != null) StopCoroutine(combatCoroutine);
-    
-    isCombatAnimPlaying = true;
-    SafeCrossFade(animName);
-    combatCoroutine = StartCoroutine(CombatAnimCooldown());
-}
-
-private IEnumerator CombatAnimCooldown()
-{
-    yield return null;
-    yield return new WaitForSeconds(transitionDuration); // ← DODAJ TO, poczekaj na zakończenie CrossFade
-    float animLength = animator.GetCurrentAnimatorStateInfo(0).length;
-    yield return new WaitForSeconds(animLength);
-    isCombatAnimPlaying = false;
-    lastState = MovementStateController.mState.None;
-    combatCoroutine = null;
-}
-
+    public void PlayCombatAnimation(string animName)
+    {
+        if (string.IsNullOrEmpty(animName))
+        {
+            Debug.LogError("!!! PRÓBA ODPALENIA PUSTEJ ANIMACJI W COMBAT !!!");
+            return;
+        }
+        
+        Debug.Log("<color=red>GRAJ ATACK: </color>" + animName);
+        
+        // Wymuszamy odtworzenie natychmiast, bez płynnego przejścia (na próbę)
+        animator.Play(animName); 
+    }
     void PlayAnimationForState(MovementStateController.mState state)
     {
         if(Simple_Animations_Changing_Directions)
