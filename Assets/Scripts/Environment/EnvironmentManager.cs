@@ -7,8 +7,22 @@ using Unity.VisualScripting;
 
 public class EnvironmentManager : MonoBehaviour
 {
-    [Header("Preset")]
+    [Header("Weather System")]
+    public List<WeatherPreset> availablePresets; // Add this so you can drag in multiple presets
     public WeatherPreset activePreset;
+    private WeatherPreset targetPreset;          // Add this to store where we are transitioning to
+    
+    [Header("Weather Change Settings")]
+    public float minTimeBetweenWeatherChange = 120f;
+    public float maxTimeBetweenWeatherChange = 300f;
+    public float weatherTransitionDuration = 20f; // How long it takes to blend presets
+    
+    private float nextWeatherChangeTime;
+    private float transitionProgress = 0f;
+    private bool isTransitioning = false;
+ 
+
+    
     [Header("Time settings")]
     [Range(0, 24)]
     public float currentTime;
@@ -24,7 +38,7 @@ public class EnvironmentManager : MonoBehaviour
     public AnimationCurve sunIntensityMultiplier;
     public AnimationCurve sunTemperatureCurve;
 
-    public bool isDay = true;
+    public bool isDay =true;
     public bool sunActive = true;
     public bool moonActive = true;
 
@@ -40,11 +54,11 @@ public class EnvironmentManager : MonoBehaviour
 
     [Header("Weather parameters (Read-only)")]
     public float currentTemperature;
-    [Range(0, 100)] public float currentHumidity;
+    [Range(0,100)] public float currentHumidity;
     public float windSpeed;
 
     [Header("Wind settings")]
-    public Vector2 windDirection = new Vector2(1f, 0f);
+    public Vector2 windDirection = new Vector2(1f, 0f); 
     [Tooltip("The temperature perveived with the wind, can be used for things like making the player feel colder when the wind is strong")]
     public float perceivedWindTemperature; // for player status stuff
     public float windChillFactor = 0.5f; // how much the wind affects the perceived temperature
@@ -57,31 +71,32 @@ public class EnvironmentManager : MonoBehaviour
 
 
     private VisualEnvironment visualEnv;
+    private WeatherPreset nextPreset;
 
-
+    
     void Start()
     {
 
-        if (globalVolume.profile.TryGet<VolumetricClouds>(out volumetricClouds))
-        {
-            volumetricClouds.densityMultiplier.overrideState = true;
-            volumetricClouds.bottomAltitude.overrideState = true;
-            volumetricClouds.shapeFactor.overrideState = true;
-            volumetricClouds.erosionFactor.overrideState = true;
-            volumetricClouds.altitudeRange.overrideState = true;
-        }
+    if (globalVolume.profile.TryGet<VolumetricClouds>(out volumetricClouds))
+    {
+        volumetricClouds.densityMultiplier.overrideState = true;
+        volumetricClouds.bottomAltitude.overrideState = true;
+        volumetricClouds.shapeFactor.overrideState = true;
+        volumetricClouds.erosionFactor.overrideState = true;
+        volumetricClouds.altitudeRange.overrideState = true;
+    }
 
-        if (globalVolume.profile.TryGet<Fog>(out volumetricFog))
-        {
-            volumetricFog.meanFreePath.overrideState = true; // fog density
-            volumetricFog.albedo.overrideState = true; // fog color
-        }
+    if (globalVolume.profile.TryGet<Fog>(out volumetricFog))
+    {
+        volumetricFog.meanFreePath.overrideState = true; // fog density
+        volumetricFog.albedo.overrideState = true; // fog color
+    }
 
-        if (globalVolume.profile.TryGet<VisualEnvironment>(out visualEnv))
-        {
-            visualEnv.windSpeed.overrideState = true;
-            visualEnv.windOrientation.overrideState = true;
-        }
+    if (globalVolume.profile.TryGet<VisualEnvironment>(out visualEnv))
+    {
+        visualEnv.windSpeed.overrideState = true;
+        visualEnv.windOrientation.overrideState = true;
+    }
 
         UpdateTimeText();
         CheckShadowStatus();
@@ -90,7 +105,7 @@ public class EnvironmentManager : MonoBehaviour
     {
         currentTime += Time.deltaTime * timeSpeed;
 
-        if (currentTime >= 24f)
+        if(currentTime >= 24f)
         {
             currentTime = 0f;
         }
@@ -98,10 +113,9 @@ public class EnvironmentManager : MonoBehaviour
         UpdateTimeText();
 
         CalculateWeatherLogic();
+        HandleWeatherTransitionTimer();
 
         ApplyVisuals();
-
-        Debug.Log($"Temp: {currentTemperature}°C | Wilgotnoœæ: {currentHumidity}% | Wiatr: {windSpeed}");
     }
     private void OnValidate()
     {
@@ -110,24 +124,31 @@ public class EnvironmentManager : MonoBehaviour
     }
     void UpdateTimeText()
     {
-        currentTimeString = Mathf.Floor(currentTime).ToString("00") + ":" + ((currentTime % 1) * 60).ToString("00");
+        currentTimeString = Mathf.Floor(currentTime).ToString("00") + ":" + ((currentTime%1)*60).ToString("00");
     }
     void CalculateWeatherLogic()
     {
-        float normalizedTime = currentTime / 24f;
+        float normalizedTime = currentTime/24f;
 
         currentTemperature = activePreset.temperatureCurve.Evaluate(normalizedTime);
         currentHumidity = activePreset.humidityCurve.Evaluate(normalizedTime);
         windSpeed = activePreset.windSpeedCurve.Evaluate(normalizedTime);
 
-        if (windSpeed > 0)
+        if (isTransitioning && targetPreset != null)
         {
-            perceivedWindTemperature = currentTemperature - (windSpeed * windChillFactor);
+            currentTemperature = Mathf.Lerp(activePreset.temperatureCurve.Evaluate(normalizedTime), targetPreset.temperatureCurve.Evaluate(normalizedTime), transitionProgress);
+            currentHumidity = Mathf.Lerp(activePreset.humidityCurve.Evaluate(normalizedTime), targetPreset.humidityCurve.Evaluate(normalizedTime), transitionProgress);
+            windSpeed = Mathf.Lerp(activePreset.windSpeedCurve.Evaluate(normalizedTime), targetPreset.windSpeedCurve.Evaluate(normalizedTime), transitionProgress);
         }
         else
         {
-            perceivedWindTemperature = currentTemperature;
+            currentTemperature = activePreset.temperatureCurve.Evaluate(normalizedTime);
+            currentHumidity = activePreset.humidityCurve.Evaluate(normalizedTime);
+            windSpeed = activePreset.windSpeedCurve.Evaluate(normalizedTime);
         }
+        
+        perceivedWindTemperature = currentTemperature - (windSpeed*windChillFactor);
+        
     }
 
     void ApplyVisuals()
@@ -145,17 +166,17 @@ public class EnvironmentManager : MonoBehaviour
         moonLight.transform.rotation = Quaternion.Euler(sunRotation + 90f, sunPosition, 0f);
 
         float normalizedTime = currentTime / 24f;
-
+        
         Light sunLightData = sunLight.GetComponent<Light>();
         Light moonLightData = moonLight.GetComponent<Light>();
 
-        if (sunLightData != null)
+        if(sunLightData != null)
         {
             sunLightData.intensity = sunIntensity * sunIntensityMultiplier.Evaluate(normalizedTime);
             sunLightData.colorTemperature = sunTemperatureCurve.Evaluate(normalizedTime) * 10000f;
         }
-
-        if (moonLightData != null)
+        
+        if(moonLightData != null)
         {
             moonLightData.intensity = moonIntensity * moonIntensityMultiplier.Evaluate(normalizedTime);
             moonLightData.colorTemperature = moonTemperatureCurve.Evaluate(normalizedTime) * 10000f;
@@ -181,8 +202,8 @@ public class EnvironmentManager : MonoBehaviour
     void ApplyCloudsAndFog()
     {
         if (activePreset == null) return;
-        float normalizedTime = currentTime / 24f;
-        if (volumetricClouds != null)
+        float normalizedTime = currentTime/24f;
+        if(volumetricClouds != null)
         {
             volumetricClouds.densityMultiplier.value = activePreset.cloudsDensityCurve.Evaluate(normalizedTime);
             volumetricClouds.bottomAltitude.value = activePreset.cloudsBottomAltitudeCurve.Evaluate(normalizedTime);
@@ -192,7 +213,9 @@ public class EnvironmentManager : MonoBehaviour
             volumetricClouds.altitudeRange.value = activePreset.AltitudeRange;
         }
 
-        if (volumetricFog != null)
+        // if(volumetricClouds != null && ) 
+
+        if(volumetricFog != null)
         {
             volumetricFog.meanFreePath.value = activePreset.fogDensityCurve.Evaluate(normalizedTime);
             volumetricFog.albedo.value = Color.Lerp(baseFogColor, activePreset.rainFogColor, activePreset.rainIntensity); // if it's raining, lerp the fog color towards the rain fog color based on the rain intensity
@@ -200,17 +223,17 @@ public class EnvironmentManager : MonoBehaviour
     }
     void ApplyWind()
     {
-        if (windZone != null)
+        if(windZone != null)
         {
             windZone.windMain = windSpeed;
-            Vector3 windDir3D = new Vector3(windDirection.x, 0f, windDirection.y);
-            if (windDir3D != Vector3.zero)
+            Vector3 windDir3D = new Vector3(windDirection.x,0f,windDirection.y);
+            if(windDir3D != Vector3.zero)
             {
                 windZone.transform.rotation = Quaternion.LookRotation(windDir3D);
             }
         }
-
-        if (visualEnv != null)
+        
+        if(visualEnv != null)
         {
             visualEnv.windSpeed.value = windSpeed * 20f;
             //converting the 2D wind direction to an angle for the shader, where (1,0) is 0 degrees, (0,1) is 90 degrees, (-1,0) is 180 degrees and (0,-1) is 270 degrees
@@ -218,5 +241,44 @@ public class EnvironmentManager : MonoBehaviour
             // visualEnv.windOrientation.value = windAngle;
             visualEnv.windOrientation.value = windZone.transform.eulerAngles.y;
         }
+    }
+    void HandleWeatherTransitionTimer()
+    {
+        if(!isTransitioning && Time.time >= nextWeatherChangeTime && availablePresets.Count > 1)
+        {
+            ChangeWeatherPreset();
+        }
+
+        if(isTransitioning)
+        {
+            transitionProgress += Time.deltaTime /weatherTransitionDuration;
+
+            if(transitionProgress>=1f)
+            {
+                transitionProgress = 1f;
+                isTransitioning = false;
+                activePreset = targetPreset;
+                SetNextWeatherChangeTimer();
+            }
+        }
+    }
+    void SetNextWeatherChangeTimer()
+    {
+        nextWeatherChangeTime = Time.time + Random.Range(minTimeBetweenWeatherChange, maxTimeBetweenWeatherChange);
+    }
+    void ChangeWeatherPreset()
+    {
+        if (availablePresets.Count <= 1) return;
+
+        // Pick a random preset that is different from the current one
+        WeatherPreset nextPreset = availablePresets[Random.Range(0, availablePresets.Count)];
+        while (nextPreset == activePreset)
+        {
+            nextPreset = availablePresets[Random.Range(0, availablePresets.Count)];
+        }
+
+        targetPreset = nextPreset;
+        transitionProgress = 0f;
+        isTransitioning = true;
     }
 }

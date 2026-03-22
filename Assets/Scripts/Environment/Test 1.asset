@@ -1,0 +1,317 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb6432bc5c1fea3439b8a78e765c4270, type: 3}
+  m_Name: Test 1
+  m_EditorClassIdentifier: 
+  weatherName: Test
+  temperatureCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 11
+      inSlope: 12
+      outSlope: 12
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.25
+      value: 14
+      inSlope: 47.712833
+      outSlope: 47.712833
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.3397941
+      value: 21.491133
+      inSlope: 56.542522
+      outSlope: 56.542522
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.49181575
+      value: 26
+      inSlope: 8.166444
+      outSlope: 8.166444
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.6646814
+      value: 23.696308
+      inSlope: 0.976892
+      outSlope: 0.976892
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.75
+      value: 25
+      inSlope: -20.359863
+      outSlope: -20.359863
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 11
+      inSlope: -56
+      outSlope: -56
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  humidityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: -0.0076446533
+      value: 30
+      inSlope: 6.857853
+      outSlope: 6.857853
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.48663956
+      value: 33.38973
+      inSlope: 3.414594
+      outSlope: 3.414594
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.7742207
+      value: 33.381485
+      inSlope: 4.43228
+      outSlope: 4.43228
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.7705589
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 30
+      inSlope: -14.976949
+      outSlope: -14.976949
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  windSpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 15
+      inSlope: 23.140297
+      outSlope: 23.140297
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.33993727
+      value: 22.86625
+      inSlope: 3.765201
+      outSlope: 3.765201
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.5973625
+      value: 18.847868
+      inSlope: -7.0102563
+      outSlope: -7.0102563
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.7588865
+      value: 19.104591
+      inSlope: -7.7170506
+      outSlope: -7.7170506
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 15
+      inSlope: -17.023483
+      outSlope: -17.023483
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  fogDensityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.01618576
+      value: 38.46234
+      inSlope: 49.345406
+      outSlope: 49.345406
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.25
+      value: 50
+      inSlope: 283.92462
+      outSlope: 283.92462
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.22302158
+    - serializedVersion: 3
+      time: 0.4298602
+      value: 701.17035
+      inSlope: 307.57755
+      outSlope: 307.57755
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.7843892
+      outWeight: 0.16773236
+    - serializedVersion: 3
+      time: 0.76978415
+      value: 90
+      inSlope: -866.4229
+      outSlope: -866.4229
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.6953123
+    - serializedVersion: 3
+      time: 1
+      value: 1000
+      inSlope: 3952.8123
+      outSlope: 3952.8123
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  cloudsDensityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: -0.0017985702
+      value: 0.9
+      inSlope: -0.7821836
+      outSlope: -0.7821836
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.22975357
+      value: 0.7188837
+      inSlope: -0.22470059
+      outSlope: -0.22470059
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.35611168
+      value: 0.81014174
+      inSlope: 0.60432875
+      outSlope: 0.60432875
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.57145727
+    - serializedVersion: 3
+      time: 0.56698835
+      value: 0.46935385
+      inSlope: -0.3086839
+      outSlope: -0.3086839
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.99820143
+      value: 0.9
+      inSlope: 0.9986852
+      outSlope: 0.9986852
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  cloudsBottomAltitudeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 3000
+      inSlope: -0.123279385
+      outSlope: -0.123279385
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.43568465
+      value: 2999.9463
+      inSlope: -0.014050219
+      outSlope: -0.014050219
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 3000
+      inSlope: 0.09517895
+      outSlope: 0.09517895
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  shapeFactor: 0.783
+  erosionFactor: 0.563
+  AltitudeRange: 3998
+  rainIntensity: 0
+  rainFogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
