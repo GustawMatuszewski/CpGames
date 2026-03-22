@@ -12,7 +12,7 @@ public class EnemyEntity : BaseEntity
 
     [Header("Hearing settings")]
     public float hearingRadius = 10f;
-    public float minVelocityThreshold =5f;
+    public float minVelocityThreshold = 5f;
 
     [Header("Patrol settings")]
     public float patrolRange = 12f;
@@ -34,57 +34,72 @@ public class EnemyEntity : BaseEntity
     private float attackRange;
     private float attackRotateSpeed = 5f;
 
-    void Awake()
-{
-    agent = GetComponent<NavMeshAgent>();
-    player = FindAnyObjectByType<KCC>();
-    combat = GetComponent<Combat>();
-    
-    if(combat.attackTemplates.Count > 0) 
+    // BUG FIX: Przeniesione z Awake do Start — Awake odpala się zanim Unity
+    // przypisze serializowane pola (jak attackTemplates) do komponentów,
+    // które mogły być dodane w tym samym czasie co EnemyEntity.
+    // Start gwarantuje że wszystkie Awake() już się wykonały.
+    void Start()
     {
-        attackRange = combat.attackTemplates[0].range;
-        agent.stoppingDistance = attackRange * 0.8f;
-        Debug.Log("Zasięg ataku ustawiony na: " + attackRange);
+        agent = GetComponent<NavMeshAgent>();
+        player = FindAnyObjectByType<KCC>();
+        combat = GetComponent<Combat>();
+
+        if (combat != null && combat.attackTemplates.Count > 0)
+        {
+            attackRange = combat.attackTemplates[0].range;
+
+            // Jesli range w AttackTemplate jest za male (np. 0.5), NavMesh nigdy
+            // nie zatrzyma wroga wystarczajaco blisko i nigdy nie wejdzie w stan Attack.
+            if (attackRange < 1.5f)
+            {
+                Debug.LogWarning("[EnemyEntity] AttackTemplate.range = " + attackRange +
+                    " jest za male. Zmien range na >= 1.5 w AttackTemplate. Tymczasowo uzywam 1.5.");
+                attackRange = 1.5f;
+            }
+
+            agent.stoppingDistance = attackRange * 0.8f;
+            Debug.Log("[EnemyEntity] Zasieg ataku: " + attackRange + ", stoppingDistance: " + agent.stoppingDistance);
+        }
+        else
+        {
+            Debug.LogError("[EnemyEntity] LISTA ATAKOW JEST PUSTA! Dodaj AttackTemplate do listy Combat na tym obiekcie.");
+        }
     }
-    else 
-    {
-        Debug.LogError("LISTA ATAKÓW JEST PUSTA! Przeciwnik nie będzie wiedział kiedy bić.");
-    }
-}
 
     void FixedUpdate()
     {
-        
         DetectEntitiesInSphere(transform.position, viewDistance, entityMask, groundMask, entities);
         GameObject visibleTarget = CheckForVisibleTarget();
-        if (player != null && CanSeeTarget(player.transform)) 
+        if (player != null && CanSeeTarget(player.transform))
         {
             visibleTarget = player.gameObject;
         }
 
         Vector3? heardNoisePos = null;
-        if(visibleTarget==null && enemyState != EntityState.Attack)
+        if (visibleTarget == null && enemyState != EntityState.Attack)
         {
-            heardNoisePos=CheckForNoise();
+            heardNoisePos = CheckForNoise();
         }
 
         if (visibleTarget != null)
         {
             currentTarget = visibleTarget;
             lastKnownTargetPos = currentTarget.transform.position;
-            if(enemyState!=EntityState.Attack){
+            if (enemyState != EntityState.Attack)
+            {
                 enemyState = EntityState.Sprint;
             }
             investigateTimer = investigateTime;
-        } else if (heardNoisePos.HasValue)
+        }
+        else if (heardNoisePos.HasValue)
         {
-            if(enemyState!=EntityState.Attack && enemyState != EntityState.Sprint)
+            if (enemyState != EntityState.Attack && enemyState != EntityState.Sprint)
             {
-                lastKnownTargetPos=heardNoisePos.Value;
-                enemyState=EntityState.Search;
-                investigateTimer=investigateTime;
+                lastKnownTargetPos = heardNoisePos.Value;
+                enemyState = EntityState.Search;
+                investigateTimer = investigateTime;
 
-                if(debugMode) Debug.Log("Noise heard from: "+lastKnownTargetPos);
+                if (debugMode) Debug.Log("Noise heard from: " + lastKnownTargetPos);
             }
         }
 
@@ -120,10 +135,9 @@ public class EnemyEntity : BaseEntity
 
     bool CanSeeTarget(Transform target)
     {
-        // Raise both the origin and the target destination so the ray doesn't clip the floor
         Vector3 origin = transform.position + Vector3.up;
-        Vector3 targetPos = target.position + Vector3.up; 
-        
+        Vector3 targetPos = target.position + Vector3.up;
+
         Vector3 dirToTarget = targetPos - origin;
         float distance = dirToTarget.magnitude;
 
@@ -131,13 +145,11 @@ public class EnemyEntity : BaseEntity
 
         dirToTarget.Normalize();
 
-        // Calculate angle using the flat direction (ignoring height differences)
         Vector3 flatDir = (target.position - transform.position).normalized;
         flatDir.y = 0;
-        
+
         if (Vector3.Angle(transform.forward, flatDir) > viewAngle * 0.5f) return false;
 
-        // Cast the ray. If it hits the Ground (obstacleMask), return false.
         if (Physics.Raycast(origin, dirToTarget, distance, obstacleMask)) return false;
 
         return true;
@@ -145,28 +157,29 @@ public class EnemyEntity : BaseEntity
 
     Vector3? CheckForNoise()
     {
-        Collider[] collidersInRange = Physics.OverlapSphere(transform.position,hearingRadius);
+        Collider[] collidersInRange = Physics.OverlapSphere(transform.position, hearingRadius);
 
         SoundController loudest = null;
         float maxSpeed = 0f;
         bool foundSound = false;
 
-        for(int i=0; i < collidersInRange.Length; i++)
+        for (int i = 0; i < collidersInRange.Length; i++)
         {
             SoundController sc = collidersInRange[i].GetComponent<SoundController>();
 
             if (sc != null)
             {
                 float speed = sc.GetVelocity().magnitude;
-                if(speed<minVelocityThreshold) continue;
+                if (speed < minVelocityThreshold) continue;
                 if (speed > maxSpeed)
                 {
-                    maxSpeed=speed;
-                    loudest=sc;
-                    foundSound=true;
+                    maxSpeed = speed;
+                    loudest = sc;
+                    foundSound = true;
                 }
             }
         }
+
         if (foundSound && loudest != null)
         {
             return loudest.transform.position;
@@ -188,41 +201,42 @@ public class EnemyEntity : BaseEntity
             }
             return;
         }
-        //setting random patrol interval
+
         if (!agent.hasPath || agent.remainingDistance <= agent.stoppingDistance)
         {
             isWaiting = true;
             patrolTimer = Random.Range(minPatrolInterval, maxPatrolInterval);
             agent.ResetPath();
         }
-        if(debugMode) Debug.Log("Patrol");
+
+        if (debugMode) Debug.Log("Patrol");
     }
 
     void ChaseBehavior(GameObject visibleTarget)
-{
-    if (visibleTarget == null)
     {
-        TrySetDestination(lastKnownTargetPos);
-        if(!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+        if (visibleTarget == null)
         {
-            enemyState = EntityState.Search;
+            TrySetDestination(lastKnownTargetPos);
+            if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+            {
+                enemyState = EntityState.Search;
+            }
+            return;
         }
-        return;
+
+        lastKnownTargetPos = visibleTarget.transform.position;
+        float distanceToTarget = Vector3.Distance(transform.position, lastKnownTargetPos);
+
+        if (distanceToTarget <= agent.stoppingDistance + 0.2f)
+        {
+            enemyState = EntityState.Attack;
+            agent.ResetPath();
+        }
+        else
+        {
+            TrySetDestination(lastKnownTargetPos);
+        }
     }
-    
-    lastKnownTargetPos = visibleTarget.transform.position;
-    float distanceToTarget = Vector3.Distance(transform.position, lastKnownTargetPos);
-    
-    if(distanceToTarget <= agent.stoppingDistance + 0.2f)
-    {
-        enemyState = EntityState.Attack;
-        agent.ResetPath();
-    }
-    else
-    {
-        TrySetDestination(lastKnownTargetPos);
-    }
-}
 
     void InvestigateBehavior()
     {
@@ -240,43 +254,41 @@ public class EnemyEntity : BaseEntity
         {
             TrySetDestination(lastKnownTargetPos);
         }
-        if(debugMode) Debug.Log("Investigate");
+
+        if (debugMode) Debug.Log("Investigate");
     }
 
     void AttackBehavior()
-{
-    if (currentTarget == null)
     {
-        enemyState = EntityState.Search;
-        combat.combatActive = false;
-        return;
-    }
+        if (currentTarget == null)
+        {
+            enemyState = EntityState.Search;
+            combat.combatActive = false;
+            return;
+        }
 
-    if (combat != null && combat.attackInProgress) 
-    {
+        float distanceToTarget = Vector3.Distance(transform.position, currentTarget.transform.position);
+
+        if (distanceToTarget >= attackRange * 1.2f)
+        {
+            enemyState = EntityState.Sprint;
+            combat.combatActive = false;
+            return;
+        }
+
         RotateTowardsTarget(currentTarget.transform.position);
-        return; 
-    }
 
-    float distanceToTarget = Vector3.Distance(transform.position, currentTarget.transform.position);
-    
-    if (distanceToTarget >= attackRange * 1.2f)
-    {
-        enemyState = EntityState.Sprint;
-        combat.combatActive = false;
-        return;
-    }
+        // Ustaw szablon ataku jeśli nie ustawiony
+        if (combat.currentAttack == null && combat.attackTemplates.Count > 0)
+        {
+            combat.currentAttack = combat.attackTemplates[0];
+        }
 
-    RotateTowardsTarget(currentTarget.transform.position);
-    
-    if(combat.currentAttack == null && combat.attackTemplates.Count > 0)
-    {
-        combat.currentAttack = combat.attackTemplates[0];
+        // Wystarczy ustawić combatActive = true — Combat.FixedUpdate
+        // automatycznie odpala atak gdy cooldown minął i nie ma ataku w toku.
+        // Nie trzeba ręcznie zarządzać canAttack.
+        combat.combatActive = true;
     }
-
-    combat.combatActive = true;
-    combat.canAttack = true;
-}
 
     Vector3 GetRandomPatrolPoint()
     {
@@ -296,7 +308,7 @@ public class EnemyEntity : BaseEntity
     {
         Vector3 direction = (targetPosition - transform.position).normalized;
         direction.y = 0;
-        
+
         if (direction != Vector3.zero)
         {
             Quaternion lookRotation = Quaternion.LookRotation(direction);
@@ -306,7 +318,7 @@ public class EnemyEntity : BaseEntity
 
     void OnDrawGizmos()
     {
-        if(debugMode)
+        if (debugMode)
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(transform.position, viewDistance);
@@ -327,6 +339,7 @@ public class EnemyEntity : BaseEntity
                 Gizmos.DrawWireSphere(lastKnownTargetPos, 0.5f);
                 Gizmos.DrawLine(transform.position, lastKnownTargetPos);
             }
+
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, attackRange);
         }

@@ -7,7 +7,7 @@ public class MovementStateController : MonoBehaviour
     private Combat combat;
     private CapsuleCollider capsuleCollider;
     private NavMeshAgent navAgent;
-    private KCC kcc; // opcjonalny — jeśli jest, czytamy jego state
+    private KCC kcc;
 
     [Header("Physics Check")]
     public LayerMask groundMask;
@@ -48,6 +48,15 @@ public class MovementStateController : MonoBehaviour
     private int stateChangeCooldown = 0;
     private const int minFramesBetweenChanges = 6;
 
+    // BUG FIX: Śledzimy poprzedni stan PRZED cooldownem.
+    // Problem: teren powoduje krótkie przejście np. Idle→Run→Idle.
+    // Cooldown blokuje zmianę Run→Idle, więc currentBaseState = Run,
+    // ale PlayerAnimationsController widzi że lastState == Run i nie aktualizuje.
+    // Rozwiązanie: wystawiamy flagę stateWasForced gdy cooldown zablokował zmianę —
+    // PlayerAnimationsController może ją sprawdzić żeby wymusić odtworzenie.
+    public bool stateRefreshRequired = false;
+    private mState pendingState = mState.None;
+
     public enum mState
     {
         None, Jumping, Falling,
@@ -74,11 +83,28 @@ public class MovementStateController : MonoBehaviour
 
     void SetState(mState newState)
     {
-        if (newState == currentBaseState) return;
-        if (stateChangeCooldown > 0) return;
+        if (newState == currentBaseState)
+        {
+            stateRefreshRequired = false;
+            return;
+        }
+
+        if (stateChangeCooldown > 0)
+        {
+            // BUG FIX: Zapamiętaj co chcieliśmy ustawić.
+            // Jeśli cooldown zablokował zmianę a potem teren się wyrówna
+            // i wrócimy do tego samego stanu co currentBaseState,
+            // PlayerAnimationsController nigdy tego nie zobaczy.
+            // Flaga stateRefreshRequired sygnalizuje że animacja powinna być
+            // odświeżona przy następnej możliwej okazji.
+            pendingState = newState;
+            return;
+        }
 
         currentBaseState = newState;
+        stateRefreshRequired = true; // Sygnał dla PlayerAnimationsController
         stateChangeCooldown = minFramesBetweenChanges;
+        pendingState = mState.None;
     }
 
     string GetDesiredTier()
@@ -101,16 +127,16 @@ public class MovementStateController : MonoBehaviour
         if (navAgent != null)
         {
             float s = navAgent.velocity.magnitude;
-            if (s < 0.1f)                   return "Idle";
-            if (s <= WalkSpeed + 0.1f)      return "Walk";
-            if (s <= RunSpeed  + 0.1f)      return "Run";
+            if (s < 0.1f)                  return "Idle";
+            if (s <= WalkSpeed + 0.1f)     return "Walk";
+            if (s <= RunSpeed  + 0.1f)     return "Run";
             return "Sprint";
         }
 
         float speed = new Vector3(velocity.x, 0, velocity.z).magnitude;
-        if (speed < 0.1f)                   return "Idle";
-        if (speed <= WalkSpeed + 0.1f)      return "Walk";
-        if (speed <= RunSpeed  + 0.1f)      return "Run";
+        if (speed < 0.1f)                  return "Idle";
+        if (speed <= WalkSpeed + 0.1f)     return "Walk";
+        if (speed <= RunSpeed  + 0.1f)     return "Run";
         return "Sprint";
     }
 
@@ -154,6 +180,18 @@ public class MovementStateController : MonoBehaviour
 
         if (stateChangeCooldown > 0) stateChangeCooldown--;
 
+        // BUG FIX: Gdy cooldown się skończy i mamy zalegający pendingState,
+        // aplikujemy go teraz. Dzięki temu stan jest spójny z tym co chcieliśmy ustawić.
+        if (stateChangeCooldown == 0 && pendingState != mState.None)
+        {
+            if (pendingState != currentBaseState)
+            {
+                currentBaseState = pendingState;
+                stateRefreshRequired = true;
+            }
+            pendingState = mState.None;
+        }
+
         CheckPhysics();
         if (combat != null && (combat.attackInProgress || combat.combatActive)) return;
 
@@ -186,6 +224,7 @@ public class MovementStateController : MonoBehaviour
         if (!isGrounded && velocity.y > 2.0f)
         {
             currentBaseState = mState.Jumping;
+            stateRefreshRequired = true;
             jumpingFrames = 0;
         }
         else if (isActuallyAirborne)
@@ -193,9 +232,15 @@ public class MovementStateController : MonoBehaviour
             jumpingFrames++;
 
             if (currentBaseState == mState.Jumping && jumpingFrames >= fallingDelay && velocity.y < -0.5f)
+            {
                 currentBaseState = mState.Falling;
+                stateRefreshRequired = true;
+            }
             else if (currentBaseState != mState.Jumping && jumpingFrames >= fallingDelay && velocity.y < -2.0f)
+            {
                 currentBaseState = mState.Falling;
+                stateRefreshRequired = true;
+            }
         }
         else // grounded
         {
@@ -203,7 +248,12 @@ public class MovementStateController : MonoBehaviour
 
             if (tier == "Idle")
             {
-                currentBaseState = isCrouching ? mState.Crouch : mState.Idle;
+                mState idleState = isCrouching ? mState.Crouch : mState.Idle;
+                if (idleState != currentBaseState)
+                {
+                    currentBaseState = idleState;
+                    stateRefreshRequired = true;
+                }
             }
             else if (tier == "Crouch" || isCrouching)
             {
