@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 460039210001888887}
   - component: {fileID: 3661808317701616060}
   - component: {fileID: 1856099507570812842}
+  - component: {fileID: 186691058349455739}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -265,6 +266,46 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &186691058349455739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832884197373245616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ad10f97df034be40910ddf1ca76e05e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mentalHealth: 100
+  baseRecoveryRate: 0.1
+  hungerSystem: {fileID: 0}
+  hungerThreshold: 20
+  psycheDrainRate: 1.5
+  environmentManager: {fileID: 0}
+  maxTemperature: 30
+  minTemperature: 0
+  maxHumidity: 80
+  temperatureDrainRate: 0.5
+  humidityDrainRate: 0.3
+  enemyTag: Enemy
+  detectionRange: 15
+  fieldOfView: 90
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
+  enemyDrainRate: 1
+  depressionThreshold: 25
+  depressionDelay: 120
+  depressionSpeedMultiplier: 0.5
+  depressionVignetteIntensity: 0.6
+  depressionShakeIntensity: 0.03
+  postProcessingVolume: {fileID: 0}
+  playerCamera: {fileID: 6503492116003802319}
+  playerMovement: {fileID: 1088881675855902518}
+  speedVariableName: moveSpeed
+  isDepressed: 0
 --- !u!1 &3511240612616656897
 GameObject:
   m_ObjectHideFlags: 0

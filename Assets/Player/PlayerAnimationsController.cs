@@ -24,6 +24,13 @@ public class PlayerAnimationsController : MonoBehaviour
     public float rotationSpeed = 15f;
     private MovementStateController.mState lastState = MovementStateController.mState.None;
     private Quaternion targetRotation;
+    private Coroutine combatCoroutine;
+    private Combat combat;
+
+    // BUG FIX: Śledzimy czy byliśmy w trakcie ataku w poprzedniej klatce.
+    // Gdy atak się kończy (wasAttacking=true, attacking=false), wymuszamy
+    // ponowne odtworzenie animacji ruchu nawet jeśli stan się nie zmienił.
+    private bool wasAttacking = false;
 
     [Header("Unique Animations")]
     public string anim_Jump = "";
@@ -63,7 +70,7 @@ public class PlayerAnimationsController : MonoBehaviour
     public string anim_Run_Backward_Left = "";
 
     [Header("Sprint Animations")]
-     public string anim_Sprint_Forward = "";
+    public string anim_Sprint_Forward = "";
     public string anim_Sprint_Forward_Right = "";
     public string anim_Sprint_Forward_Left = "";
     public string anim_Sprint_Right = "";
@@ -74,6 +81,9 @@ public class PlayerAnimationsController : MonoBehaviour
         if (animator == null) animator = GetComponent<Animator>();
         if (MovementStateController == null) MovementStateController = GetComponent<MovementStateController>();
         if (modelTransform == null) modelTransform = transform;
+
+        combat = GetComponent<Combat>();
+
         targetRotation = modelTransform.localRotation;
     }
 
@@ -81,14 +91,42 @@ public class PlayerAnimationsController : MonoBehaviour
     {
         if (MovementStateController == null || animator == null) return;
 
+        bool attacking = (combat != null && combat.attackInProgress);
+
         MovementStateController.mState currentState = MovementStateController.currentBaseState;
-        if (currentState != lastState)
+
+        if (!attacking)
         {
-            Debug.Log("New Animation State: " + currentState);
-            PlayAnimationForState(currentState);
-            SetTargetRotationForState(currentState);
-            lastState = currentState;
+            // BUG FIX 1: Gdy atak właśnie się skończył (wasAttacking == true),
+            // wymuś ponowne odtworzenie animacji ruchu nawet gdy stan nie zmienił się.
+            // Bez tego: stan był np. Idle przed atakiem, po ataku nadal Idle,
+            // lastState == Idle, więc warunek currentState != lastState był false
+            // i animacja ruchu nigdy nie wracała po uderzeniu.
+            bool attackJustEnded = wasAttacking && !attacking;
+
+            // BUG FIX 2: Sprawdź flagę stateRefreshRequired z MovementStateController.
+            // Teren może powodować że stan wraca do tego samego (np. Run→blokada cooldown→Run),
+            // ale animacja wymaga odświeżenia. Flaga stateRefreshRequired sygnalizuje to.
+            bool forceRefresh = MovementStateController.stateRefreshRequired;
+
+            if (currentState != lastState || attackJustEnded || forceRefresh)
+            {
+                PlayAnimationForState(currentState);
+                SetTargetRotationForState(currentState);
+                lastState = currentState;
+                // Skonsumuj flagę
+                MovementStateController.stateRefreshRequired = false;
+            }
         }
+        else
+        {
+            // BUG FIX: Nie resetujemy lastState do None — to powodowało buga gdzie
+            // po ataku stan był taki sam jak przed (np. Idle→Idle), warunek
+            // currentState != lastState był false i animacja idle nigdy nie wracała.
+            // Zamiast tego używamy flagi wasAttacking żeby wykryć koniec ataku.
+        }
+
+        wasAttacking = attacking;
 
         if (modelTransform != null)
         {
@@ -96,9 +134,22 @@ public class PlayerAnimationsController : MonoBehaviour
         }
     }
 
-    void PlayAnimationForState(MovementStateController.mState state) // It plays animations!!
+    public void PlayCombatAnimation(string animName)
     {
-        if(Simple_Animations_Changing_Directions) // Simple animations
+        if (string.IsNullOrEmpty(animName))
+        {
+            Debug.LogError("!!! PRÓBA ODPALENIA PUSTEJ ANIMACJI W COMBAT !!!");
+            return;
+        }
+
+        Debug.Log("<color=red>GRAJ ATAK: </color>" + animName);
+
+        animator.Play(animName);
+    }
+
+    void PlayAnimationForState(MovementStateController.mState state)
+    {
+        if (Simple_Animations_Changing_Directions)
         {
             switch (state)
             {
@@ -140,7 +191,7 @@ public class PlayerAnimationsController : MonoBehaviour
                     SafeCrossFade(anim_Sprint_Forward); break;
             }
         }
-        else if(!Simple_Animations_Changing_Directions) // Advenced animations
+        else
         {
             switch (state)
             {
@@ -162,15 +213,16 @@ public class PlayerAnimationsController : MonoBehaviour
         }
     }
 
-    void SetTargetRotationForState(MovementStateController.mState state) // Rotating player if state is equal to smth
+    void SetTargetRotationForState(MovementStateController.mState state)
     {
-        float fRight = Forward_Side_ANGLE; //f = forward, s = side, b = backward
-        float fLeft = Forward_Side_ANGLE * -1; 
+        float fRight = Forward_Side_ANGLE;
+        float fLeft = Forward_Side_ANGLE * -1;
         float sRight = Side_ANGLE;
         float sLeft = Side_ANGLE * -1;
         float bRight = Backward_Side_ANGLE * -1;
         float bLeft = Backward_Side_ANGLE;
         float targetAngle = 0f;
+
         switch (state)
         {
             case MovementStateController.mState.Idle:
@@ -183,9 +235,9 @@ public class PlayerAnimationsController : MonoBehaviour
             case MovementStateController.mState.Walk_Backward:
             case MovementStateController.mState.Run_Backward:
             case MovementStateController.mState.Sprint_Backward:
-                targetAngle = 0f; 
+                targetAngle = 0f;
                 break;
-                
+
             case MovementStateController.mState.Walk_Forward_Right or MovementStateController.mState.Run_Forward_Right
             or MovementStateController.mState.Sprint_Forward_Right or MovementStateController.mState.Crouch_Forward_Right:
                 targetAngle = fRight;
