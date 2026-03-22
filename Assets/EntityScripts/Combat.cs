@@ -1,7 +1,10 @@
 using UnityEngine;
+using UnityEngine.Events;
 using System.Collections.Generic;
 
 public class Combat : MonoBehaviour {
+    private PlayerAnimationsController animCtrl;
+    
     [System.Serializable]
     public class Limb {
         public enum DamageType {
@@ -35,6 +38,7 @@ public class Combat : MonoBehaviour {
     public bool debugMode;
 
     [Header("References")]
+    public Animator animator;
     [SerializeField] public List<Limb> ownerHitboxes = new List<Limb>();
     public List<string> damageHitboxNameList = new List<string>();
     public string hitboxTag;
@@ -43,35 +47,65 @@ public class Combat : MonoBehaviour {
     [Header("Combat ios")]
     public bool combatActive;
     public bool canAttack;
+    // Jezeli true: po jednym ataku combatActive auto-resetuje sie do false (tryb gracza).
+    // Jezeli false: atakuje w petli dopoki combatActive == true (tryb wroga).
+    public bool singleShot = false;
     public AttackTemplate currentAttack;
     public Collider currentCollision;
 
-    private bool attackInProgress;
+    [Header("Damage Received")]
+    public UnityEvent onDamageReceived;
+
+    public bool attackInProgress;
     private float attackTimer;
     private float cooldownTimer;
 
     void FixedUpdate() {
-        if (combatActive == false)
-            return; 
-            
+        // Cooldown odliczamy zawsze
         if (cooldownTimer > 0f) {
             cooldownTimer -= Time.fixedDeltaTime;
-            return;
         }
 
-        if (!attackInProgress && canAttack && currentAttack != null) {
-            attackInProgress = true;
-            attackTimer = currentAttack.timeToAttack;
-        }
-
+        // Trwający atak zawsze musi się dokończyć (nawet jeśli combatActive wyłączone w trakcie)
         if (attackInProgress) {
             attackTimer -= Time.fixedDeltaTime;
             if (attackTimer <= 0f) {
                 ApplyDamage(currentAttack);
                 attackInProgress = false;
                 cooldownTimer = currentAttack.cooldown;
-                // canAttack=false;
+                // Tryb gracza: jeden klik = jeden atak, nie petla
+                if (singleShot) combatActive = false;
             }
+            return;
+        }
+
+        if (!combatActive || currentAttack == null)
+            return;
+
+        // Automatycznie atakuj gdy gotowi (brak ataku, cooldown minął)
+        if (cooldownTimer <= 0f) {
+            TriggerAttack();
+        }
+    }
+
+    // Wywołuje atak — używane przez FixedUpdate oraz opcjonalnie z zewnątrz
+    public void TriggerAttack() {
+        if (attackInProgress || cooldownTimer > 0f || currentAttack == null) return;
+
+        attackInProgress = true;
+        attackTimer = currentAttack.timeToAttack;
+
+        if (debugMode)
+            Debug.Log("<color=orange>[Combat] TriggerAttack: </color>" + currentAttack.HittingAnimation);
+
+        // Gracz ma PlayerAnimationsController
+        PlayerAnimationsController combatAnim = GetComponent<PlayerAnimationsController>();
+        if (combatAnim != null) {
+            combatAnim.PlayCombatAnimation(currentAttack.HittingAnimation);
+        }
+        // Wróg — bezpośrednio przez Animator
+        else if (animator != null) {
+            animator.CrossFade(currentAttack.HittingAnimation, 0.1f);
         }
     }
 
@@ -99,6 +133,11 @@ public class Combat : MonoBehaviour {
                 HeavyAttackDamageCalc(attackToApply, hitLimb);
                 break;
         }
+
+        if (debugMode)
+            Debug.Log("[DAMAGE RECEIVED] " + targetCombat.transform.root.name + " | Limb: " + hitLimb.name + " | HP left: " + hitLimb.health);
+
+        targetCombat.onDamageReceived.Invoke();
 
         currentCollision = null;
     }
@@ -137,11 +176,9 @@ public class Combat : MonoBehaviour {
                 AddBleeding(limb);
                 TrySever(limb, 0.05f);
             }
-
             if (effect == AttackTemplate.AttackEffect.Blunt) {
                 AddBeat(limb, 1);
             }
-
             if (effect == AttackTemplate.AttackEffect.Shot) {
                 AddDeepShot(limb);
             }
@@ -160,11 +197,9 @@ public class Combat : MonoBehaviour {
                 AddBleeding(limb);
                 TrySever(limb, 0.25f);
             }
-
             if (effect == AttackTemplate.AttackEffect.Blunt) {
                 AddBeat(limb, 1);
             }
-
             if (effect == AttackTemplate.AttackEffect.Shot) {
                 AddDeepShot(limb);
             }
@@ -183,11 +218,9 @@ public class Combat : MonoBehaviour {
                 AddBleeding(limb);
                 TrySever(limb, 0.6f);
             }
-
             if (effect == AttackTemplate.AttackEffect.Blunt) {
                 AddBeat(limb, 2);
             }
-
             if (effect == AttackTemplate.AttackEffect.Shot) {
                 AddDeepShot(limb);
             }

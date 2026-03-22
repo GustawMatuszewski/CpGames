@@ -133,7 +133,7 @@ public class EntityStatus : MonoBehaviour
 
     public List<FoodItem.Effect> effects;
     public List<Mood> moods;
-    public List<Combat.Limb> limbs;
+    protected List<Combat.Limb> limbs;
 
     public float SpeedMultiplier { get; private set; } = 1f;
     public bool CanSprint { get; private set; } = true;
