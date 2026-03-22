@@ -893,7 +893,7 @@ public class UI_Script : MonoBehaviour
 
         if (newQty <= 0)
         {
-            // 🔥 usuń cały item z listy
+            
             itemRoot.RemoveFromHierarchy();
         }
         else
@@ -943,7 +943,7 @@ public class UI_Script : MonoBehaviour
     }
     public Item GetItemRighHand()
     {
-        ItemData data = GetItemFromQSlot(9);
+        ItemData data = GetItemFromQSlot(10);
         return data?.originalItem;
     }
     void Update()
