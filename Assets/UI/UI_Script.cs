@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
     using System.Collections.Generic;
     using System.Drawing;
     using System.Linq;
@@ -6,15 +6,18 @@
     using TMPro;
     using Unity.VisualScripting;
     using UnityEditor.ShaderGraph;
+    using UnityEditorInternal.VersionControl;
     using UnityEngine;
     using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
-using UnityEngine.XR;
+    using UnityEngine.UIElements;
+    using UnityEngine.XR;
     using static UnityEngine.Rendering.DebugUI.MessageBox;
-using ColorUtility = Unity.VisualScripting.ColorUtility;
+    using ColorUtility = Unity.VisualScripting.ColorUtility;
     using Label = UnityEngine.UIElements.Label;
     using MouseButton = UnityEngine.UIElements.MouseButton;
     using UnityColor = UnityEngine.Color;
+using System.Threading.Tasks;//czekam az crafting ogarnie swoje
+
 
 public  class ItemData
 {
@@ -24,18 +27,30 @@ public  class ItemData
     public Sprite icon;
     public Item originalItem;
 }
+public class ItemWithPosition
+{
+    public Item item;
+    public Vector2 position;
+}
 
 public class UI_Script : MonoBehaviour
     {
+    [SerializeField] int maxWeight;
+    public Sprite defaultPlaceholderIcon;
+
         public static UI_Script Instance;
+        public Inventory craftingInventory;
+    
+    [SerializeField] UIDocument UI_doc;
+        ItemData draggedItemData; // zamiast Item
 
-        [SerializeField] UIDocument UI_doc;
-    ItemData draggedItemData; // zamiast Item
-
-    VisualElement dragOriginElement;
+        VisualElement dragOriginElement;
         List<Image> itemIcons;
         VisualElement  root;
-        List<Item> TempItems;
+        List<Item> ItemList;
+ 
+    bool crafintgIsOpen = false;
+    bool inventoryIsOpen = false;
         VisualElement dragIcon;
         bool isDragging = false;
         VisualElement draggedItemRoot;
@@ -43,12 +58,14 @@ public class UI_Script : MonoBehaviour
         Image draggedSourceImage;
         VisualElement LHand;
         VisualElement RHand;
+        List<Item> UIRecipes;
         List<VisualElement> qSlotsList;
             UnityColor style1;
             UnityColor style2;
             UnityColor style3;
             UnityColor style4;
             UnityColor style5;
+    public Sprite CraftbuttonIco;
         enum DragSourceType
         {
             List,
@@ -58,33 +75,45 @@ public class UI_Script : MonoBehaviour
         DragSourceType currentDragSource;
         VisualElement draggedFromSlot;
         bool dropSucceeded;
+        int draggedQuantity = 1;
 
+    private void Start()
+    {
+        //  HideInventory();
+      //  HideCrafing();
+       // ShowInventory();
+    }
 
-
-
+    [Obsolete]
     void Awake()
-        {
+    {
 
             Instance = this;
-            TempItems = new List<Item>();
-            UnityEngine.ColorUtility.TryParseHtmlString("#8693AB", out style1);
-            UnityEngine.ColorUtility.TryParseHtmlString("#BDD4E7", out style2);
-            UnityEngine.ColorUtility.TryParseHtmlString("#212227", out style3);
+           
+            UnityEngine.ColorUtility.TryParseHtmlString("#ADADAD", out style1);
+            style1.a = 0.5f;
+            UnityEngine.ColorUtility.TryParseHtmlString("#A46C27", out style2);
+            
+            UnityEngine.ColorUtility.TryParseHtmlString("#ADADAD", out style3);
+            style3.a = 0.5f;
             UnityEngine.ColorUtility.TryParseHtmlString("#637074", out style4);
-            UnityEngine.ColorUtility.TryParseHtmlString("#AAB9CF", out style5);
+            style4.a = 0.5f;
+            UnityEngine.ColorUtility.TryParseHtmlString("#272727", out style5);
+            style5.a = 0.5f;
 
-            root = UI_doc.rootVisualElement;
+        root = UI_doc.rootVisualElement;
             List<VisualElement> qSlots = root.Query<VisualElement>(className: "QSlot").ToList();
             // pobieramy listę QSlotów
             qSlotsList = root.Query<VisualElement>(className: "QSlot").ToList();
             LHand = root.Q<VisualElement>("LHand");
             RHand = root.Q<VisualElement>("RHand");
-
-            // dodajemy je do listy
-            qSlotsList.Add(LHand);
+            Button CraftingButton = root.Q<Button>("CraftingButton");
+            CraftingButton.clicked += CraftingSend;
+        // dodajemy je do listy
+        qSlotsList.Add(LHand);
             qSlotsList.Add(RHand);
             itemIcons = new List<Image>();
-
+            
             foreach (var slot in qSlots)
             {
                 Image icon = slot.Q<Image>("Item_Icon");
@@ -124,7 +153,8 @@ public class UI_Script : MonoBehaviour
                 if (evt.button != (int)MouseButton.LeftMouse) return;
 
                 Image icon = slot.Q<Image>("Item_Icon");
-                if (icon == null || icon.image == null) return;
+                if (icon == null || icon.image == null) 
+                    return;
 
                 // Pobierz dane zapisane w slocie
                 ItemData data = slot.userData as ItemData;
@@ -151,7 +181,7 @@ public class UI_Script : MonoBehaviour
 
 
 
-        }
+        }   
 
 
 
@@ -219,14 +249,17 @@ public class UI_Script : MonoBehaviour
                    !target.ClassListContains("QSlot") &&
                    !target.ClassListContains("Item") &&
                    !target.ClassListContains("Hand") &&
-                   !target.ClassListContains("BSlots"))
+                   !target.ClassListContains("BSlots")&&
+                    target.name != "Table" &&
+                     target.name != "Items_scrol" &&
+                !target.ClassListContains("CraftSlot"))
             {
                 target = target.parent;
             }
 
             if (target != null)
             {
-                HandleDrop(target);
+                HandleDrop(target,evt.position);
             }
             else
             {
@@ -239,7 +272,7 @@ public class UI_Script : MonoBehaviour
                 if (currentDragSource == DragSourceType.List)
                 {
                     // Przywróć do listy
-                    addItem(draggedItemData.name, draggedItemData.category, 1, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
+                    addItem(draggedItemData.name, draggedItemData.category, draggedQuantity, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
                 }
                 else if (currentDragSource == DragSourceType.QSlot && draggedFromSlot != null)
                 {
@@ -254,15 +287,122 @@ public class UI_Script : MonoBehaviour
                 }
             }
 
+
             CleanupDrag();
+            weightRefresh();
         }
 
+        //gradient buttona
+        var gradient = new GradientElement();
+       // gradient.gradientType = GradientElement.GradientType.DiagonalLeftTopToRightBottom;
+        UnityEngine.ColorUtility.TryParseHtmlString("#3f3f3f", out UnityEngine.Color startColor);
+        UnityEngine.ColorUtility.TryParseHtmlString("#313131", out UnityEngine.Color endColor);
+        UnityEngine.ColorUtility.TryParseHtmlString("#2e2e2e", out UnityEngine.Color darkStart);
+        UnityEngine.ColorUtility.TryParseHtmlString("#202020", out UnityEngine.Color darkEnd);
+        gradient.startColor = startColor;
+        gradient.endColor = endColor;
 
 
+        var button = root.Q<Button>("CraftingButton");
+
+        gradient.style.position = Position.Absolute;
+        gradient.style.left = 0;
+        gradient.style.right = 0;
+        gradient.style.top = 0;
+        gradient.style.bottom = 0;
+        gradient.pickingMode = PickingMode.Ignore;
+
+        button.Insert(0, gradient);
+
+        var iconElement = new VisualElement();
+        iconElement.style.backgroundImage = new StyleBackground(CraftbuttonIco); // Ustawienie ikony
+        iconElement.style.flexGrow = 1;
+
+        // Opcjonalne: Ustawienie sposobu skalowania ikony (np. zachowanie proporcji)
+        iconElement.style.unityBackgroundScaleMode = ScaleMode.ScaleToFit;
+
+        button.Add(iconElement);
+
+ 
+
+        // Efekt przycisku
+        button.clicked += () =>
+        {
+            // Przyciemnienie
+            gradient.startColor = darkStart;
+            gradient.endColor = darkEnd;
+            gradient.MarkDirtyRepaint();
+
+            // Przywrócenie po 0.1s
+            root.schedule.Execute(() =>
+            {
+                gradient.startColor = startColor;
+                gradient.endColor = endColor;
+                gradient.MarkDirtyRepaint();
+            }).StartingIn(100); // milisekundy
+        };
+        //gradient buttona end
+
+        var crafTitle = root.Q<VisualElement>("CrafTitle");
+        var title = root.Q<VisualElement>("Title");
+        AddGradientToElement(crafTitle);
+        AddGradientToElement(title);
+
+        var container = root.Q<VisualElement>("Items");
+        var items = container.Query<VisualElement>(className: "ItemsBG").ToList();
+        // Iterujemy po wszystkich elementach
+        for (int i = 0; i < items.Count; i++)
+        {
+            var element = items[i];
+            element.pickingMode = PickingMode.Ignore;
+            if (i % 2 == 0)
+            {
+                UnityEngine.ColorUtility.TryParseHtmlString("#1e1c16", out UnityEngine.Color tempColor);
+                element.style.backgroundColor = tempColor;
+            }
+
+        }
     }
-    void HandleDrop(VisualElement target)
+
+        void AddGradientToElement(VisualElement element)
+    {
+        var gradient = new GradientElement();
+
+        // Ustaw kolory gradientu KOLORY GUSTAWA XD
+        UnityEngine.ColorUtility.TryParseHtmlString("#6d6d6d", out gradient.startColor);
+        UnityEngine.ColorUtility.TryParseHtmlString("#323232", out gradient.endColor);
+        //gradient.gradientType = GradientElement.GradientType.TopDown;
+        // Ustaw gradient jako absolutny i wypełniający cały element
+        gradient.style.position = Position.Absolute;
+        gradient.style.left = 0;
+        gradient.style.right = 0;
+        gradient.style.top = 0;
+        gradient.style.bottom = 0;
+
+        gradient.pickingMode = PickingMode.Ignore; // nie blokuje interakcji
+
+        // Dodajemy gradient jako pierwsze dziecko, żeby był w tle
+        element.Insert(0, gradient);
+    }
+    void HandleDrop(VisualElement target, Vector2 dropPosition)
     {
         if (draggedItemData == null) return;
+       
+        bool isStack = draggedQuantity > 1;
+
+        if (target.name == "Table" || target.ClassListContains("TableContent")) // Celujemy w stół
+        {
+            Vector2 localPos = target.WorldToLocal(dropPosition);
+            AddItemToTable(target, draggedItemData, localPos,draggedQuantity);
+            dropSucceeded = true;
+        }
+
+        if (isStack && !(target.name == "Table" || target.ClassListContains("TableContent")))
+        {
+            Debug.Log(draggedQuantity);
+            dropSucceeded = false;
+            return;
+        }
 
         // PRZYPADEK: QSlot -> Hand
         if (currentDragSource == DragSourceType.QSlot && target.ClassListContains("Hand"))
@@ -306,6 +446,8 @@ public class UI_Script : MonoBehaviour
             SetSlotData(target, draggedItemData);
             dropSucceeded = true;
         }
+
+
     }
 
     // Pomocnicza metoda, żeby nie powtarzać kodu:
@@ -318,6 +460,18 @@ public class UI_Script : MonoBehaviour
 
         Label nameLabel = slot.Q<Label>("Slot_Info");
         if (nameLabel != null) nameLabel.text = data.name;
+
+        slot.userData = data;
+    }
+    void SetCraftingSlotData(VisualElement slot, ItemData data)
+    {
+        if (slot == null || data == null) return;
+
+        Image icon = slot.Q<Image>("Crafting_Item_Ico");
+        if (icon != null) icon.image = data.icon.texture;
+
+        //Label nameLabel = slot.Q<Label>("Slot_Info");
+        //if (nameLabel != null) nameLabel.text = data.name;
 
         slot.userData = data;
     }
@@ -336,9 +490,11 @@ public class UI_Script : MonoBehaviour
 
         void StartDrag(Vector2 position, Texture texture)
         {
-            LHand.AddToClassList("Hand-Active");
-            RHand.AddToClassList("Hand-Active");
-
+            if (crafintgIsOpen == false)
+            {
+                LHand.AddToClassList("Hand-Active");
+                RHand.AddToClassList("Hand-Active");
+            }
             dragIcon = new VisualElement();
             dragIcon.style.width = 64;
             dragIcon.style.height = 64;
@@ -352,6 +508,7 @@ public class UI_Script : MonoBehaviour
 
             dragIcon.style.left = position.x - 32;
             dragIcon.style.top = position.y - 32;
+            weightRefresh();
         }
 
 
@@ -368,8 +525,8 @@ public class UI_Script : MonoBehaviour
         public void addItem(string name, string category, int quantity, float weight, Sprite icon,Item original)
         {
 
- 
 
+            ItemList.Add(original);
             ScrollView scroll = root.Q<ScrollView>("Items_scrol");
 
             VisualElement existing = scroll.contentContainer.Q(name);
@@ -381,7 +538,7 @@ public class UI_Script : MonoBehaviour
 
 
 
-
+            
 
 
             if (existing == null)
@@ -389,6 +546,9 @@ public class UI_Script : MonoBehaviour
                 // 🔹 NOWY ITEM (DIV)
                 VisualElement itemRoot = new VisualElement();
                 itemRoot.style.height = 40;
+            itemRoot.style.paddingRight = 5;
+            itemRoot.style.paddingLeft = 5;
+           
 
                 itemRoot.name = name;
                 itemRoot.style.flexDirection = FlexDirection.Row;
@@ -411,7 +571,7 @@ public class UI_Script : MonoBehaviour
                 name = name,
                 category = category,
                 weight = weight,
-                icon = icon,
+                icon = icon != null ? icon : defaultPlaceholderIcon,
                 originalItem = original
             };
 
@@ -422,6 +582,17 @@ public class UI_Script : MonoBehaviour
                 if (evt.button != (int)MouseButton.LeftMouse) return;
 
                 // 1. Najpierw zbierz dane
+                Label qtyLabel = itemRoot.Q<Label>("ItemQty");
+                if (qtyLabel == null) return;
+                int totalAvailable = int.Parse(qtyLabel.text);
+                if (evt.shiftKey)
+                {
+                    draggedQuantity = totalAvailable; //wszystko
+                }
+                else
+                {
+                    draggedQuantity = 1; //jedna sztuka
+                }
                 draggedItemData = itemRoot.userData as ItemData;
                 draggedItemRoot = itemRoot;
                 currentDragSource = DragSourceType.List; // To musi być tutaj!
@@ -436,22 +607,22 @@ public class UI_Script : MonoBehaviour
                 StartDrag(evt.position, sourceImg.image);
 
                 // 4. Dopiero teraz odejmij z listy (skoro już mamy dane w draggedItemData)
-                Label qtyLabel = itemRoot.Q<Label>("ItemQty");
-                if (qtyLabel != null)
+
+                // Aktualizacja UI listy po podniesieniu
+                if (draggedQuantity >= totalAvailable)
                 {
-                    int dragOriginQty = int.Parse(qtyLabel.text);
-                    if (dragOriginQty <= 1)
-                        itemRoot.RemoveFromHierarchy();
-                    else
+                    itemRoot.RemoveFromHierarchy();
+                    RefreshItemsStyles();
+                }
+                else
+                {
+                    int newQty = totalAvailable - draggedQuantity;
+                    qtyLabel.text = newQty.ToString();
+
+                    Label weightLabel = itemRoot.Q<Label>("ItemWeight");
+                    if (weightLabel != null)
                     {
-                        int newQty = dragOriginQty - 1;
-                        qtyLabel.text = newQty.ToString();
-                        Label weightLabel = itemRoot.Q<Label>("ItemWeight");
-                        if (weightLabel != null)
-                        {
-                            float single = draggedItemData.weight;
-                            weightLabel.text = (single * newQty).ToString("0.##");
-                        }
+                        weightLabel.text = (draggedItemData.weight * newQty).ToString("0.##");
                     }
                 }
             });
@@ -466,7 +637,7 @@ public class UI_Script : MonoBehaviour
                 imgContainer.style.alignItems = Align.Center;
             
                 imgContainer.style.flexShrink = 0;
-                imgContainer.style.backgroundColor = style2;
+               // imgContainer.style.backgroundColor = style2;
 
                 Image imagediv = new Image();
                 imagediv.image = icon.texture;
@@ -477,29 +648,29 @@ public class UI_Script : MonoBehaviour
 
                 Label nameLabel = new Label(name);
                 nameLabel.name = "ItemName";
-                nameLabel.style.width= Length.Percent(40);
+                nameLabel.style.width= Length.Percent(35);
                 nameLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
-                nameLabel.style.backgroundColor = style1;
+               // nameLabel.style.backgroundColor = style1;
             
                 Label typeLabel = new Label(category);
-                typeLabel.style.width = Length.Percent(30);
+                typeLabel.style.width = Length.Percent(25);
                 typeLabel.name = "Type";  
                 typeLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
-                typeLabel.style.backgroundColor = style5;
+                //typeLabel.style.backgroundColor = style5;
 
                 Label qtyLabel = new Label(quantity.ToString());
                 qtyLabel.name = "ItemQty";
-                qtyLabel.style.width = Length.Percent(10);
+                qtyLabel.style.width = Length.Percent(20);
                 qtyLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
          
-                qtyLabel.style.backgroundColor = style1;
+               // qtyLabel.style.backgroundColor = style1;
 
                 Label weightLabel = new Label((weight * quantity).ToString());
                 weightLabel.name = "ItemWeight";
                 weightLabel.style.width = Length.Percent(10);
                 weightLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
           
-                weightLabel.style.backgroundColor = style5;
+             //   weightLabel.style.backgroundColor = style5;
 
 
 
@@ -532,26 +703,32 @@ public class UI_Script : MonoBehaviour
                 qtyLabel.text = newQty.ToString();
                 weightLabel.text = (newQty * weight).ToString();
             }
-
+        RefreshItemsStyles();
 
         }
 
   
 
-
+    
 
 
 
         public void SendItemList(List<Item> items)
         {
             Debug.Log("UI dostało listę itemów:");
-            TempItems = items;
+       
+        ItemList = new List<Item>(items);
 
-            foreach (Item item in items)
+        foreach (Item item in items)
             {
-                string name = item.itemName;
+            if (item == null)
+            {
+                Debug.LogWarning("Znaleziono pusty element na liście przedmiotów!");
+                continue;
+            }
+            string name = item.itemName;//wyseitli bald 
                 float weight = item.weight;
-                Sprite icon = item.icon;
+                Sprite icon = item.icon != null ? item.icon : defaultPlaceholderIcon;
                  Item.ItemType type = item.itemType;
                   string typeString = type.ToString(); // ✅ This is correct
 
@@ -560,24 +737,71 @@ public class UI_Script : MonoBehaviour
 
 
 
-            addItem(name, typeString, 1, 10.5f,icon, item);
+            addItem(name, typeString, 1, weight, icon, item);
             }
         }
+    private void RefreshItemsStyles()
+    {
+        ScrollView scroll = root.Q<ScrollView>("Items_scrol");
+    
+        var items = scroll.contentContainer.Children().ToList();
+
+        for (int i = 0; i < items.Count; i++)
+        {
+         
+            items[i].RemoveFromClassList("row-even");
+            items[i].RemoveFromClassList("row-odd");
+
+            
+            if (i % 2 == 0)
+                items[i].AddToClassList("row-even");
+            else
+                items[i].AddToClassList("row-odd");
+        }
+    }
+    public void ShowCrafting()
+    {
+        ShowInventory();
+        var Crafting = root.Q<VisualElement>("Crafting");
+        Crafting.style.display = DisplayStyle.Flex; 
+        crafintgIsOpen = true;
 
 
-        public void HideInventory()
+    }
+    public void toggleCrafting() 
+    {
+        if (inventoryIsOpen == true)
+            HideInventory();
+        else
+            ShowCrafting();
+
+
+
+
+    }
+    public void HideCrafing()
+    {
+        
+        var Crafting = root.Q<VisualElement>("Crafting");
+        Crafting.style.display = DisplayStyle.None;
+        crafintgIsOpen = false;
+    }
+    public void HideInventory()
             {
+
                 var BSlots = root.Q<VisualElement>("BSlots");
                 var Title = root.Q<VisualElement>("Title");
                 var QSlots = root.Q<VisualElement>("QSlots");
-
-
+                var Crafting = root.Q<VisualElement>("Crafting");
+                Crafting.style.display = DisplayStyle.None;
+        UnityEngine.Cursor.visible = false;
+        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
 
             LHand.style.display = DisplayStyle.None;
             RHand.style.display = DisplayStyle.None;
             BSlots.style.display = DisplayStyle.None;
-                Title.style.display = DisplayStyle.None;
-            QSlots.style.backgroundColor = new UnityEngine.Color(0, 0, 0, 0.2f); // przyciemnienie
+            Title.style.display = DisplayStyle.None;
+            //QSlots.style.backgroundColor = new UnityEngine.Color(0, 0, 0, 0.2f); // przyciemnienie
 
 
             List<Label> slot = root.Query<Label>(className: "QSlot").ToList();
@@ -591,19 +815,22 @@ public class UI_Script : MonoBehaviour
                 // ustawiamy direction parenta
                 var slots = QSlots.parent; // to powinien być "Slots"
                 slots.style.flexDirection = FlexDirection.RowReverse;
-            }
+        inventoryIsOpen = false;
+
+    }
         public void ShowInventory()
         {
             var BSlots = root.Q<VisualElement>("BSlots");
             var Title = root.Q<VisualElement>("Title");
             var QSlots = root.Q<VisualElement>("QSlots");
-
+            UnityEngine.Cursor.visible = true;
+            UnityEngine.Cursor.lockState = CursorLockMode.None;
             LHand.style.display = DisplayStyle.Flex;
             RHand.style.display = DisplayStyle.Flex;
             BSlots.style.display = DisplayStyle.Flex;
             Title.style.display = DisplayStyle.Flex;
 
-            QSlots.style.backgroundColor = new UnityEngine.Color(255, 0, 0, 1f);
+            //QSlots.style.backgroundColor = new UnityEngine.Color(255, 0, 0, 1f);
 
 
             List<Label> slot = root.Query<Label>(className: "QSlot").ToList();
@@ -613,12 +840,21 @@ public class UI_Script : MonoBehaviour
                 slot[i].style.opacity = 1f;
 
             }
-        RemoveItem("Coal");
+        
 
             // ustawiamy direction parenta
             var slots = QSlots.parent; // to powinien być "Slots"
             slots.style.flexDirection = FlexDirection.Row;
-        }
+     
+
+                
+                foreach (Item recipeItem in UIRecipes)
+                {
+                    // Wywołujemy AddUnique dla każdego elementu
+                    AddUnique(recipeItem);
+                }
+        inventoryIsOpen = true;
+    }
 
 
 
@@ -641,10 +877,24 @@ public class UI_Script : MonoBehaviour
 
         int currentQty = int.Parse(qtyLabel.text);
         int newQty = currentQty - amount;
+       
+        int removedCount = 0;
+
+        for (int i = ItemList.Count - 1; i >= 0; i--)
+        {
+            if (ItemList[i].itemName == itemName)
+            {
+                ItemList.RemoveAt(i);
+                removedCount++;
+
+                if (removedCount >= amount)
+                    break;
+            }
+        }
 
         if (newQty <= 0)
         {
-            // 🔥 usuń cały item z listy
+            
             itemRoot.RemoveFromHierarchy();
         }
         else
@@ -694,29 +944,263 @@ public class UI_Script : MonoBehaviour
     }
     public Item GetItemRighHand()
     {
-        ItemData data = GetItemFromQSlot(9);
+        ItemData data = GetItemFromQSlot(10);
         return data?.originalItem;
     }
     void Update()
         {
-            if (Keyboard.current.hKey.wasPressedThisFrame)
-            {
-                
-                HideInventory();
-            RemoveItem("coal");
-            }
-            if (Keyboard.current.eKey.wasPressedThisFrame)
-            {
+        
+        
+    }
 
-                ShowInventory();
+    void AddItemToTable(VisualElement table, ItemData data,Vector2 localPos, int quantity)
+    {
+        // Jeśli stół ma w środku jakiś kontener na przedmioty (np. ScrollView lub VisualElement), 
+        // upewnij się, że dodajesz do niego. Jeśli nie, dodajemy bezpośrednio do 'table'.
+
+        VisualElement itemOnTable = new VisualElement();
+        float size = 64;
+        itemOnTable.style.width = size;
+        itemOnTable.style.height = size;
+        itemOnTable.style.marginRight = 5;
+        itemOnTable.style.marginBottom = 5;
+        itemOnTable.style.position = Position.Absolute;
+        itemOnTable.style.left = localPos.x - (size / 2);
+        itemOnTable.style.top = localPos.y - (size / 2);
+        itemOnTable.style.backgroundImage = new StyleBackground(data.icon.texture);
+
+
+        ItemData tableData = new ItemData
+        {
+            name = data.name,
+            category = data.category,
+            weight = data.weight,
+            icon = data.icon,
+            originalItem = data.originalItem
+        };
+        itemOnTable.userData = tableData;
+        itemOnTable.AddToClassList("TableItem"); // Opcjonalna klasa do stylizacji w USS
+        if (quantity > 1)
+        {
+            Label countLabel = new Label($"x{quantity}");
+            countLabel.style.position = Position.Absolute;
+            countLabel.style.bottom = 0;
+            countLabel.style.right = 0;
+            countLabel.style.backgroundColor = new UnityColor(0, 0, 0, 0.5f);
+            countLabel.style.color = UnityColor.white;
+            countLabel.style.fontSize = 12;
+            itemOnTable.Add(countLabel);
+        }
+        // Rejestrujemy podnoszenie przedmiotu ze stołu
+        itemOnTable.RegisterCallback<PointerDownEvent>(evt =>
+        {
+            if (evt.button != (int)MouseButton.LeftMouse) return;
+            draggedQuantity = quantity;
+            draggedItemData = tableData;
+            draggedFromSlot = null; // To nie jest slot, tylko luźny obiekt
+            currentDragSource = DragSourceType.List; // (powrót do eq)
+            dropSucceeded = false;
+
+            StartDrag(evt.position, data.icon.texture);
+
+            // usunac go ze stołu, bo "wisi" teraz pod myszką
+            itemOnTable.RemoveFromHierarchy();
+        });
+
+        table.Add(itemOnTable);
+
+        
+        // przedmioty układają się obok siebie.
+        table.style.flexDirection = FlexDirection.Row;
+        table.style.flexWrap = Wrap.Wrap;
+        
+    }
+    public List<Item> GetItemsOnTable()
+    {
+        VisualElement table = root.Q<VisualElement>("Table");
+        List<Item> itemsOnTable = new List<Item>();
+
+        // Szukamy wszystkich elementów, które mają przypisaną klasę "TableItem"
+        table.Query<VisualElement>(className: "TableItem").ForEach(itemElement =>
+        {
+            if (itemElement.userData is ItemData data)
+            {
+                itemsOnTable.Add(data.originalItem);
+                
+            }
+        });
+
+        return itemsOnTable;
+    }
+
+    private async void CraftingSend()
+    {
+        Debug.Log("Button was clicked!");
+        
+        List<Item> CraftingItems = GetItemsOnTable();
+        Debug.Log(CraftingItems.Count);
+        craftingInventory.inventory = new List<Item>(CraftingItems);
+        Debug.Log(GetItemsOnTable());
+        crafting.Instance.craft = true;
+        while (crafting.Instance.craft == true)
+        {
+
+            await Task.Delay(100);
+        }
+     
+        ClearTable();
+        List<Item> CraftingRturn = craftingInventory.inventory;
+        SpawnItemsOnTable(CraftingRturn);
+        craftingInventory.inventory.Clear();
+
+    }
+    void ClearTable()
+    {
+        VisualElement table = root.Q<VisualElement>("Table");
+        if (table == null) return;
+
+        // Szukamy wszystkich elementów, które dodaliśmy jako przedmioty
+        List<VisualElement> itemsToRemove = table.Query<VisualElement>(className: "TableItem").ToList();
+        
+        foreach (var item in itemsToRemove)
+        {
+            
+            item.RemoveFromHierarchy();
+        }
+
+        Debug.Log("Stół został wyczyszczony.");
+    }
+    public void SpawnItemsOnTable(List<Item> itemsToPlace)
+    {
+        VisualElement table = root.Q<VisualElement>("Table");
+        if (table == null || itemsToPlace == null) return;
+
+
+        // Parametry układu (Grid)
+        float slotSize = 64f;
+        float padding = 10f;
+        int columns = 4; // Ile przedmiotów w rzędzie
+
+        for (int i = 0; i < itemsToPlace.Count; i++)
+        {
+            Item item = itemsToPlace[i];
+
+            // 2. Przygotowujemy dane ItemData (bo tego wymaga Twoja funkcja AddItemToTable)
+            ItemData data = new ItemData
+            {
+                name = item.itemName,
+                category = item.itemType.ToString(),
+                weight = item.weight,
+                icon = item.icon != null ? item.icon : defaultPlaceholderIcon,
+                originalItem = item
+            };
+
+            // 3. Obliczamy pozycję w siatce (x, y)
+            float x = (i % columns) * (slotSize + padding) + (slotSize / 2);
+            float y = (i / columns) * (slotSize + padding) + (slotSize / 2);
+            Vector2 pos = new Vector2(x, y);
+            AddItemToTable(table, data, pos, 1);
+        }
+    }
+
+
+
+    public float weightRefresh()
+    {
+        float totalWeight = 0f;
+
+        // 1. Sumujemy wagę z głównej listy (Scroll View)
+        var itemsInScroll = root.Q<ScrollView>("Items_scrol").contentContainer.Query<VisualElement>(className: "Item").ToList();
+        foreach (var itemRow in itemsInScroll)
+        {
+            if (itemRow.userData is ItemData data)
+            {
+                Label qtyLabel = itemRow.Q<Label>("ItemQty");
+                // Używamy TryParse, żeby uniknąć błędów przy pustych labelach
+                int quantity = (qtyLabel != null && int.TryParse(qtyLabel.text, out int q)) ? q : 1;
+                totalWeight += data.weight * quantity;
             }
         }
 
+        // 2. Sumujemy wagę ze slotów QSlot, LHand i RHand
+        float QslotWeight=0;
+        foreach (var slot in qSlotsList)
+        {
+            if (slot != null && slot.userData is ItemData data)
+            {
+                totalWeight += data.weight;
+                QslotWeight+= data.weight;
+            }
+        }
 
+        //draged item weight
+        if (isDragging && draggedItemData != null)
+        {
+            totalWeight += draggedItemData.weight * draggedQuantity;
+        }
 
+        Label weight = root.Q<Label>("Weight");
+        Label weightQslots = root.Q<Label>("WeightQslots");
+        weight.text = totalWeight + "kg / " + maxWeight +"kg";
+        weightQslots.text = QslotWeight + "kg / " + maxWeight/2 + "kg";
+        weightQslots.style.whiteSpace = WhiteSpace.NoWrap;
 
+        // Ustawiamy dynamiczne skalowanie (w nowszych wersjach Unity)
+        // Jeśli nie widzisz tego w edytorze, kodem wymusisz to tak:
+       
+       
 
+        // Dodajemy padding, aby tekst nie dotykał brzegów (efekt 90% wypełnienia)
+        weightQslots.style.paddingLeft = Length.Percent(5);
+        weightQslots.style.paddingRight = Length.Percent(5);
+        weightQslots.style.unityTextAlign = TextAnchor.MiddleCenter;
+        return totalWeight;
     }
+    public void SendItemCraftable(List<Item> recipes)
+    {
+        UIRecipes = recipes;
+    }
+
+    public void AddUnique(Item item)
+    {
+        // ! oznacza "NOT" (jeśli na liście ItemList NIE MA przedmiotu o tej nazwie)
+        if (!ItemList.Exists(i => i.itemName == item.itemName))
+        {
+            // Jeśli robisz ItemList.Add, upewnij się, że ItemList to Twoja lista w UI
+            Item instance = Instantiate(item);
+            ItemList.Add(instance);
+        }
+    }
+
+
+
+
+
+
+    private Vector2 GetAverageItemPosition() //poprostu licze gdzie chce aby przedmiot poajiwl sie na stole //wylaczone czy cos na razie 
+    {
+        VisualElement table = root.Q<VisualElement>("Table");
+        // Pobieramy wszystkie elementy, które są "przedmiotami" na stole
+        var items = table.Query<VisualElement>(className: "TableItem").ToList();
+
+        if (items.Count == 0)
+        {
+            // Jeśli stół jest pusty, zwróć środek stołu jako fallback
+            return new Vector2(table.layout.width / 2, table.layout.height / 2);
+        }
+
+        Vector2 sum = Vector2.zero;
+
+        foreach (var item in items)
+        {
+            sum.x += item.layout.x;
+            sum.y += item.layout.y;
+        }
+
+        
+        return new Vector2(sum.x / items.Count, sum.y / items.Count);
+    }
+}
 
 
 

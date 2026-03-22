@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class crafting : MonoBehaviour
 {
+    public static crafting Instance;
     [Header("DEBUG MODE!!!")]
     public bool debugMode;
 
@@ -15,6 +16,11 @@ public class crafting : MonoBehaviour
     public Item outcomeItem;
 
     private List<Item> neededItems = new List<Item>();
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     void Update(){
         if (craft){

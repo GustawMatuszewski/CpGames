@@ -1,0 +1,35 @@
+{
+    "version": 1,
+    "name": "UI_actions",
+    "maps": [
+        {
+            "name": "UI",
+            "id": "043289c4-b976-4ce8-8b4c-19f7f8681232",
+            "actions": [
+                {
+                    "name": "TogleCrafting",
+                    "type": "Button",
+                    "id": "7cb5db05-6d3e-4a94-b137-4d16a2874984",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "41115c7b-6693-4403-bbe3-1fd1b2114ac6",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TogleCrafting",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
