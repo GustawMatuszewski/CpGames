@@ -35,17 +35,22 @@ public class EnemyEntity : BaseEntity
     private float attackRotateSpeed = 5f;
 
     void Awake()
+{
+    agent = GetComponent<NavMeshAgent>();
+    player = FindAnyObjectByType<KCC>();
+    combat = GetComponent<Combat>();
+    
+    if(combat.attackTemplates.Count > 0) 
     {
-        agent = GetComponent<NavMeshAgent>();
-        player = FindAnyObjectByType<KCC>();
-        combat = GetComponent<Combat>();
-        //just one attack for now
-        if(combat.attackTemplates.Count>0) 
-        {
-            attackRange = combat.attackTemplates[0].range;
-            agent.stoppingDistance=attackRange*0.8f;
-        }
+        attackRange = combat.attackTemplates[0].range;
+        agent.stoppingDistance = attackRange * 0.8f;
+        Debug.Log("Zasięg ataku ustawiony na: " + attackRange);
     }
+    else 
+    {
+        Debug.LogError("LISTA ATAKÓW JEST PUSTA! Przeciwnik nie będzie wiedział kiedy bić.");
+    }
+}
 
     void FixedUpdate()
     {
@@ -194,42 +199,30 @@ public class EnemyEntity : BaseEntity
     }
 
     void ChaseBehavior(GameObject visibleTarget)
+{
+    if (visibleTarget == null)
     {
-        if (visibleTarget == null)
+        TrySetDestination(lastKnownTargetPos);
+        if(!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
         {
-            TrySetDestination(lastKnownTargetPos);
-            if(!agent.pathPending && agent.remainingDistance<=agent.stoppingDistance)
-            {
-                enemyState=EntityState.Search;
-            }
-            return;
+            enemyState = EntityState.Search;
         }
-        lastKnownTargetPos=visibleTarget.transform.position;
-
-        Collider hit = combat.HitboxDetector();
-        if (hit != null)
-        {
-            enemyState=EntityState.Attack;
-            agent.ResetPath();
-            if(debugMode) Debug.Log("Switch to attack state, found ");
-            return;
-        }
-        
-        float distanceToTarget = Vector3.Distance(transform.position,lastKnownTargetPos);
-
-        if(distanceToTarget<=agent.stoppingDistance+0.1f)
-        {
-            enemyState=EntityState.Attack;
-            agent.ResetPath();
-        }
-        else
-        {
-            TrySetDestination(lastKnownTargetPos);
-        }
-
-
-        if(debugMode) Debug.Log("Chase, Distance: "+distanceToTarget);
+        return;
     }
+    
+    lastKnownTargetPos = visibleTarget.transform.position;
+    float distanceToTarget = Vector3.Distance(transform.position, lastKnownTargetPos);
+    
+    if(distanceToTarget <= agent.stoppingDistance + 0.2f)
+    {
+        enemyState = EntityState.Attack;
+        agent.ResetPath();
+    }
+    else
+    {
+        TrySetDestination(lastKnownTargetPos);
+    }
+}
 
     void InvestigateBehavior()
     {
@@ -251,32 +244,39 @@ public class EnemyEntity : BaseEntity
     }
 
     void AttackBehavior()
+{
+    if (currentTarget == null)
     {
-        if (currentTarget == null)
-        {
-            enemyState=EntityState.Search;
-            combat.combatActive=false;
-            return;
-        }
-        
-        float distanceToTarget = Vector3.Distance(transform.position,lastKnownTargetPos);
-        if (distanceToTarget >= attackRange * 1.2f)
-        {
-            enemyState=EntityState.Sprint;
-            combat.combatActive = false;
-            return;
-        }
-        RotateTowardsTarget(currentTarget.transform.position);
-        
-        //for choosing the first from the list, will build from it the choosing of optimal attack
-        if(combat.currentAttack==null && combat.attackTemplates.Count > 0)
-        {
-            currentAttack=combat.attackTemplates[0];
-        }
-        combat.combatActive=true;
-        combat.canAttack=true;
-        if(debugMode) Debug.Log("Attack");
+        enemyState = EntityState.Search;
+        combat.combatActive = false;
+        return;
     }
+
+    if (combat != null && combat.attackInProgress) 
+    {
+        RotateTowardsTarget(currentTarget.transform.position);
+        return; 
+    }
+
+    float distanceToTarget = Vector3.Distance(transform.position, currentTarget.transform.position);
+    
+    if (distanceToTarget >= attackRange * 1.2f)
+    {
+        enemyState = EntityState.Sprint;
+        combat.combatActive = false;
+        return;
+    }
+
+    RotateTowardsTarget(currentTarget.transform.position);
+    
+    if(combat.currentAttack == null && combat.attackTemplates.Count > 0)
+    {
+        combat.currentAttack = combat.attackTemplates[0];
+    }
+
+    combat.combatActive = true;
+    combat.canAttack = true;
+}
 
     Vector3 GetRandomPatrolPoint()
     {

@@ -3,6 +3,8 @@ using UnityEngine.Events;
 using System.Collections.Generic;
 
 public class Combat : MonoBehaviour {
+    private PlayerAnimationsController animCtrl;
+    
     [System.Serializable]
     public class Limb {
         public enum DamageType {
@@ -36,6 +38,7 @@ public class Combat : MonoBehaviour {
     public bool debugMode;
 
     [Header("References")]
+    public Animator animator;
     [SerializeField] public List<Limb> ownerHitboxes = new List<Limb>();
     public List<string> damageHitboxNameList = new List<string>();
     public string hitboxTag;
@@ -50,12 +53,12 @@ public class Combat : MonoBehaviour {
     [Header("Damage Received")]
     public UnityEvent onDamageReceived;
 
-    private bool attackInProgress;
+    public bool attackInProgress;
     private float attackTimer;
     private float cooldownTimer;
 
     void FixedUpdate() {
-        if (combatActive == false)
+        if (combatActive == false || currentAttack == null)
             return;
 
         if (cooldownTimer > 0f) {
@@ -63,9 +66,18 @@ public class Combat : MonoBehaviour {
             return;
         }
 
-        if (!attackInProgress && canAttack && currentAttack != null) {
+        if (!attackInProgress && canAttack) {
             attackInProgress = true;
             attackTimer = currentAttack.timeToAttack;
+
+            if (animator != null) {
+                animator.CrossFade(currentAttack.HittingAnimation, 0.1f);
+            }
+
+            PlayerAnimationsController combatAnim = GetComponent<PlayerAnimationsController>();
+            if (combatAnim != null) {
+                combatAnim.PlayCombatAnimation(currentAttack.HittingAnimation);
+            }
         }
 
         if (attackInProgress) {
