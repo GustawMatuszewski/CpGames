@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 using System.Collections.Generic;
 
 public class Combat : MonoBehaviour {
@@ -50,6 +51,10 @@ public class Combat : MonoBehaviour {
     // Jezeli true: po jednym ataku combatActive auto-resetuje sie do false (tryb gracza).
     // Jezeli false: atakuje w petli dopoki combatActive == true (tryb wroga).
     public bool singleShot = false;
+
+    [Header("Player Attack Input")]
+    // Przypisz akcje ataku z Input Action Asset (tylko dla gracza, zostaw puste dla wroga)
+    public InputActionReference attackInput;
     public AttackTemplate currentAttack;
     public Collider currentCollision;
 
@@ -59,6 +64,30 @@ public class Combat : MonoBehaviour {
     public bool attackInProgress;
     private float attackTimer;
     private float cooldownTimer;
+
+    void OnEnable()
+    {
+        if (attackInput != null)
+            attackInput.action.Enable();
+    }
+
+    void OnDisable()
+    {
+        if (attackInput != null)
+            attackInput.action.Disable();
+    }
+
+    void Update()
+    {
+        // Obsluga inputu gracza — tylko gdy singleShot i attackInput przypisany
+        if (singleShot && attackInput != null && attackInput.action.WasPressedThisFrame())
+        {
+            if (currentAttack == null && attackTemplates.Count > 0)
+                currentAttack = attackTemplates[0];
+
+            combatActive = true;
+        }
+    }
 
     void FixedUpdate() {
         // Cooldown odliczamy zawsze

@@ -181,6 +181,24 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""AttackInput"",
+                    ""type"": ""Button"",
+                    ""id"": ""259e96c7-679e-4ab6-a2f0-7bfcab87e5c1"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""InventoryInput"",
+                    ""type"": ""Button"",
+                    ""id"": ""c5500c4f-bffd-4afc-b7e7-530a49c6c1dc"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -392,6 +410,28 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""RKey"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0e32cb88-379b-4979-82a7-cc29e020701e"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""AttackInput"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c553a16f-0b15-40a4-bc84-e61d1ed18936"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""InventoryInput"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -410,6 +450,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_PlayerInputMap_RunInput = m_PlayerInputMap.FindAction("RunInput", throwIfNotFound: true);
         m_PlayerInputMap_ProneInput = m_PlayerInputMap.FindAction("ProneInput", throwIfNotFound: true);
         m_PlayerInputMap_RKey = m_PlayerInputMap.FindAction("RKey", throwIfNotFound: true);
+        m_PlayerInputMap_AttackInput = m_PlayerInputMap.FindAction("AttackInput", throwIfNotFound: true);
+        m_PlayerInputMap_InventoryInput = m_PlayerInputMap.FindAction("InventoryInput", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -500,6 +542,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerInputMap_RunInput;
     private readonly InputAction m_PlayerInputMap_ProneInput;
     private readonly InputAction m_PlayerInputMap_RKey;
+    private readonly InputAction m_PlayerInputMap_AttackInput;
+    private readonly InputAction m_PlayerInputMap_InventoryInput;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerInputMap".
     /// </summary>
@@ -551,6 +595,14 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "PlayerInputMap/RKey".
         /// </summary>
         public InputAction @RKey => m_Wrapper.m_PlayerInputMap_RKey;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerInputMap/AttackInput".
+        /// </summary>
+        public InputAction @AttackInput => m_Wrapper.m_PlayerInputMap_AttackInput;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerInputMap/InventoryInput".
+        /// </summary>
+        public InputAction @InventoryInput => m_Wrapper.m_PlayerInputMap_InventoryInput;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -607,6 +659,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @RKey.started += instance.OnRKey;
             @RKey.performed += instance.OnRKey;
             @RKey.canceled += instance.OnRKey;
+            @AttackInput.started += instance.OnAttackInput;
+            @AttackInput.performed += instance.OnAttackInput;
+            @AttackInput.canceled += instance.OnAttackInput;
+            @InventoryInput.started += instance.OnInventoryInput;
+            @InventoryInput.performed += instance.OnInventoryInput;
+            @InventoryInput.canceled += instance.OnInventoryInput;
         }
 
         /// <summary>
@@ -648,6 +706,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @RKey.started -= instance.OnRKey;
             @RKey.performed -= instance.OnRKey;
             @RKey.canceled -= instance.OnRKey;
+            @AttackInput.started -= instance.OnAttackInput;
+            @AttackInput.performed -= instance.OnAttackInput;
+            @AttackInput.canceled -= instance.OnAttackInput;
+            @InventoryInput.started -= instance.OnInventoryInput;
+            @InventoryInput.performed -= instance.OnInventoryInput;
+            @InventoryInput.canceled -= instance.OnInventoryInput;
         }
 
         /// <summary>
@@ -758,5 +822,19 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnRKey(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "AttackInput" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnAttackInput(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "InventoryInput" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnInventoryInput(InputAction.CallbackContext context);
     }
 }
