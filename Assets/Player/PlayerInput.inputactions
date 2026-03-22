@@ -95,6 +95,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "AttackInput",
+                    "type": "Button",
+                    "id": "259e96c7-679e-4ab6-a2f0-7bfcab87e5c1",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "InventoryInput",
+                    "type": "Button",
+                    "id": "c5500c4f-bffd-4afc-b7e7-530a49c6c1dc",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -304,6 +322,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "RKey",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0e32cb88-379b-4979-82a7-cc29e020701e",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "AttackInput",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c553a16f-0b15-40a4-bc84-e61d1ed18936",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "InventoryInput",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
