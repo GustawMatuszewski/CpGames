@@ -13739,6 +13739,54 @@ PrefabInstance:
       propertyPath: globalVolume
       value: 
       objectReference: {fileID: 987267475}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: sunIntensity
+      value: 20000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: moonIntensity
+      value: 1500
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: moonIntensityMultiplier.m_Curve.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: moonIntensityMultiplier.m_Curve.Array.data[1].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: moonIntensityMultiplier.m_Curve.Array.data[0].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: moonIntensityMultiplier.m_Curve.Array.data[0].inSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: moonIntensityMultiplier.m_Curve.Array.data[1].inSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: moonIntensityMultiplier.m_Curve.Array.data[0].outSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: moonIntensityMultiplier.m_Curve.Array.data[1].inWeight
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: moonIntensityMultiplier.m_Curve.Array.data[1].outSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: moonIntensityMultiplier.m_Curve.Array.data[0].outWeight
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: moonIntensityMultiplier.m_Curve.Array.data[1].outWeight
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -33288,7 +33336,7 @@ Light:
   serializedVersion: 11
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 0
+  m_Intensity: 1500
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
