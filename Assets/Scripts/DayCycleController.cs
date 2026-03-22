@@ -44,6 +44,9 @@ public class DayCycleController : MonoBehaviour
     public Color dayAmbientColor = new Color(0.5f, 0.5f, 0.5f);
     public Color nightAmbientColor = Color.black;
 
+    public float SunHeightFactor { get; private set; } = 1f;
+    public bool IsNight => SunHeightFactor < 0.5f;
+
     void Start()
     {
         RenderSettings.fog = useFog;
@@ -67,9 +70,9 @@ public class DayCycleController : MonoBehaviour
         sun.transform.rotation = Quaternion.Euler(sunAngle - 90f, 45f, 0f);
 
         float sunRawHeight = Vector3.Dot(sun.transform.forward, Vector3.down);
-        float sunHeightFactor = Mathf.Clamp01((sunRawHeight - sunsetThreshold) / transitionSmoothness);
+        SunHeightFactor = Mathf.Clamp01((sunRawHeight - sunsetThreshold) / transitionSmoothness);
         
-        ApplyEnvironment(sunHeightFactor);
+        ApplyEnvironment(SunHeightFactor);
 
         if (skyboxMaterial != null)
         {
@@ -80,14 +83,11 @@ public class DayCycleController : MonoBehaviour
 
     void ApplyEnvironment(float height)
     {
-        // Light
         sun.intensity = Mathf.Lerp(nightIntensity, dayIntensity, height);
         sun.color = Color.Lerp(nightSunColor, daySunColor, height);
 
-        // Fog Color
         RenderSettings.fogColor = Color.Lerp(nightFogColor, dayFogColor, height);
         
-        // Fog Density/Distance based on Mode
         if (RenderSettings.fogMode == FogMode.Linear)
         {
             RenderSettings.fogStartDistance = Mathf.Lerp(nightFogStart, dayFogStart, height);
@@ -98,10 +98,8 @@ public class DayCycleController : MonoBehaviour
             RenderSettings.fogDensity = Mathf.Lerp(nightFogDensity, dayFogDensity, height);
         }
 
-        // Ambient
         RenderSettings.ambientLight = Color.Lerp(nightAmbientColor, dayAmbientColor, height);
 
-        // Skybox
         if (skyboxMaterial != null)
         {
             if (skyboxMaterial.HasProperty("_Exposure"))
