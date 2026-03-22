@@ -17,7 +17,8 @@ MonoBehaviour:
   timeToAttack: 0.5
   HittingAnimation: Hitting
   attackPrefab: {fileID: 0}
-  cooldown: 1
-  range: 0
-  attackType: 0
-  attackEffects: 
+  cooldown: 0.5
+  range: 3
+  animationName: 
+  attackType: 1
+  attackEffects: 06000000
