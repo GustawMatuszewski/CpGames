@@ -1,24 +1,14 @@
 ﻿using System;
-    using System.Collections.Generic;
-    using System.Drawing;
-    using System.Linq;
-    using System.Reflection.Emit;
-    using TMPro;
-    using Unity.VisualScripting;
-    using UnityEditor.ShaderGraph;
-    using UnityEditorInternal.VersionControl;
-    using UnityEngine;
-    using UnityEngine.InputSystem;
-    using UnityEngine.UIElements;
-    using UnityEngine.XR;
-    using static UnityEngine.Rendering.DebugUI.MessageBox;
-    using ColorUtility = Unity.VisualScripting.ColorUtility;
-    using Label = UnityEngine.UIElements.Label;
-    using MouseButton = UnityEngine.UIElements.MouseButton;
-    using UnityColor = UnityEngine.Color;
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
+using Label = UnityEngine.UIElements.Label;
+using MouseButton = UnityEngine.UIElements.MouseButton;
+using UnityColor = UnityEngine.Color;
 using System.Threading.Tasks;
-
-
 public class ItemData
 {
     public string name;
