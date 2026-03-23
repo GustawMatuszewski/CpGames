@@ -69899,18 +69899,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
-      propertyPath: inventory.Array.size
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
-      propertyPath: 'inventory.Array.data[4]'
-      value: 
-      objectReference: {fileID: 11400000, guid: b9ac640d8050c995ca63593ebd23cb9e, type: 2}
-    - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
-      propertyPath: 'inventory.Array.data[5]'
-      value: 
-      objectReference: {fileID: 11400000, guid: b9ac640d8050c995ca63593ebd23cb9e, type: 2}
     - target: {fileID: 987370808162256278, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 4
@@ -69955,20 +69943,7 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerFull
       objectReference: {fileID: 0}
-    - target: {fileID: 3632851759638591114, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
-      propertyPath: toPlace
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 3632851759638591114, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3632851759638591114, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
-      propertyPath: snapRotation
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 655304161700749881, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
