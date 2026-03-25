@@ -121,17 +121,21 @@ public class EnemyEntity : BaseEntity
     }
 
     GameObject CheckForVisibleTarget()
+{
+    foreach (GameObject entity in entities)
     {
-        foreach (GameObject entity in entities)
-        {
-            if (entity == null) continue;
-            if (CanSeeTarget(entity.transform))
-            {
-                return entity;
-            }
-        }
-        return null;
+        if (entity == null) continue;
+        if (entity == this.gameObject) continue;
+
+        // Don't target same faction
+        BaseEntity other = entity.GetComponent<BaseEntity>();
+        if (other != null && other.faction == this.faction) continue;
+
+        if (CanSeeTarget(entity.transform))
+            return entity;
     }
+    return null;
+}
 
     bool CanSeeTarget(Transform target)
     {

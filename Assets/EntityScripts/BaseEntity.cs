@@ -47,6 +47,15 @@ public class BaseEntity : MonoBehaviour
         Prone   //Stands up after crawing needs to be checked wheter it can if there is space for him to stand
     }
 
+    public enum EntityFaction
+    {
+        Enemy,
+        Player,
+        Neutral
+    }
+
+    public EntityFaction faction = EntityFaction.Neutral;
+
     // void FixedUpdate()
     // {
     //     // DetectEntitiesInSphere(transform.position, 20f, entityMask, groundMask, entities); //Detection sphere can be insta create and it will add entities to entitiy list u choose
@@ -73,9 +82,11 @@ public class BaseEntity : MonoBehaviour
 
         foreach (Collider col in hits)
         {
-            GameObject topParent = GetTopParent(col.gameObject);    //Gets the object highest parent from ehere u can get kcc or entity status of the object
+            GameObject topParent = GetTopParent(col.gameObject);
+            if (topParent == null) continue;
+            if (topParent == this.gameObject) continue; // ← exclude self
+            
             currentEntities.Add(topParent);
-
             if (!entitiesList.Contains(topParent))
                 entitiesList.Add(topParent);
         }
