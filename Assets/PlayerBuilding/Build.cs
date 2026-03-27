@@ -1,8 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class Build : MonoBehaviour
-{
+public class Build : MonoBehaviour {
     [Header("DEBUG MODE!!!")]
     public bool debugMode = true;
     public List<GameObject> hits;
@@ -11,6 +10,10 @@ public class Build : MonoBehaviour
     public Construction toPlace;
     public Camera playerCamera;
     public KCC player;
+
+    [Header("Ghost Materials")]
+    public Material normalMaterial;
+    public Material blockedMaterial;
 
     [Header("Settings")]
     public bool requireGroundEvenWhenSnapped = false;
@@ -37,6 +40,7 @@ public class Build : MonoBehaviour
     GameObject ghost;
     Construction ghostConstruction;
     BoxCollider ghostCollider;
+    Renderer[] ghostRenderers;
     List<GameObject> ghostConnectors;
     Vector3 lastLookPosition;
     int noRaycastLayer;
@@ -47,31 +51,25 @@ public class Build : MonoBehaviour
 
     void Awake() => SpawnGhost();
 
-    void Update()
-    {
+    void Update() {
         MoveGhost();
 
         float interactVal = player.input.PlayerInputMap.InteractInput.ReadValue<float>();
         float swapVal = player.input.PlayerInputMap.CrouchInput.ReadValue<float>();
         float rotateVal = player.input.PlayerInputMap.RKey.ReadValue<float>();
 
-        if (interactVal > 0 && canBuild && isGrounded && !isBlocked)
-        {
+        if (interactVal > 0 && canBuild && isGrounded && !isBlocked) {
             PlaceConstruction();
             canBuild = false;
         }
 
         if (swapVal > 0) SpawnGhost();
 
-        if (ghost != null)
-        {
-            if (useContinuousRotation)
-            {
+        if (ghost != null) {
+            if (useContinuousRotation) {
                 if (rotateVal > 0)
                     ghost.transform.Rotate(0, continuousRotationSpeed, 0);
-            }
-            else
-            {
+            } else {
                 if (player.input.PlayerInputMap.RKey.WasPressedThisFrame())
                     ghost.transform.Rotate(0, snapRotationDegrees, 0);
             }
@@ -80,37 +78,27 @@ public class Build : MonoBehaviour
         if (interactVal <= 0) canBuild = true;
     }
 
-    void PlaceConstruction()
-    {
+    void PlaceConstruction() {
         Instantiate(toPlace.gameObject, ghost.transform.position, ghost.transform.rotation);
 
-        if (pendingInventory != null && pendingItem != null)
-        {
-            // find the first item in inventory with matching itemID and remove it directly
+        if (pendingInventory != null && pendingItem != null) {
             int index = -1;
-            for (int i = 0; i < pendingInventory.inventory.Count; i++)
-            {
-                if (pendingInventory.inventory[i] != null && pendingInventory.inventory[i].itemID == pendingItem.itemID)
-                {
+            for (int i = 0; i < pendingInventory.inventory.Count; i++) {
+                if (pendingInventory.inventory[i] != null && pendingInventory.inventory[i].itemID == pendingItem.itemID) {
                     index = i;
                     break;
                 }
             }
 
-            if (index >= 0)
-            {
+            if (index >= 0) {
                 string removedName = pendingInventory.inventory[index].itemName;
                 pendingInventory.inventory.RemoveAt(index);
                 Debug.Log($"[Build] Removed {removedName} from inventory. Count now: {pendingInventory.inventory.Count}");
 
-                // also update UI
                 if (UI_Script.Instance != null)
                     UI_Script.Instance.RemoveItem(removedName, 1);
-            }
-            else
-            {
+            } else {
                 Debug.LogWarning($"[Build] Could not find itemID {pendingItem.itemID} in inventory!");
-                // log all items for debugging
                 for (int i = 0; i < pendingInventory.inventory.Count; i++)
                     Debug.Log($"  [{i}] {(pendingInventory.inventory[i] == null ? "NULL" : pendingInventory.inventory[i].itemName + " id:" + pendingInventory.inventory[i].itemID)}");
             }
@@ -123,8 +111,15 @@ public class Build : MonoBehaviour
         enabled = false;
     }
 
-    void MoveGhost()
-    {
+    void UpdateGhostMaterial() {
+        if (ghostRenderers == null) return;
+        Material mat = isBlocked ? blockedMaterial : normalMaterial;
+        if (mat == null) return;
+        foreach (Renderer r in ghostRenderers)
+            r.material = mat;
+    }
+
+    void MoveGhost() {
         if (ghost == null || ghostConstruction == null || ghostCollider == null) return;
 
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
@@ -132,20 +127,16 @@ public class Build : MonoBehaviour
         bool hasHit = false;
         Vector3 hitNormal = Vector3.up;
 
-        if (Physics.Raycast(ray, out RaycastHit hit, placeDistance, buildMask | groundMask))
-        {
+        if (Physics.Raycast(ray, out RaycastHit hit, placeDistance, buildMask | groundMask)) {
             lastLookPosition = hit.point;
             targetPosition = hit.point;
             hitNormal = hit.normal;
             hasHit = true;
-        }
-        else
-        {
+        } else {
             targetPosition = playerCamera.transform.position + playerCamera.transform.forward * placeDistance;
         }
 
-        if (hasHit)
-        {
+        if (hasHit) {
             Vector3 extents = Vector3.Scale(ghostCollider.size, ghost.transform.localScale) * 0.5f;
             Vector3 absNormal = new Vector3(Mathf.Abs(hitNormal.x), Mathf.Abs(hitNormal.y), Mathf.Abs(hitNormal.z));
             float offsetDist = Vector3.Dot(extents, absNormal);
@@ -156,16 +147,13 @@ public class Build : MonoBehaviour
 
         hits.Clear();
         List<GameObject> foundConnectors = new List<GameObject>();
-        Collider[] overlaps = Physics.OverlapSphere(ghost.transform.position, placeDistance, buildMask);
+        Collider[] overlaps = Physics.OverlapSphere(ghost.transform.position, snapDistance + 1f, buildMask);
 
-        foreach (Collider c in overlaps)
-        {
+        foreach (Collider c in overlaps) {
             if (c.transform.root == ghost.transform.root) continue;
             Construction hitConstruction = c.transform.root.GetComponent<Construction>();
-            if (hitConstruction != null)
-            {
-                foreach (GameObject connector in hitConstruction.connectors)
-                {
+            if (hitConstruction != null) {
+                foreach (GameObject connector in hitConstruction.connectors) {
                     if (connector != null && !foundConnectors.Contains(connector))
                         foundConnectors.Add(connector);
                 }
@@ -177,14 +165,11 @@ public class Build : MonoBehaviour
         float bestDist = snapDistance;
         currentSnappedObject = null;
 
-        foreach (GameObject gConn in ghostConnectors)
-        {
-            foreach (GameObject tConn in foundConnectors)
-            {
+        foreach (GameObject gConn in ghostConnectors) {
+            foreach (GameObject tConn in foundConnectors) {
                 float d = Vector3.Distance(gConn.transform.position, tConn.transform.position);
                 if (!hits.Contains(tConn)) hits.Add(tConn);
-                if (d < bestDist)
-                {
+                if (d < bestDist) {
                     bestDist = d;
                     bestGhostConn = gConn;
                     bestTargetConn = tConn;
@@ -193,18 +178,15 @@ public class Build : MonoBehaviour
         }
 
         bool isSnapped = false;
-        if (bestGhostConn != null && bestTargetConn != null)
-        {
-            if (snapRotation)
-            {
+        if (bestGhostConn != null && bestTargetConn != null) {
+            if (snapRotation) {
                 Quaternion delta =
                     bestTargetConn.transform.rotation *
                     Quaternion.Inverse(bestGhostConn.transform.rotation);
 
                 ghost.transform.rotation = delta * ghost.transform.rotation;
 
-                if (snapRotationDegrees > 0f)
-                {
+                if (snapRotationDegrees > 0f) {
                     Vector3 e = ghost.transform.eulerAngles;
                     e.y = Mathf.Round(e.y / snapRotationDegrees) * snapRotationDegrees;
                     ghost.transform.eulerAngles = e;
@@ -217,14 +199,14 @@ public class Build : MonoBehaviour
             isSnapped = true;
         }
 
-        Vector3 checkExtents = Vector3.Scale(ghostCollider.size, ghost.transform.localScale) * blockCheckScale;
-        Collider[] blockers = Physics.OverlapBox(ghostCollider.bounds.center, checkExtents, ghost.transform.rotation, buildMask | groundMask);
+        Vector3 worldCenter = ghost.transform.TransformPoint(ghostCollider.center);
+        Vector3 checkExtents = Vector3.Scale(ghostCollider.size, ghost.transform.lossyScale) * blockCheckScale;
+
+        Collider[] blockers = Physics.OverlapBox(worldCenter, checkExtents, ghost.transform.rotation, buildMask | groundMask);
 
         isBlocked = false;
-        foreach (var b in blockers)
-        {
+        foreach (var b in blockers) {
             if (b.transform.root == ghost.transform.root) continue;
-            if (isSnapped && b.transform.root == currentSnappedObject.transform) continue;
             isBlocked = true;
             break;
         }
@@ -237,23 +219,21 @@ public class Build : MonoBehaviour
         else
             isGrounded = Physics.Raycast(rayStart, Vector3.down, rayLength, groundMask | buildMask);
 
-        if (debugMode)
-        {
+        UpdateGhostMaterial();
+
+        if (debugMode) {
             DrawConnectorBoxes();
             DrawAllCollisionBoxes();
-            DrawBox(ghostCollider.bounds.center, checkExtents, ghost.transform.rotation, isBlocked ? Color.red : Color.yellow);
+            DrawBox(worldCenter, checkExtents, ghost.transform.rotation, isBlocked ? Color.red : Color.yellow);
             Debug.DrawRay(rayStart, Vector3.down * rayLength, isGrounded ? Color.green : Color.red);
         }
     }
 
-    void DrawAllCollisionBoxes()
-    {
+    void DrawAllCollisionBoxes() {
         Collider[] nearby = Physics.OverlapSphere(ghost.transform.position, placeDistance, buildMask | groundMask);
-        foreach (Collider col in nearby)
-        {
+        foreach (Collider col in nearby) {
             if (col.gameObject == ghost || col.transform.root == ghost.transform) continue;
-            if (col is BoxCollider box)
-            {
+            if (col is BoxCollider box) {
                 Vector3 worldCenter = box.transform.TransformPoint(box.center);
                 Vector3 worldExtents = Vector3.Scale(box.size, box.transform.lossyScale) * 0.5f;
                 DrawBox(worldCenter, worldExtents, box.transform.rotation, Color.white);
@@ -261,8 +241,7 @@ public class Build : MonoBehaviour
         }
     }
 
-    void DrawBox(Vector3 center, Vector3 extents, Quaternion rot, Color color)
-    {
+    void DrawBox(Vector3 center, Vector3 extents, Quaternion rot, Color color) {
         Vector3 v1 = rot * new Vector3(-extents.x, -extents.y, -extents.z) + center;
         Vector3 v2 = rot * new Vector3(extents.x, -extents.y, -extents.z) + center;
         Vector3 v3 = rot * new Vector3(extents.x, -extents.y, extents.z) + center;
@@ -276,14 +255,11 @@ public class Build : MonoBehaviour
         Debug.DrawLine(v1, v5, color); Debug.DrawLine(v2, v6, color); Debug.DrawLine(v3, v7, color); Debug.DrawLine(v4, v8, color);
     }
 
-    void DrawConnectorBoxes()
-    {
-        foreach (GameObject connector in hits)
-        {
+    void DrawConnectorBoxes() {
+        foreach (GameObject connector in hits) {
             if (connector == null) continue;
             float minDist = float.MaxValue;
-            foreach (var gc in ghostConnectors)
-            {
+            foreach (var gc in ghostConnectors) {
                 float d = Vector3.Distance(gc.transform.position, connector.transform.position);
                 if (d < minDist) minDist = d;
             }
@@ -292,25 +268,21 @@ public class Build : MonoBehaviour
         }
     }
 
-    Vector3 PlayerLook()
-    {
+    Vector3 PlayerLook() {
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, placeDistance, buildMask | groundMask))
-        {
+        if (Physics.Raycast(ray, out RaycastHit hit, placeDistance, buildMask | groundMask)) {
             lastLookPosition = hit.point;
             return hit.point;
         }
         return lastLookPosition;
     }
 
-    void SetLayer(GameObject obj, int layer)
-    {
+    void SetLayer(GameObject obj, int layer) {
         obj.layer = layer;
         foreach (Transform child in obj.transform) SetLayer(child.gameObject, layer);
     }
 
-    void SpawnGhost()
-    {
+    void SpawnGhost() {
         if (ghost != null) Destroy(ghost);
         hits = new List<GameObject>();
         ghostConnectors = new List<GameObject>();
@@ -320,10 +292,12 @@ public class Build : MonoBehaviour
         ghost.name = toPlace.name + " GHOST";
         ghostConstruction = ghost.GetComponent<Construction>();
         ghostCollider = ghost.GetComponent<BoxCollider>();
+        ghostRenderers = ghost.GetComponentsInChildren<Renderer>();
 
         if (ghostConstruction != null)
             foreach (GameObject c in ghostConstruction.connectors) ghostConnectors.Add(c);
 
         SetLayer(ghost, noRaycastLayer);
+        UpdateGhostMaterial();
     }
 }
