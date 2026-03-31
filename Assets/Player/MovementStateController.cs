@@ -48,12 +48,6 @@ public class MovementStateController : MonoBehaviour
     private int stateChangeCooldown = 0;
     private const int minFramesBetweenChanges = 6;
 
-    // BUG FIX: Śledzimy poprzedni stan PRZED cooldownem.
-    // Problem: teren powoduje krótkie przejście np. Idle→Run→Idle.
-    // Cooldown blokuje zmianę Run→Idle, więc currentBaseState = Run,
-    // ale PlayerAnimationsController widzi że lastState == Run i nie aktualizuje.
-    // Rozwiązanie: wystawiamy flagę stateWasForced gdy cooldown zablokował zmianę —
-    // PlayerAnimationsController może ją sprawdzić żeby wymusić odtworzenie.
     public bool stateRefreshRequired = false;
     private mState pendingState = mState.None;
 
@@ -83,28 +77,12 @@ public class MovementStateController : MonoBehaviour
 
     void SetState(mState newState)
     {
-        if (newState == currentBaseState)
-        {
-            stateRefreshRequired = false;
-            return;
-        }
-
-        if (stateChangeCooldown > 0)
-        {
-            // BUG FIX: Zapamiętaj co chcieliśmy ustawić.
-            // Jeśli cooldown zablokował zmianę a potem teren się wyrówna
-            // i wrócimy do tego samego stanu co currentBaseState,
-            // PlayerAnimationsController nigdy tego nie zobaczy.
-            // Flaga stateRefreshRequired sygnalizuje że animacja powinna być
-            // odświeżona przy następnej możliwej okazji.
-            pendingState = newState;
-            return;
-        }
-
-        currentBaseState = newState;
-        stateRefreshRequired = true; // Sygnał dla PlayerAnimationsController
-        stateChangeCooldown = minFramesBetweenChanges;
-        pendingState = mState.None;
+        if (newState == currentBaseState) { stateRefreshRequired = false; return; }
+        if (stateChangeCooldown > 0) { pendingState = newState; return; }
+        currentBaseState     = newState;
+        stateRefreshRequired = true;
+        stateChangeCooldown  = minFramesBetweenChanges;
+        pendingState         = mState.None;
     }
 
     string GetDesiredTier()
@@ -113,39 +91,36 @@ public class MovementStateController : MonoBehaviour
         {
             switch (kcc.state)
             {
-                case KCC.State.Idle:    return "Idle";
-                case KCC.State.Walk:    return "Walk";
-                case KCC.State.Run:     return "Run";
+                case KCC.State.Idle:   return "Idle";
+                case KCC.State.Walk:   return "Walk";
+                case KCC.State.Run:    return "Run";
                 case KCC.State.Sprint:
-                case KCC.State.Dash:    return "Sprint";
-                case KCC.State.Crouch:  return "Crouch";
-                case KCC.State.Prone:   return "Walk";
-                default:                return "Idle";
+                case KCC.State.Dash:   return "Sprint";
+                case KCC.State.Crouch: return "Crouch";
+                case KCC.State.Prone:  return "Walk";
+                default:               return "Idle";
             }
         }
 
         if (navAgent != null)
         {
             float s = navAgent.velocity.magnitude;
-            if (s < 0.1f)                  return "Idle";
-            if (s <= WalkSpeed + 0.1f)     return "Walk";
-            if (s <= RunSpeed  + 0.1f)     return "Run";
+            if (s < 0.1f)              return "Idle";
+            if (s <= WalkSpeed + 0.1f) return "Walk";
+            if (s <= RunSpeed  + 0.1f) return "Run";
             return "Sprint";
         }
 
         float speed = new Vector3(velocity.x, 0, velocity.z).magnitude;
-        if (speed < 0.1f)                  return "Idle";
-        if (speed <= WalkSpeed + 0.1f)     return "Walk";
-        if (speed <= RunSpeed  + 0.1f)     return "Run";
+        if (speed < 0.1f)              return "Idle";
+        if (speed <= WalkSpeed + 0.1f) return "Walk";
+        if (speed <= RunSpeed  + 0.1f) return "Run";
         return "Sprint";
     }
 
     bool GetIsGrounded()
     {
-        if (kcc != null)
-        {
-            return kcc.state != KCC.State.Air;
-        }
+        if (kcc != null) return kcc.state != KCC.State.Air;
 
         float radius = capsuleCollider.radius * 0.9f;
         Vector3 origin = new Vector3(
@@ -153,16 +128,8 @@ public class MovementStateController : MonoBehaviour
             capsuleCollider.bounds.min.y + radius + 0.05f,
             capsuleCollider.bounds.center.z
         );
-
-        return Physics.SphereCast(
-            origin,
-            radius,
-            Vector3.down,
-            out _,
-            groundCheckDistance + 0.05f,
-            groundMask,
-            QueryTriggerInteraction.Ignore
-        );
+        return Physics.SphereCast(origin, radius, Vector3.down, out _,
+            groundCheckDistance + 0.05f, groundMask, QueryTriggerInteraction.Ignore);
     }
 
     void FixedUpdate()
@@ -172,28 +139,30 @@ public class MovementStateController : MonoBehaviour
 
         velocityBuffer[velocityBufferIndex] = rawVelocity;
         velocityBufferIndex = (velocityBufferIndex + 1) % velocityBuffer.Length;
-        Vector3 avgVelocity = Vector3.zero;
-        foreach (var v in velocityBuffer) avgVelocity += v;
-        velocity = avgVelocity / velocityBuffer.Length;
+        Vector3 avg = Vector3.zero;
+        foreach (var v in velocityBuffer) avg += v;
+        velocity = avg / velocityBuffer.Length;
 
         height = capsuleCollider.bounds.size.y;
 
         if (stateChangeCooldown > 0) stateChangeCooldown--;
 
-        // BUG FIX: Gdy cooldown się skończy i mamy zalegający pendingState,
-        // aplikujemy go teraz. Dzięki temu stan jest spójny z tym co chcieliśmy ustawić.
         if (stateChangeCooldown == 0 && pendingState != mState.None)
         {
             if (pendingState != currentBaseState)
             {
-                currentBaseState = pendingState;
+                currentBaseState     = pendingState;
                 stateRefreshRequired = true;
             }
             pendingState = mState.None;
         }
 
         CheckPhysics();
-        if (combat != null && (combat.attackInProgress || combat.combatActive)) return;
+
+        // WAŻNE: blokuj TYLKO na attackInProgress i isStunned
+        // NIE blokuj na combatActive — inaczej animacja chodzenia nigdy się nie zatrzyma
+        if (combat != null && (combat.attackInProgress || combat.isStunned))
+            return;
 
         UpdateAnimationState();
     }
@@ -201,7 +170,6 @@ public class MovementStateController : MonoBehaviour
     void CheckPhysics()
     {
         isGrounded = GetIsGrounded();
-
         if (!isGrounded) airborneFrames++;
         else             airborneFrames = 0;
 
@@ -223,46 +191,29 @@ public class MovementStateController : MonoBehaviour
 
         if (!isGrounded && velocity.y > 2.0f)
         {
-            currentBaseState = mState.Jumping;
+            currentBaseState     = mState.Jumping;
             stateRefreshRequired = true;
-            jumpingFrames = 0;
+            jumpingFrames        = 0;
         }
         else if (isActuallyAirborne)
         {
             jumpingFrames++;
-
             if (currentBaseState == mState.Jumping && jumpingFrames >= fallingDelay && velocity.y < -0.5f)
-            {
-                currentBaseState = mState.Falling;
-                stateRefreshRequired = true;
-            }
+            { currentBaseState = mState.Falling; stateRefreshRequired = true; }
             else if (currentBaseState != mState.Jumping && jumpingFrames >= fallingDelay && velocity.y < -2.0f)
-            {
-                currentBaseState = mState.Falling;
-                stateRefreshRequired = true;
-            }
+            { currentBaseState = mState.Falling; stateRefreshRequired = true; }
         }
-        else // grounded
+        else
         {
             jumpingFrames = 0;
-
             if (tier == "Idle")
             {
                 mState idleState = isCrouching ? mState.Crouch : mState.Idle;
                 if (idleState != currentBaseState)
-                {
-                    currentBaseState = idleState;
-                    stateRefreshRequired = true;
-                }
+                { currentBaseState = idleState; stateRefreshRequired = true; }
             }
-            else if (tier == "Crouch" || isCrouching)
-            {
-                SetStateByDirection("Crouch", direction);
-            }
-            else
-            {
-                SetStateByDirection(tier, direction);
-            }
+            else if (tier == "Crouch" || isCrouching) SetStateByDirection("Crouch", direction);
+            else                                       SetStateByDirection(tier, direction);
         }
 
         wasGrounded = isGrounded;
@@ -271,10 +222,8 @@ public class MovementStateController : MonoBehaviour
     string GetDirectionName(Vector2 vel, Transform modelTransform)
     {
         if (vel.magnitude < 0.01f) return "Forward";
-
         Vector3 worldVelocity = new Vector3(vel.x, 0, vel.y);
         Vector3 localVelocity = modelTransform.InverseTransformDirection(worldVelocity);
-
         float angle = Mathf.Atan2(localVelocity.x, localVelocity.z) * Mathf.Rad2Deg;
 
         if (angle >  -22.5f && angle <=  22.5f)  return "Forward";
@@ -285,7 +234,6 @@ public class MovementStateController : MonoBehaviour
         if (angle > -157.5f && angle <= -112.5f) return "Backward_Left";
         if (angle > -112.5f && angle <=  -67.5f) return "Left";
         if (angle >  -67.5f && angle <=  -22.5f) return "Forward_Left";
-
         return "Forward";
     }
 

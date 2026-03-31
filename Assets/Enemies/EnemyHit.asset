@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 1
   attackSpeed: 1
-  timeToAttack: 1
+  timeToAttack: 0.55
   HittingAnimation: Blind_Hitting
   attackPrefab: {fileID: 0}
   cooldown: 1.5
   range: 0.5
+  animationName: 
   attackType: 1
   attackEffects: 00000000

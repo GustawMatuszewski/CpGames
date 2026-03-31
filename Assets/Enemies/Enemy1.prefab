@@ -729,6 +729,9 @@ MonoBehaviour:
   onDamageReceived:
     m_PersistentCalls:
       m_Calls: []
+  hitAnimationName: Blind_GetHurt
+  hitStunDuration: 0.5
+  isStunned: 0
   attackInProgress: 0
 --- !u!195 &176052613206467695
 NavMeshAgent:
