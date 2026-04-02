@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe23d50a0d8e83ffa0afbf10bd64aeb, type: 3}
   m_Name: Attack 2
   m_EditorClassIdentifier: 
-  damage: 0
-  attackSpeed: 0
+  damage: 20
+  attackSpeed: 1
   timeToAttack: 0.5
   HittingAnimation: Hitting
   attackPrefab: {fileID: 0}
   cooldown: 0.1
-  range: 3
+  range: 2
   animationName: 
   attackType: 1
   attackEffects: 06000000
