@@ -109,7 +109,7 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 4
   cloudType:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0
   skyAmbientMode:
     m_OverrideState: 0
@@ -150,7 +150,7 @@ MonoBehaviour:
   active: 1
   quality:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 1
   threshold:
     m_OverrideState: 0
     m_Value: 0
@@ -177,7 +177,7 @@ MonoBehaviour:
     m_Value: 2
   m_HighQualityPrefiltering:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   m_HighQualityFiltering:
     m_OverrideState: 1
     m_Value: 1
@@ -198,10 +198,10 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 0
   skyIntensityMode:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0
   exposure:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0
   multiplier:
     m_OverrideState: 1
@@ -216,13 +216,13 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 20000
   updateMode:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0
   updatePeriod:
     m_OverrideState: 1
     m_Value: 0
   includeSunInBaking:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0
   m_SkyVersion: 3
   m_ObsoleteEarthPreset:
@@ -241,10 +241,10 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 1
   renderingMode:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 1
   material:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: {fileID: -876546973899608171, guid: 02532cbb810fb404db49da84f1efe41e, type: 3}
   airDensityR:
     m_OverrideState: 1
@@ -262,19 +262,19 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 55261.973
   aerosolDensity:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0.01192826
   aerosolTint:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: {r: 0.9, g: 0.9, b: 0.9, a: 1}
   aerosolMaximumAltitude:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 8289.296
   aerosolAnisotropy:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0.8
   ozoneDensityDimmer:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 1
   ozoneMinimumAltitude:
     m_OverrideState: 1
@@ -307,22 +307,22 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: {x: 0, y: 0, z: 0}
   colorSaturation:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 1
   alphaSaturation:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 1
   alphaMultiplier:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 1
   horizonTint:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: {r: 1, g: 1, b: 1, a: 1}
   zenithTint:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: {r: 1, g: 1, b: 1, a: 1}
   horizonZenithShift:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0
 --- !u!114 &-1906091000789824283
 MonoBehaviour:
