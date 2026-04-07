@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 773518987f83ce650876c2337be76d44, type: 3}
-  m_Name: Floor Frame
+  m_Name: WallTemplate
   m_EditorClassIdentifier: 
   itemID: 67
-  itemName: Floor Frame
-  icon: {fileID: 21300000, guid: 0b2ea5cb21b586e71852d06f21cdc9c2, type: 3}
+  itemName: Wall Frame
+  icon: {fileID: 0}
   description: 
   useScript: {fileID: 0}
   craftingRecipe: {fileID: 0}
@@ -24,4 +24,4 @@ MonoBehaviour:
   burnCalories: 0
   itemType: 5
   materialType: 1
-  constructionPrefab: {fileID: 6612603227374951970, guid: 5f8c9ba3b65dd509f91084f0df311f1d, type: 3}
+  constructionPrefab: {fileID: 6612603227374951970, guid: ad2f24e7f393b2a1ca5ce4aa85da1db3, type: 3}
