@@ -21,7 +21,7 @@ public class Item : ScriptableObject
 
     public enum ItemType
     {
-        none, resource, food, tool, weapon, buildingMaterial, medical, storage, clothing, loot
+        none, resource, food, tool, weapon, buildingMaterial, medical, storage, clothing, loot, construction
     }
     public ItemType itemType;
 

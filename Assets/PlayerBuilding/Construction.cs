@@ -14,4 +14,5 @@ public class Construction : MonoBehaviour
     public bool canBeBurnt;
     public float tempHealth;
 
+    public List<Construction> variants;
 }
