@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 029a295352290703c93ec2587c40619c, type: 3}
+  m_Name: Wooden Floor Recipe
+  m_EditorClassIdentifier: 
+  recipeID: 8
+  itemsList:
+  - {fileID: 11400000, guid: 98ab89bd92a928242a2bbc200838c9f0, type: 2}
+  - {fileID: 11400000, guid: e24f2ae24a4090b4e860cf1beea92110, type: 2}
+  outcomeItem: {fileID: 11400000, guid: c370ce7277e7744489432442213f51c2, type: 2}
+  toolNeeded: 7

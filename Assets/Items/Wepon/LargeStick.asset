@@ -9,22 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e98b63a842a178ca3a698f963e20ca45, type: 3}
-  m_Name: SpikedBat
+  m_Script: {fileID: 11500000, guid: d2f2a8361b3cd33018170cab145fe1a4, type: 3}
+  m_Name: LargeStick
   m_EditorClassIdentifier: 
-  itemID: 6
-  itemName: SpikedBat
+  itemID: 39
+  itemName: LargeSick
   icon: {fileID: 0}
-  description: Spiked bat large stick that can poke a few holes.
+  description: "Can be used as a weapon a large n heavy stick\t."
+  useScript: {fileID: 0}
+  craftingRecipe: {fileID: 0}
   weight: 4
   durability: 100
   usesLeft: 100
-  craftable: 1
-  craftingRecipe: {fileID: 11400000, guid: 18496a573df4176d3b44a14d827363d8, type: 2}
-  burnCalories: 0
+  burnCalories: 300
   itemType: 4
   materialType: 1
-  weaponType: 2
-  damageType: 1
-  useType: 2
-  damage: 20

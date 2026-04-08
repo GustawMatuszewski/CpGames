@@ -9,17 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2f2a8361b3cd33018170cab145fe1a4, type: 3}
-  m_Name: LargeStick
+  m_Script: {fileID: 11500000, guid: dd8830252424942188d77e1ae61b005a, type: 3}
+  m_Name: Roll of Duct Tape
   m_EditorClassIdentifier: 
-  itemID: 4
-  itemName: LargeSick
+  itemID: 20
+  itemName: Roll of Duct Tape
   icon: {fileID: 0}
-  description: "Can be used as a weapon a large n heavy stick\t."
-  weight: 4
-  durability: 100
-  usesLeft: 100
-  craftable: 1
-  burnCalories: 300
-  itemType: 4
-  materialType: 1
+  description: 
+  useScript: {fileID: 0}
+  craftingRecipe: {fileID: 0}
+  weight: 0
+  durability: 0
+  usesLeft: 0
+  burnCalories: 0
+  itemType: 5
+  materialType: 0
