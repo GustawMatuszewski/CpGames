@@ -729,6 +729,18 @@ MonoBehaviour:
   onDamageReceived:
     m_PersistentCalls:
       m_Calls: []
+  lodDistance: 5
+  lodCapsule: {fileID: 7747626618850039780}
+  lodFallbackLimb:
+    name: 
+    limbHitbox: {fileID: 0}
+    health: 50
+    damageMultiplier: 1
+    severeMultiplier: 1
+    fractureMultiplier: 1
+    limbDamageList: 
+    severed: 0
+    beatStacks: 0
   attackInProgress: 0
 --- !u!195 &176052613206467695
 NavMeshAgent:
