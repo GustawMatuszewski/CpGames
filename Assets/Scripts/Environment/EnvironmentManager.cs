@@ -119,6 +119,7 @@ public class EnvironmentManager : MonoBehaviour
     }
     private void OnValidate()
     {
+        if(sunLight==null || moonLight == null) return;
         UpdateLight();
         CheckShadowStatus();
     }
