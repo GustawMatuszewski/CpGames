@@ -1,7 +1,7 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/style.uss?fileID=7433441132597879392&amp;guid=8c21fb4e74536904eb71a5f3447dc263&amp;type=3#style" />
     <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: column; flex-wrap: wrap-reverse;">
-        <ui:VisualElement name="Crafting" style="position: absolute; background-color: rgba(159, 159, 159, 0);">
+        <ui:VisualElement name="Crafting" style="position: absolute; background-color: rgba(159, 159, 159, 0); display: none; visibility: visible; overflow: visible;">
             <ui:VisualElement name="CrafTitle">
                 <ui:Label text="CRAFTING" name="CrafTitleText" style="-unity-font-style: normal; font-size: 20px;" />
             </ui:VisualElement>
@@ -27,6 +27,37 @@
                         </ui:VisualElement>
                     </ui:VisualElement>
                     <ui:ScrollView name="CraftableList" style="flex-grow: 1;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="OSInventory" style="flex-grow: 1; width: 45%; height: 100%; position: absolute; left: 0;">
+            <ui:VisualElement name="OSTitle">
+                <ui:Label text="CHEST" name="OSInventory_text" style="flex-grow: 1;" />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-grow: 1;">
+                <ui:VisualElement name="OSAbout" style="flex-grow: 0; flex-shrink: 1; flex-direction: row; -unity-text-align: middle-left;">
+                    <ui:Label text="ITEM" name="ico" class="item_ico Item_Info" style="font-size: 15px; -unity-font-style: bold;" />
+                    <ui:Label text="ITEM NAME" name="Name" class="item_name Item_Info" style="font-size: 15px; -unity-font-style: bold; width: 45%;" />
+                    <ui:Label text="QUANTITY" name="quantity" class="item_quantity Item_Info" style="flex-grow: 0; width: 25%; font-size: 15px; -unity-font-style: bold;" />
+                    <ui:Label text="WEIGHT" name="weight" class="item_weight Item_Info" style="width: 20%; font-size: 15px; -unity-font-style: bold;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="OSItems" style="flex-grow: 1; display: flex;">
+                    <ui:VisualElement style="flex-grow: 1; position: absolute; top: 50px; right: 0; bottom: 0; left: 0;">
+                        <ui:VisualElement class="ItemsBG" style="flex-grow: 1;" />
+                        <ui:VisualElement class="ItemsBG" style="flex-grow: 1;" />
+                        <ui:VisualElement class="ItemsBG" style="flex-grow: 1;" />
+                        <ui:VisualElement class="ItemsBG" style="flex-grow: 1;" />
+                        <ui:VisualElement class="ItemsBG" style="flex-grow: 1;" />
+                        <ui:VisualElement class="ItemsBG" style="flex-grow: 1;" />
+                        <ui:VisualElement class="ItemsBG" style="flex-grow: 1;" />
+                        <ui:VisualElement class="ItemsBG" style="flex-grow: 1;" />
+                        <ui:VisualElement class="ItemsBG" style="flex-grow: 1;" />
+                        <ui:VisualElement class="ItemsBG" style="flex-grow: 1;" />
+                        <ui:VisualElement class="ItemsBG" style="flex-grow: 1;" />
+                        <ui:VisualElement class="ItemsBG" style="flex-grow: 1;" />
+                        <ui:VisualElement class="ItemsBG" style="flex-grow: 1;" />
+                    </ui:VisualElement>
+                    <ui:ScrollView name="OSItems_scrol" class="OSInventory_test" style="flex-grow: 1; width: auto;" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
