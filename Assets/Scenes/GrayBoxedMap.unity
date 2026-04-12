@@ -13782,7 +13782,7 @@ PrefabInstance:
     - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
       propertyPath: activePreset
       value: 
-      objectReference: {fileID: 11400000, guid: 7155d0cc81274fb489927344b38821f6, type: 2}
+      objectReference: {fileID: 11400000, guid: fd1af49417db2ca08b4a8c0a93811e43, type: 2}
     - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
       propertyPath: globalVolume
       value: 
@@ -13800,25 +13800,33 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: weatherTransitionDuration
+      value: 35
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
       propertyPath: availablePresets.Array.size
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
       propertyPath: maxTimeBetweenWeatherChange
-      value: 50
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
       propertyPath: minTimeBetweenWeatherChange
-      value: 30
+      value: 120
       objectReference: {fileID: 0}
     - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
       propertyPath: 'availablePresets.Array.data[0]'
       value: 
-      objectReference: {fileID: 11400000, guid: 7155d0cc81274fb489927344b38821f6, type: 2}
+      objectReference: {fileID: 11400000, guid: fd1af49417db2ca08b4a8c0a93811e43, type: 2}
     - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
       propertyPath: 'availablePresets.Array.data[1]'
       value: 
-      objectReference: {fileID: 11400000, guid: d59ec6100e366face8675851179a279e, type: 2}
+      objectReference: {fileID: 11400000, guid: 7155d0cc81274fb489927344b38821f6, type: 2}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: 'availablePresets.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: fd1af49417db2ca08b4a8c0a93811e43, type: 2}
     - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
       propertyPath: moonIntensityMultiplier.m_Curve.Array.size
       value: 2
