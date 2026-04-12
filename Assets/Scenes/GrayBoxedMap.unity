@@ -14510,6 +14510,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e781ddd120220ed6aa158567eda879f2, type: 3}
+--- !u!114 &373898710 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+  m_PrefabInstance: {fileID: 403210031}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a78cedd2bd370a40a9278c1a57d5fda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &386250005
 GameObject:
   m_ObjectHideFlags: 0
@@ -14931,6 +14942,10 @@ PrefabInstance:
       value: 7.94
       objectReference: {fileID: 0}
     - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: activePreset
+      value: 
+      objectReference: {fileID: 11400000, guid: 7155d0cc81274fb489927344b38821f6, type: 2}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
       propertyPath: globalVolume
       value: 
       objectReference: {fileID: 987267475}
@@ -14946,6 +14961,26 @@ PrefabInstance:
       propertyPath: currentTimeString
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: availablePresets.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: maxTimeBetweenWeatherChange
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: minTimeBetweenWeatherChange
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: 'availablePresets.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 7155d0cc81274fb489927344b38821f6, type: 2}
+    - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
+      propertyPath: 'availablePresets.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: d59ec6100e366face8675851179a279e, type: 2}
     - target: {fileID: 6882313870589956744, guid: 060e6541dd37b24868543c79525b6691, type: 3}
       propertyPath: moonIntensityMultiplier.m_Curve.Array.size
       value: 2
@@ -39823,6 +39858,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1602809460}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!2083052967 &1603018324 stripped
+VisualEffect:
+  m_CorrespondingSourceObject: {fileID: 8980492849359090469, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+  m_PrefabInstance: {fileID: 6984909933116002950}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1604689985
 GameObject:
   m_ObjectHideFlags: 0
@@ -50267,6 +50307,18 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3742385938001072884, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: rainVFX
+      value: 
+      objectReference: {fileID: 1603018324}
+    - target: {fileID: 3742385938001072884, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: envManager
+      value: 
+      objectReference: {fileID: 373898710}
+    - target: {fileID: 3742385938001072884, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: maxSpawnRate
+      value: 400
+      objectReference: {fileID: 0}
     - target: {fileID: 3825620955107644315, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: m_Layer
       value: 1
@@ -50382,6 +50434,18 @@ PrefabInstance:
     - target: {fileID: 8483006841609466101, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: m_Layer
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8640716519931328059, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.000021517168
+      objectReference: {fileID: 0}
+    - target: {fileID: 8640716519931328059, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.000010039808
+      objectReference: {fileID: 0}
+    - target: {fileID: 8640716519931328059, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.00001592284
       objectReference: {fileID: 0}
     - target: {fileID: 8727623641905712866, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: dithering

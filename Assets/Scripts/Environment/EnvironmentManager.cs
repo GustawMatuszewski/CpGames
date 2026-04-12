@@ -71,7 +71,11 @@ public class EnvironmentManager : MonoBehaviour
 
 
     private VisualEnvironment visualEnv;
-    private WeatherPreset nextPreset;
+    // private WeatherPreset nextPreset;
+    // Add anywhere inside EnvironmentManager class
+    public bool IsTransitioning => isTransitioning;
+    public WeatherPreset TargetPreset => targetPreset;
+    public float TransitionProgress => transitionProgress;
 
     
     void Start()
@@ -122,6 +126,7 @@ public class EnvironmentManager : MonoBehaviour
         if(sunLight==null || moonLight == null) return;
         UpdateLight();
         CheckShadowStatus();
+        if (activePreset != null) ApplyCloudsAndFog();
     }
     void UpdateTimeText()
     {
@@ -201,27 +206,46 @@ public class EnvironmentManager : MonoBehaviour
         moonLight.gameObject.SetActive(moonActive);
     }
     void ApplyCloudsAndFog()
+{
+    if (activePreset == null) return;
+    float normalizedTime = currentTime / 24f;
+
+    float density      = activePreset.cloudsDensityCurve.Evaluate(normalizedTime);
+    float altitude     = activePreset.cloudsBottomAltitudeCurve.Evaluate(normalizedTime);
+    float fogDensity   = activePreset.fogDensityCurve.Evaluate(normalizedTime);
+    float shapeFactor  = activePreset.shapeFactor;
+    float erosionFactor = activePreset.erosionFactor;
+    float altRange     = activePreset.AltitudeRange;
+    float rainIntensity = activePreset.rainIntensity;
+    Color rainFogColor  = activePreset.rainFogColor;
+
+    if (isTransitioning && targetPreset != null)
     {
-        if (activePreset == null) return;
-        float normalizedTime = currentTime/24f;
-        if(volumetricClouds != null)
-        {
-            volumetricClouds.densityMultiplier.value = activePreset.cloudsDensityCurve.Evaluate(normalizedTime);
-            volumetricClouds.bottomAltitude.value = activePreset.cloudsBottomAltitudeCurve.Evaluate(normalizedTime);
-
-            volumetricClouds.shapeFactor.value = activePreset.shapeFactor;
-            volumetricClouds.erosionFactor.value = activePreset.erosionFactor;
-            volumetricClouds.altitudeRange.value = activePreset.AltitudeRange;
-        }
-
-        // if(volumetricClouds != null && ) 
-
-        if(volumetricFog != null)
-        {
-            volumetricFog.meanFreePath.value = activePreset.fogDensityCurve.Evaluate(normalizedTime);
-            volumetricFog.albedo.value = Color.Lerp(baseFogColor, activePreset.rainFogColor, activePreset.rainIntensity); // if it's raining, lerp the fog color towards the rain fog color based on the rain intensity
-        }
+        density       = Mathf.Lerp(density, targetPreset.cloudsDensityCurve.Evaluate(normalizedTime), transitionProgress);
+        altitude      = Mathf.Lerp(altitude, targetPreset.cloudsBottomAltitudeCurve.Evaluate(normalizedTime), transitionProgress);
+        fogDensity    = Mathf.Lerp(fogDensity, targetPreset.fogDensityCurve.Evaluate(normalizedTime), transitionProgress);
+        shapeFactor   = Mathf.Lerp(shapeFactor, targetPreset.shapeFactor, transitionProgress);
+        erosionFactor = Mathf.Lerp(erosionFactor, targetPreset.erosionFactor, transitionProgress);
+        altRange      = Mathf.Lerp(altRange, targetPreset.AltitudeRange, transitionProgress);
+        rainIntensity = Mathf.Lerp(rainIntensity, targetPreset.rainIntensity, transitionProgress);
+        rainFogColor  = Color.Lerp(rainFogColor, targetPreset.rainFogColor, transitionProgress);
     }
+
+    if (volumetricClouds != null)
+    {
+        volumetricClouds.densityMultiplier.value = density;
+        volumetricClouds.bottomAltitude.value    = altitude;
+        volumetricClouds.shapeFactor.value       = shapeFactor;
+        volumetricClouds.erosionFactor.value     = erosionFactor;
+        volumetricClouds.altitudeRange.value     = altRange;
+    }
+
+    if (volumetricFog != null)
+    {
+        volumetricFog.meanFreePath.value = fogDensity;
+        volumetricFog.albedo.value = Color.Lerp(baseFogColor, rainFogColor, rainIntensity);
+    }
+}
     void ApplyWind()
     {
         if(windZone != null)
