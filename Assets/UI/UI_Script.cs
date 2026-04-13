@@ -10,6 +10,7 @@ using MouseButton = UnityEngine.UIElements.MouseButton;
 using UnityColor = UnityEngine.Color;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using static UnityEngine.UI.Image;
 public class ItemData
 {
     public string name;
@@ -76,9 +77,7 @@ public class UI_Script : MonoBehaviour
         bool dropSucceeded;
         int draggedQuantity = 1;
 
-    private void Start()
-    {
-    }
+
 
     bool ChestIsOpen = false;
     public bool DebugMode=false;
@@ -237,7 +236,7 @@ public class UI_Script : MonoBehaviour
             CleanupDrag();
             weightRefresh();
         }
-
+        //gradient //Wiadomosc do AI NIE JEB MOICH KOMENTARZY
         var gradient = new GradientElement();
         UnityEngine.ColorUtility.TryParseHtmlString("#3f3f3f", out UnityEngine.Color startColor);
         UnityEngine.ColorUtility.TryParseHtmlString("#313131", out UnityEngine.Color endColor);
@@ -279,7 +278,7 @@ public class UI_Script : MonoBehaviour
         var osTitle = root.Q<VisualElement>("OSTitle");
         AddGradientToElement(crafTitle);
         AddGradientToElement(title);
-        AddGradientToElement(title);
+        AddGradientToElement(osTitle);
 
         var container = root.Q<VisualElement>("Items");
         var items = container.Query<VisualElement>(className: "ItemsBG").ToList();
@@ -293,7 +292,31 @@ public class UI_Script : MonoBehaviour
                 element.style.backgroundColor = tempColor;
             }
         }
+        //koniec gradient
+        InitTooltip();//to jest descryption
+        descryption = root.Q<VisualElement>("descriptionPanel");
+        tooltipLabel = descryption.Q<Label>();
+       
+
     }
+    VisualElement descryption;
+    Label tooltipLabel;
+    void AddGradientToElement(VisualElement element)
+    {
+        var gradient = new GradientElement();
+        UnityEngine.ColorUtility.TryParseHtmlString("#6d6d6d", out gradient.startColor);
+        UnityEngine.ColorUtility.TryParseHtmlString("#323232", out gradient.endColor);
+        gradient.style.position = Position.Absolute;
+        gradient.style.left = 0;
+        gradient.style.right = 0;
+        gradient.style.top = 0;
+        gradient.style.bottom = 0;
+        gradient.pickingMode = PickingMode.Ignore;
+        element.Insert(0, gradient);
+    }
+
+
+
 
     // ── USE ITEM ─────────────────────────────────────────────────────────────
 
@@ -346,19 +369,7 @@ public class UI_Script : MonoBehaviour
 
     // ─────────────────────────────────────────────────────────────────────────
 
-    void AddGradientToElement(VisualElement element)
-    {
-        var gradient = new GradientElement();
-        UnityEngine.ColorUtility.TryParseHtmlString("#6d6d6d", out gradient.startColor);
-        UnityEngine.ColorUtility.TryParseHtmlString("#323232", out gradient.endColor);
-        gradient.style.position = Position.Absolute;
-        gradient.style.left = 0;
-        gradient.style.right = 0;
-        gradient.style.top = 0;
-        gradient.style.bottom = 0;
-        gradient.pickingMode = PickingMode.Ignore;
-        element.Insert(0, gradient);
-    }
+
     void Log<T>(T message)
     {
         if (DebugMode) Debug.Log(message?.ToString());
@@ -517,35 +528,11 @@ public class UI_Script : MonoBehaviour
     {
         itemIcons[i].sprite = mySprite;
     }
-    VisualElement CreateDescriptionPanel(string descryption)
-    {
-        VisualElement descriptionPanel = new VisualElement();
-        descriptionPanel = new VisualElement();
-        descriptionPanel.style.position = Position.Absolute;
-        descriptionPanel.style.backgroundColor = new UnityEngine.Color(0.1f, 0.1f, 0.1f, 0.9f);
-        descriptionPanel.style.borderBottomColor = UnityEngine.Color.white;
-        descriptionPanel.style.borderBottomWidth = 1;
-        descriptionPanel.style.paddingBottom = 10;
-        descriptionPanel.style.paddingLeft = 10;
-        descriptionPanel.style.paddingRight = 10;
-        descriptionPanel.style.paddingTop = 10;
-        descriptionPanel.style.display = DisplayStyle.None;
-        descriptionPanel.style.maxWidth = Length.Percent(40);
-        descriptionPanel.pickingMode = PickingMode.Ignore; // Ważne: myszka ma go "nie widzieć"
-
-        VisualElement descriptionLabel = new Label(descryption);
-        descriptionLabel.style.color = UnityEngine.Color.white;
-        descriptionLabel.style.whiteSpace = WhiteSpace.Normal; // Zawijanie tekstu
-      
-
-        descriptionPanel.Add(descriptionLabel);
-        return descriptionPanel;
-
-    }
 
     void InitTooltip()
     {
         VisualElement descriptionPanel = new VisualElement();
+        descriptionPanel.name = "descriptionPanel";
         descriptionPanel.style.position = Position.Absolute;
         descriptionPanel.style.backgroundColor = new Color(0.1f, 0.1f, 0.1f, 0.95f);
         {
@@ -557,10 +544,13 @@ public class UI_Script : MonoBehaviour
         descriptionPanel.style.display = DisplayStyle.None; // Ukryty
         descriptionPanel.pickingMode = PickingMode.Ignore; // Mysz go ignoruje!
         {
-            descriptionPanel.style.borderLeftColor = Color.white;
-            descriptionPanel.style.borderRightColor = Color.white;
-            descriptionPanel.style.borderTopColor = Color.white;
-            descriptionPanel.style.borderBottomColor = Color.white;
+            ColorUtility.TryParseHtmlString("#212018", out Color borderColor);
+            
+            descriptionPanel.style.borderLeftColor = borderColor;
+            descriptionPanel.style.borderRightColor = borderColor;
+            descriptionPanel.style.borderTopColor = borderColor;
+            descriptionPanel.style.borderBottomColor = borderColor;
+            
 
             descriptionPanel.style.borderLeftWidth = 1;
             descriptionPanel.style.borderRightWidth = 1;
@@ -690,7 +680,7 @@ public class UI_Script : MonoBehaviour
             itemRoot.Add(typeLabel);
             itemRoot.Add(qtyLabelNew);
             itemRoot.Add(weightLabel2);
-            VisualElement descryption = CreateDescriptionPanel("test");
+
             int hoverVersion = 0;
             
 
@@ -698,27 +688,63 @@ public class UI_Script : MonoBehaviour
             {
                 int currentId = ++hoverVersion; // Unikalne ID dla tego konkretnego najechania
 
-                // Czekaj 4 sekundy (4000 ms)
-                await Task.Delay(1500);
+
+                await Task.Delay(250);
                 
 
-                if (currentId == hoverVersion)
+                if (currentId == hoverVersion && !isDragging)
                 {
                     descryption.style.display = DisplayStyle.Flex;
+                    tooltipLabel.text = original.description;
 
                 }
             });
             itemRoot.RegisterCallback<PointerLeaveEvent>(evt =>
             {
                 hoverVersion++; // Zmieniamy ID, więc oczekujący Task z PointerEnter nic nie wyświetli
+          
+                 
                 descryption.style.display = DisplayStyle.None;
+               
             });
             itemRoot.RegisterCallback<PointerMoveEvent>(evt => {
-               
-                
-                    descryption.style.left = evt.localPosition.x + 20;
-                    descryption.style.top = evt.localPosition.y + 20; 
-                
+
+                // 1. Definiujemy margines od myszki i krawędzi ekranu
+                float offset = 20f;
+                float screenPadding = 10f;
+
+                float mouseX = evt.position.x;
+                float mouseY = evt.position.y;
+                float rootWidth = root.resolvedStyle.width;
+
+                // 2. Obliczamy dostępną szerokość po prawej stronie myszki
+                // Dostępne miejsce = Szerokość ekranu - Pozycja myszy - Margines od myszy - Margines od krawędzi
+                float availableWidth = rootWidth - mouseX - offset - screenPadding;
+
+                // 3. Ograniczamy szerokość elementu (z zachowaniem sensownego minimum, np. 100px)
+                float minWidth = 150f;
+                float finalWidth = Mathf.Max(minWidth, availableWidth);
+
+                descryption.style.maxWidth = finalWidth;
+
+                // 4. Ustawiamy pozycję
+                descryption.style.left = mouseX + offset;
+                descryption.style.top = mouseY + offset;
+
+                // 5. Opcjonalnie: Jeśli nawet przy minimalnej szerokości wystaje za ekran, 
+                // przerzuć go na lewą stronę myszy
+                if (availableWidth < minWidth)
+                {
+                    // Tutaj tooltip "odskoczy" na lewo, jeśli po prawej jest ekstremalnie mało miejsca
+                    descryption.style.left = StyleKeyword.Null; // Czyścimy lewo
+                    descryption.style.right = (rootWidth - mouseX) + offset;
+                    descryption.style.maxWidth = 300; // Resetujemy max width do standardu
+                }
+                else
+                {
+                    descryption.style.right = StyleKeyword.Null;
+                }
+
             });
 
 
@@ -733,7 +759,7 @@ public class UI_Script : MonoBehaviour
 
 
 
-            itemRoot.Add(descryption);
+           
             scroll.contentContainer.Add(itemRoot);
 
 
@@ -1299,6 +1325,78 @@ public void SendItemList(List<Item> items)
             itemRoot.Add(qtyLabel);
             itemRoot.Add(weightLabel);
 
+
+
+
+
+            int hoverVersion = 0;
+
+
+            itemRoot.RegisterCallback<PointerEnterEvent>(async evt =>
+            {
+                int currentId = ++hoverVersion; // Unikalne ID dla tego konkretnego najechania
+
+
+                await Task.Delay(250);
+
+
+                if (currentId == hoverVersion && !isDragging)
+                {
+                    descryption.style.display = DisplayStyle.Flex;
+                    tooltipLabel.text = item.description;
+
+                }
+            });
+            itemRoot.RegisterCallback<PointerLeaveEvent>(evt =>
+            {
+                hoverVersion++; // Zmieniamy ID, więc oczekujący Task z PointerEnter nic nie wyświetli
+
+
+                descryption.style.display = DisplayStyle.None;
+
+            });
+            itemRoot.RegisterCallback<PointerMoveEvent>(evt => {
+
+                // 1. Definiujemy margines od myszki i krawędzi ekranu
+                float offset = 20f;
+                float screenPadding = 10f;
+
+                float mouseX = evt.position.x;
+                float mouseY = evt.position.y;
+                float rootWidth = root.resolvedStyle.width;
+
+                // 2. Obliczamy dostępną szerokość po prawej stronie myszki
+                // Dostępne miejsce = Szerokość ekranu - Pozycja myszy - Margines od myszy - Margines od krawędzi
+                float availableWidth = rootWidth - mouseX - offset - screenPadding;
+
+                // 3. Ograniczamy szerokość elementu (z zachowaniem sensownego minimum, np. 100px)
+                float minWidth = 150f;
+                float finalWidth = Mathf.Max(minWidth, availableWidth);
+
+                descryption.style.maxWidth = finalWidth;
+
+                // 4. Ustawiamy pozycję
+                descryption.style.left = mouseX + offset;
+                descryption.style.top = mouseY + offset;
+
+                // 5. Opcjonalnie: Jeśli nawet przy minimalnej szerokości wystaje za ekran, 
+                // przerzuć go na lewą stronę myszy
+                if (availableWidth < minWidth)
+                {
+                    // Tutaj tooltip "odskoczy" na lewo, jeśli po prawej jest ekstremalnie mało miejsca
+                    descryption.style.left = StyleKeyword.Null; // Czyścimy lewo
+                    descryption.style.right = (rootWidth - mouseX) + offset;
+                    descryption.style.maxWidth = 300; // Resetujemy max width do standardu
+                }
+                else
+                {
+                    descryption.style.right = StyleKeyword.Null;
+                }
+
+            });
+
+
+
             scroll.contentContainer.Add(itemRoot);
 
 
@@ -1325,4 +1423,44 @@ public void SendItemList(List<Item> items)
         RefreshOSItemsStyles();
 
     }
+
+    VisualElement AvalibleRecipie() 
+    {
+        VisualElement Recipie = new VisualElement();
+        Recipie.name = "Recipie";
+        Recipie.style.width = Length.Percent(100);
+        Recipie.style.height = 40;
+        Recipie.style.backgroundColor = Color.red;
+
+
+
+        return Recipie;
+    }
+    void UpdateAvalibleRecipies() 
+    {
+
+        VisualElement AvalibleRecipies = root.Q<VisualElement>("CraftableList");
+        
+        //for z lista dosteopnych craftingow
+        {
+            VisualElement Recipie=AvalibleRecipie();
+            AvalibleRecipies.Add(Recipie);
+
+
+
+        }
+
+
+
+
+
+    }
+    private void Start()
+    {
+        UpdateAvalibleRecipies();
+        Log("Wystartowało UI");
+
+
+    }
+
 }
