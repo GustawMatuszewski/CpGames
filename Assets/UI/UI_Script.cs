@@ -60,25 +60,22 @@ public class UI_Script : MonoBehaviour
             UnityColor style4;
             UnityColor style5;
     public Sprite CraftbuttonIco;
-    enum DragSourceType
+    enum DragSource
     {
-        List,
-        QSlot
-    }
-    enum DragSourceList
-    {
-        PInventory,
-        OSInventory
+        PlayerInventory,
+        OSInventory,
+        QSlot,
+        Crafting
     }
 
-    DragSourceType currentDragSource;
-    DragSourceList currnetDragSourceList;
-        VisualElement draggedFromSlot;
+    DragSource currentDragSource;
+
+    VisualElement draggedFromSlot;
         bool dropSucceeded;
         int draggedQuantity = 1;
 
 
-
+    Vector2 lastLocalPosBeforeDrag;
     bool ChestIsOpen = false;
     public bool DebugMode=false;
     [Obsolete]
@@ -148,7 +145,7 @@ public class UI_Script : MonoBehaviour
                 draggedItemData = data;
                 draggedFromSlot = slot;
                 draggedSourceImage = icon;
-                currentDragSource = DragSourceType.QSlot;
+                currentDragSource = DragSource.QSlot;
                 dropSucceeded = false;
 
                 StartDrag(evt.position, icon.image);
@@ -201,15 +198,15 @@ public class UI_Script : MonoBehaviour
             VisualElement picked = root.panel.Pick(evt.position);
             VisualElement target = picked;
 
+            // Szukanie rodzica z odpowiednią klasą/nazwą
             while (target != null &&
                    !target.ClassListContains("QSlot") &&
-                   !target.ClassListContains("Item") &&
                    !target.ClassListContains("Hand") &&
                    !target.ClassListContains("BSlots") &&
-                    target.name != "Table" &&
-                    target.name != "Items_scrol" &&
-                    target.name != "OSItems_scrol" &&
-                   !target.ClassListContains("CraftSlot"))
+                   target.name != "Table" &&
+                   target.name != "Items_scrol" &&
+                   target.name != "OSItems_scrol" &&
+                   !target.ClassListContains("TableContent")) // Dodano TableContent dla pewności
             {
                 target = target.parent;
             }
@@ -219,17 +216,29 @@ public class UI_Script : MonoBehaviour
             else
                 dropSucceeded = false;
 
+            // --- CO SIĘ DZIEJE, GDY DROP SIĘ NIE UDA ---
             if (!dropSucceeded)
             {
-                if (currentDragSource == DragSourceType.List)
-                    addItem(draggedItemData.name, draggedItemData.category, draggedQuantity, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
-                else if (currentDragSource == DragSourceType.QSlot && draggedFromSlot != null)
+                if (currentDragSource == DragSource.PlayerInventory)
                 {
-                    Image icon = draggedFromSlot.Q<Image>("Item_Icon");
-                    if (icon != null) icon.image = draggedItemData.icon.texture;
-                    draggedFromSlot.userData = draggedItemData;
-                    Label slotLabel = draggedFromSlot.Q<Label>("Slot_Info");
-                    if (slotLabel != null) slotLabel.text = draggedItemData.name;
+                    addItem(draggedItemData.name, draggedItemData.category, draggedQuantity, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
+                }
+                else if (currentDragSource == DragSource.OSInventory)
+                {
+                    // Jeśli przeciągałeś ze skrzyni i nie trafiłeś nigdzie - wróć do skrzyni
+                    AddItemToOutside(draggedItemData.originalItem, draggedQuantity);
+                }
+                else if (currentDragSource == DragSource.Crafting)
+                {
+
+                    // lub po prostu dodajemy do listy craftingowej z powrotem
+                   // AddItemToTable(root.Q<VisualElement>("Table"), draggedItemData, Vector2(), draggedQuantity);
+
+                }
+                else if (currentDragSource == DragSource.QSlot && draggedFromSlot != null)
+                {
+                    // Przywrócenie danych do oryginalnego slotu
+                    SetSlotData(draggedFromSlot, draggedItemData);
                 }
             }
 
@@ -376,102 +385,139 @@ public class UI_Script : MonoBehaviour
     }
     void HandleDrop(VisualElement target, Vector2 dropPosition)
     {
-        
         if (draggedItemData == null) return;
-       
+
         bool isStack = draggedQuantity > 1;
-        
+        dropSucceeded = false;
+
+        // --- CEL: CRAFTING TABLE ---
         if (target.name == "Table" || target.ClassListContains("TableContent"))
         {
             Vector2 localPos = target.WorldToLocal(dropPosition);
-            AddItemToTable(target, draggedItemData, localPos, draggedQuantity);
-            dropSucceeded = true;
-            Log("Cel do craftingu");
-            return;
-        }
-        else if (target.name == "OSItems_scrol")
-        {
-            if (currnetDragSourceList == DragSourceList.PInventory)
-            {
-                playerInventory.AddToInventory(playerInventory.outsideInventory.inventory, draggedQuantity, draggedItemData.originalItem);
 
+            if (currentDragSource == DragSource.QSlot)
+            {
+                if (!isStack) // Zamiast return, owijamy logikę w if (!isStack)
+                {
+                    AddItemToTable(target, draggedItemData, localPos, 1);
+                    dropSucceeded = true;
+                }
+            }
+            else if (currentDragSource == DragSource.PlayerInventory)
+            {
+                // PlayerInventory -> Table (multi)
+                AddItemToTable(target, draggedItemData, localPos, draggedQuantity);
+                craftingInventory.AddToInventory(craftingInventory.inventory, draggedQuantity, draggedItemData.originalItem);
                 playerInventory.RemoveFromInventory(playerInventory.inventory, draggedItemData.originalItem, draggedQuantity);
-
+                dropSucceeded = true;
             }
-            AddItemToOutside(draggedItemData.originalItem, draggedQuantity);
-            Log("do OS");
-            dropSucceeded = true;
-           return;
-        }
-        else if (isStack && !(target.name == "Table" || target.ClassListContains("TableContent")))
-        {
-            Log(draggedQuantity);
-            dropSucceeded = false;
-            Log("Cel do craftingu ale stack");
-            return;
-            
-        }
-        else if (isStack) { return; }//zabronienie przekazywania itemow powyzej stacka ponizej
-        else if (currentDragSource == DragSourceType.QSlot && target.ClassListContains("Hand"))
-        {
-            SetSlotData(target, draggedItemData);
-            dropSucceeded = true;
-            Log("Cel do Reki");
-        }
-        else if (currentDragSource == DragSourceType.QSlot && target.ClassListContains("QSlot"))
-        {
-            Log("Cel do Qslotu");
-            if (target == draggedFromSlot)
+            else if (currentDragSource == DragSource.Crafting) 
             {
-                dropSucceeded = false;
-                return;
+
+                AddItemToTable(target, draggedItemData, localPos, draggedQuantity);
+                dropSucceeded = true;
             }
-            ItemData targetData = target.userData as ItemData;
-            SetSlotData(target, draggedItemData);
-            if (targetData != null) SetSlotData(draggedFromSlot, targetData);
-            dropSucceeded = true;
-            
         }
-        else if (currentDragSource == DragSourceType.QSlot &&(target.ClassListContains("BSlots")))
-        {
 
-            addItem(draggedItemData.name, draggedItemData.category, 1, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
-            dropSucceeded = true;
-            Log("Cel do Bsoltu");
-            return;
-        }
-        else if (currentDragSource == DragSourceType.List &&
-                (target.ClassListContains("QSlot") || target.ClassListContains("Hand")))
+        // --- CEL: PLAYER INVENTORY ---
+        else if (target.name == "Items_scrol" || target.ClassListContains("BSlots"))
         {
-            SetSlotData(target, draggedItemData);
-            dropSucceeded = true;
-            Log("Cel do Ręka");
-            return;
-        }
-        else if (currnetDragSourceList==DragSourceList.OSInventory &&
-        (target.ClassListContains("QSlot") || target.ClassListContains("Hand")))
-        {
-            playerInventory.AddToInventory(playerInventory.inventory, draggedQuantity, draggedItemData.originalItem);
-            playerInventory.RemoveFromInventory(playerInventory.outsideInventory.inventory, draggedItemData.originalItem, draggedQuantity);
-            SetSlotData(target, draggedItemData);
-            dropSucceeded = true;
-            Log("Cel do Qslotu2");
-            return;
-        }
-        else if (target.name == "Items_scrol" && currnetDragSourceList == DragSourceList.OSInventory)
-        {
-
-
-            
+            if (currentDragSource == DragSource.QSlot)
+            {
+                if (!isStack)
+                {
+                    addItem(draggedItemData.name, draggedItemData.category, 1, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
+                    dropSucceeded = true;
+                }
+            }
+            else if (currentDragSource == DragSource.OSInventory)
+            {
+                // OSInventory -> PlayerInventory (multi)
                 playerInventory.AddToInventory(playerInventory.inventory, draggedQuantity, draggedItemData.originalItem);
                 playerInventory.RemoveFromInventory(playerInventory.outsideInventory.inventory, draggedItemData.originalItem, draggedQuantity);
                 addItem(draggedItemData.name, draggedItemData.category, draggedQuantity, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
                 dropSucceeded = true;
-                Log("do BSlots2");
-                return;
+            }
+            else if (currentDragSource == DragSource.Crafting)
+            {
+                // CraftingTable -> PlayerInventory (multi)
+                craftingInventory.RemoveFromInventory(craftingInventory.inventory, draggedItemData.originalItem, draggedQuantity);
+                playerInventory.AddToInventory(playerInventory.inventory, draggedQuantity, draggedItemData.originalItem);
+                addItem(draggedItemData.name, draggedItemData.category, draggedQuantity, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
+                dropSucceeded = true;
+            }
         }
-        else
-            Debug.Log("if you see that we have thee problem or you stupid and can't hit the inventory box :" + target.name + "\n Probably the first option ;)");
+
+        // --- CEL: OS INVENTORY (SKRZYNIA) ---
+        else if (target.name == "OSItems_scrol")
+        {
+            if (currentDragSource == DragSource.PlayerInventory)
+            {
+                // PlayerInventory -> OSInventory (multi)
+                playerInventory.AddToInventory(playerInventory.outsideInventory.inventory, draggedQuantity, draggedItemData.originalItem);
+                playerInventory.RemoveFromInventory(playerInventory.inventory, draggedItemData.originalItem, draggedQuantity);
+                AddItemToOutside(draggedItemData.originalItem, draggedQuantity);
+                dropSucceeded = true;
+            }
+            else if (currentDragSource == DragSource.QSlot)
+            {
+                if (!isStack)
+                {
+                    playerInventory.AddToInventory(playerInventory.outsideInventory.inventory, 1, draggedItemData.originalItem);
+                    AddItemToOutside(draggedItemData.originalItem, 1);
+                    dropSucceeded = true;
+                }
+            }
+        }
+
+        // --- CEL: QUICK SLOTS (QSLOT) ---
+        else if (target.ClassListContains("QSlot") || target.ClassListContains("Hand"))
+        {
+            // Jeśli to JEST stack, zignoruj wszystko w tym bloku. 
+            // dropSucceeded zostanie false, a item wróci na miejsce.
+            if (!isStack)
+            {
+                if (currentDragSource == DragSource.PlayerInventory)
+                {
+                    // PlayerInventory -> QSlot (single)
+                    SetSlotData(target, draggedItemData);
+                    dropSucceeded = true;
+                }
+                else if (currentDragSource == DragSource.OSInventory)
+                {
+                    // OSInventory -> QSlot (single)
+                    playerInventory.AddToInventory(playerInventory.inventory, 1, draggedItemData.originalItem);
+                    playerInventory.RemoveFromInventory(playerInventory.outsideInventory.inventory, draggedItemData.originalItem, 1);
+                    SetSlotData(target, draggedItemData);
+                    dropSucceeded = true;
+                }
+                else if (currentDragSource == DragSource.Crafting)
+                {
+                    // CraftingTable -> QSlot (single)
+                    craftingInventory.RemoveFromInventory(craftingInventory.inventory, draggedItemData.originalItem, 1);
+                    playerInventory.AddToInventory(playerInventory.inventory, 1, draggedItemData.originalItem);
+                    SetSlotData(target, draggedItemData);
+                    dropSucceeded = true;
+                }
+                else if (currentDragSource == DragSource.QSlot)
+                {
+                    // QSlot -> QSlot (single / zamiana)
+                    if (target != draggedFromSlot)
+                    {
+                        ItemData targetData = target.userData as ItemData;
+                        SetSlotData(target, draggedItemData);
+
+                        if (targetData != null)
+                        {
+                            SetSlotData(draggedFromSlot, targetData);
+                        }
+
+
+                        dropSucceeded = true; 
+                    }
+                }
+            }
+        }
     }
 
     void SetSlotData(VisualElement slot, ItemData data)
@@ -618,8 +664,8 @@ public class UI_Script : MonoBehaviour
                 draggedQuantity = evt.shiftKey ? totalAvailable : 1;
                 draggedItemData = itemRoot.userData as ItemData;
                 draggedItemRoot = itemRoot;
-                currentDragSource = DragSourceType.List;
-                currnetDragSourceList= DragSourceList.PInventory;
+                currentDragSource = DragSource.PlayerInventory;
+
                 draggedFromSlot = null;
                 dropSucceeded = false;
 
@@ -1016,10 +1062,13 @@ public void SendItemList(List<Item> items)
             draggedQuantity = quantity;
             draggedItemData = tableData;
             draggedFromSlot = null;
-            currentDragSource = DragSourceType.List;
+            currentDragSource = DragSource.Crafting;
             dropSucceeded = false;
+            VisualElement tableContainer = root.Q<VisualElement>("Table");//wiem dzienie nazwalem crafting jako table :)
+            lastLocalPosBeforeDrag = tableContainer.WorldToLocal(evt.position);
             StartDrag(evt.position, data.icon.texture);
             itemOnTable.RemoveFromHierarchy();
+           
         });
 
         table.Add(itemOnTable);
@@ -1036,10 +1085,13 @@ public void SendItemList(List<Item> items)
             if (itemElement.userData is ItemData data) itemsOnTable.Add(data.originalItem);
         });
         return itemsOnTable;
+
     }
 
     private async void CraftingSend()
     {
+        if (craftingInventory == null) { Debug.LogError("craftingInventory jest NULL!"); return; }
+        if (crafting.Instance == null) { Debug.LogError("crafting.Instance jest NULL!"); return; }
         Debug.Log("Button was clicked!");
         List<Item> CraftingItems = GetItemsOnTable();
         Debug.Log(CraftingItems.Count);
@@ -1239,8 +1291,8 @@ public void SendItemList(List<Item> items)
                 }
                 draggedItemData = itemRoot.userData as ItemData;
                 draggedItemRoot = itemRoot;
-                currentDragSource = DragSourceType.List; // To musi być tutaj!
-                currnetDragSourceList = DragSourceList.OSInventory;
+                currentDragSource = DragSource.OSInventory; // To musi być tutaj!
+
                 draggedFromSlot = null;
                 dropSucceeded = false; // Reset statusu
 
@@ -1458,7 +1510,7 @@ public void SendItemList(List<Item> items)
     private void Start()
     {
         UpdateAvalibleRecipies();
-        Log("Wystartowało UI");
+        //Log("Wystartowało UI");
 
 
     }
