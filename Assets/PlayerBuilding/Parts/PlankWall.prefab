@@ -863,12 +863,13 @@ MonoBehaviour:
   timeToBuild: 10
   canBeBurnt: 1
   tempHealth: 30
-  slots:
-  - {fileID: 5591742879210096962}
-  - {fileID: 827927407206911400}
   variants:
   - {fileID: 0}
-  selectedVariant: {fileID: 0}
+  ghostMaterial: {fileID: 2100000, guid: ccbe4d29aa6b51c79a42dbdfba3e77d8, type: 2}
+  slotUnfilledMaterial: {fileID: 2100000, guid: ccbe4d29aa6b51c79a42dbdfba3e77d8, type: 2}
+  slotFilledMaterial: {fileID: 2100000, guid: 44431b2131a5d2d599e2ae838bfa44c5, type: 2}
+  snapPoints: []
+  lookAtPoint: {fileID: 2832167520565782791}
 --- !u!65 &5414134376522058442
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1054,17 +1055,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 25564730dabfd7647842a42c6ba69520, type: 3}
---- !u!114 &827927407206911400 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 691930275196870697, guid: 25564730dabfd7647842a42c6ba69520, type: 3}
-  m_PrefabInstance: {fileID: 209234298016001409}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8d825f25fc69824a9f30453cc2bac48, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &7405680176566961061 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7215078445531754020, guid: 25564730dabfd7647842a42c6ba69520, type: 3}
@@ -1133,14 +1123,3 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7215078445531754020, guid: 25564730dabfd7647842a42c6ba69520, type: 3}
   m_PrefabInstance: {fileID: 4901014183401875819}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &5591742879210096962 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 691930275196870697, guid: 25564730dabfd7647842a42c6ba69520, type: 3}
-  m_PrefabInstance: {fileID: 4901014183401875819}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8d825f25fc69824a9f30453cc2bac48, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
