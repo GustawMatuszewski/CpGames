@@ -14,5 +14,11 @@ public class Construction : MonoBehaviour
     public bool canBeBurnt;
     public float tempHealth;
 
+    public List<ConstructionSlot> slots; 
     public List<Construction> variants;
+    public Construction selectedVariant;
+
+    [Header("Upgrade Visuals")]
+    public Material slotUnfilledMaterial;
+    public Material slotFilledMaterial;
 }
