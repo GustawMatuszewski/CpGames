@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.Rendering;
 using Unity.VisualScripting;
+using UnityEngine.VFX;
 
 public class EnvironmentManager : MonoBehaviour
 {
@@ -56,6 +57,19 @@ public class EnvironmentManager : MonoBehaviour
     public float currentTemperature;
     [Range(0,100)] public float currentHumidity;
     public float windSpeed;
+
+    [Header("Rain VFX")]
+    public VisualEffect rainVFX;
+
+    [Header("VFX Parameter Names")]
+    public string rainSpawnRateName = "SpawnRate";
+    
+    [Tooltip("Max particles/s at rainIntensity =1")]
+    public float rainMaxSpawnRate = 200f;
+
+    [Tooltip("Rain won't play at all below this threshold")]
+    [Range(0f, 0.1f)]
+    public float rainMinIntensityThreshold = 0.02f;
 
     [Header("Wind settings")]
     public Vector2 windDirection = new Vector2(1f, 0f); 
@@ -154,6 +168,8 @@ public class EnvironmentManager : MonoBehaviour
         }
         
         perceivedWindTemperature = currentTemperature - (windSpeed*windChillFactor);
+
+        
         
     }
 
@@ -163,6 +179,7 @@ public class EnvironmentManager : MonoBehaviour
         CheckShadowStatus();
         ApplyCloudsAndFog();
         ApplyWind();
+        ApplyRainVFX();
     }
 
     void UpdateLight()
@@ -266,6 +283,23 @@ public class EnvironmentManager : MonoBehaviour
             // visualEnv.windOrientation.value = windAngle;
             visualEnv.windOrientation.value = windZone.transform.eulerAngles.y;
         }
+    }
+
+    void ApplyRainVFX(){
+        if (rainVFX == null || activePreset == null) return;
+
+        float intensity = activePreset.rainIntensity;
+
+        if (isTransitioning && targetPreset != null)
+            intensity = Mathf.Lerp(intensity, targetPreset.rainIntensity, transitionProgress);
+
+        bool shouldPlay = intensity >= rainMinIntensityThreshold;
+
+        if (shouldPlay != rainVFX.gameObject.activeSelf)
+            rainVFX.gameObject.SetActive(shouldPlay);
+
+        if (shouldPlay)
+            rainVFX.SetFloat(rainSpawnRateName, intensity * rainMaxSpawnRate);
     }
     void HandleWeatherTransitionTimer()
     {
