@@ -24,7 +24,7 @@ public class crafting : MonoBehaviour
 
     void Update(){
         if (craft){
-            if (CanCraft() && enableCrafting)
+            if (CanCraft())
                 Craft();
 
             craft = false;

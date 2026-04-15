@@ -11,6 +11,7 @@ using UnityColor = UnityEngine.Color;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using static UnityEngine.UI.Image;
+using static UnityEngine.Rendering.DebugUI.MessageBox;
 public class ItemData
 {
     public string name;
@@ -35,7 +36,7 @@ public class UI_Script : MonoBehaviour
         public Inventory playerInventory;
 
     [SerializeField] UIDocument UI_doc;
-    [SerializeField] GameObject Player;
+    [SerializeField] ItemDatabase AvalibleToCraft;
         ItemData draggedItemData;
 
         VisualElement dragOriginElement;
@@ -308,6 +309,21 @@ public class UI_Script : MonoBehaviour
        
 
     }
+
+    private Texture2D GetIconTexture(Item item)
+    {
+        if (item != null && item.icon != null)
+        {
+            return item.icon.texture;
+        }
+
+        // Zwraca teksturę placeholdera załadowaną z folderu Assets/Resources/Icons/null_icon.png
+        Sprite placeholder = defaultPlaceholderIcon;
+        return placeholder != null ? placeholder.texture : null;
+    }
+
+
+
     VisualElement descryption;
     Label tooltipLabel;
     void AddGradientToElement(VisualElement element)
@@ -1033,7 +1049,7 @@ public void SendItemList(List<Item> items)
         itemOnTable.style.position = Position.Absolute;
         itemOnTable.style.left = localPos.x - (size / 2);
         itemOnTable.style.top = localPos.y - (size / 2);
-        itemOnTable.style.backgroundImage = new StyleBackground(data.icon.texture);
+        itemOnTable.style.backgroundImage = new StyleBackground(GetIconTexture(data.originalItem));
 
         ItemData tableData = new ItemData { 
             name = data.name, 
@@ -1066,7 +1082,7 @@ public void SendItemList(List<Item> items)
             dropSucceeded = false;
             VisualElement tableContainer = root.Q<VisualElement>("Table");//wiem dzienie nazwalem crafting jako table :)
             lastLocalPosBeforeDrag = tableContainer.WorldToLocal(evt.position);
-            StartDrag(evt.position, data.icon.texture);
+            StartDrag(evt.position, GetIconTexture(data.originalItem));
             itemOnTable.RemoveFromHierarchy();
            
         });
@@ -1102,7 +1118,7 @@ public void SendItemList(List<Item> items)
         ClearTable();
         List<Item> CraftingRturn = craftingInventory.inventory;
         SpawnItemsOnTable(CraftingRturn);
-        craftingInventory.inventory.Clear();
+        //craftingInventory.inventory.Clear();
     }
 
     void ClearTable()
@@ -1220,7 +1236,7 @@ public void SendItemList(List<Item> items)
     {
         OutsideInventoryList.Add(item);
         float weight = item.weight;
-        string name = item.name;
+        string name = item.itemName;
         Sprite icon = item.icon != null ? item.icon : defaultPlaceholderIcon;
         string category = item.itemType.ToString();
         ScrollView scroll = root.Q<ScrollView>("OSItems_scrol");
@@ -1475,40 +1491,239 @@ public void SendItemList(List<Item> items)
         RefreshOSItemsStyles();
 
     }
-
-    VisualElement AvalibleRecipie() 
+    bool colorAvalibleRecipie;
+    VisualElement AvalibleRecipie(Item item) 
     {
+        //root element
         VisualElement Recipie = new VisualElement();
-        Recipie.name = "Recipie";
+        Recipie.style.flexDirection = FlexDirection.Row;
         Recipie.style.width = Length.Percent(100);
-        Recipie.style.height = 40;
-        Recipie.style.backgroundColor = Color.red;
+        Recipie.style.height = 50;
+        if (colorAvalibleRecipie)
+            Recipie.style.backgroundColor = (Color)new Color32(35, 32, 29, 255);
+        else
+            Recipie.style.backgroundColor = (Color)new Color32(45, 43, 40, 255);
+        Recipie.style.paddingBottom = 5;
+        Recipie.style.paddingTop = 5;
+        //ico
+        
+            VisualElement icon = new VisualElement();
+            icon.style.width = Length.Percent(10);
+            Image iconImage = new Image();
+            iconImage.sprite = item.icon;
+            iconImage.scaleMode = ScaleMode.ScaleToFit;
+            icon.Add(iconImage);
+        //item name
+        VisualElement itemName = new VisualElement();
+        Label itemTextName = new Label();
+        itemTextName.text = item.itemName.ToString();
+        itemTextName.style.color =(Color) new Color32(127, 127, 126, 255);
+        itemTextName.style.unityFontStyleAndWeight = FontStyle.Bold;
+        itemName.style.justifyContent = Justify.Center;
+        itemName.style.alignItems = Align.Center;
+        itemName.style.width = Length.Percent(50);
+        itemName.Add(itemTextName);
+        //Crafintg selector buttons
+        VisualElement buttons = new VisualElement();
+        Label craftQuantity = new Label();//quantity ile craftujesz
+        buttons.style.width = Length.Percent(40);
+        buttons.style.flexDirection = FlexDirection.Row;
+        buttons.style.justifyContent = Justify.FlexEnd;
+        buttons.style.alignItems = Align.Center;
+        buttons.style.paddingRight = 10;
+        Button subButton = new Button();
+        subButton.text = "-";
+        subButton.style.unityFontStyleAndWeight = FontStyle.Bold;
+        subButton.style.fontSize = 30;
+        subButton.style.width = Length.Percent(25);
+        subButton.style.height = Length.Percent(80);
+        subButton.clicked += () => subFromCrafting(craftQuantity , item);
+        buttons.Add(subButton);
+        //-----------------------------------
+       
+        craftQuantity.text = "0";
+        craftQuantity.style.unityTextAlign = TextAnchor.MiddleCenter;
+        craftQuantity.style.fontSize = 30;
+        craftQuantity.style.unityFontStyleAndWeight = FontStyle.Bold;
+        craftQuantity.style.width = Length.Percent(50);
 
 
+        
+        //-----------------------------------
+        Button addButton = new Button();
+        addButton.text = "+";
+        addButton.style.unityFontStyleAndWeight = FontStyle.Bold;
+        addButton.style.fontSize = 30;
+        addButton.style.width = Length.Percent(25);
+        addButton.style.height = Length.Percent(80);
+        addButton.clicked += () => AddToCrafting(craftQuantity, item);
 
+        buttons.Add(craftQuantity);
+        buttons.Add(addButton);
+
+
+        Recipie.Add(icon);
+        Recipie.Add(itemName);
+        Recipie.Add(buttons);
+
+        colorAvalibleRecipie = !colorAvalibleRecipie;
         return Recipie;
     }
-    void UpdateAvalibleRecipies() 
+    void subFromCrafting(Label Quantity, Item item)
+    {
+        int qty = int.Parse(Quantity.text);
+
+  
+        if (qty > 0)
+        {
+      
+            qty--;
+            Quantity.text = qty.ToString();
+
+
+            foreach (Item ingredient in item.craftingRecipe.itemsList)
+            {
+                // A. Logika danych: Zabierz z craftingu, oddaj graczowi
+                craftingInventory.RemoveFromInventory(craftingInventory.inventory, ingredient, 1);
+                playerInventory.AddToInventory(playerInventory.inventory, 1, ingredient);
+
+
+                // B. Logika UI Ekwipunku: Dodaj przedmiot z powrotem do listy UI
+                // Korzystamy z Twojej metody 'addItem' (z UI_Script), 
+                // która sprawdza czy dodać nowy wiersz, czy zwiększyć cyferkę
+                addItem(ingredient.itemName, ingredient.itemType.ToString(),1, ingredient.weight, ingredient.icon, ingredient);
+
+                // C. Logika Wizualna: Usuń fizyczny element ze stołu
+                RemoveOneItemFromTable(ingredient);
+            }
+
+            // 3. Odświeżenie wyglądu listy i wagi
+            RefreshItemsStyles();
+            weightRefresh();
+        }
+    }
+    void RemoveOneItemFromTable(Item itemToRemove)
+    {
+        // 1. Znajdź kontener stołu
+        VisualElement table = root.Q<VisualElement>("Table");
+        if (table == null) return;
+
+        // 2. Pobierz wszystkie elementy na stole, które mają klasę "TableItem"
+        // (tę klasę nadajesz w funkcji AddItemToTable w linii 1042)
+        var itemsOnTable = table.Query<VisualElement>(className: "TableItem").ToList();
+
+        // 3. Przeszukaj elementy, aby znaleźć ten pasujący do zwracanego przedmiotu
+        foreach (var itemElement in itemsOnTable)
+        {
+            if (itemElement.userData is ItemData data)
+            {
+                // Sprawdzamy, czy to jest ten sam przedmiot (ScriptableObject)
+                if (data.originalItem == itemToRemove)
+                {
+                    // 4. Usuwamy tylko JEDNĄ sztukę z UI i kończymy funkcję (return)
+                    itemElement.RemoveFromHierarchy();
+                    return;
+                }
+            }
+        }
+    }
+    int GetCountManual(List<Item> inventory, Item itemToFind)
+    {
+        int count = 0;
+        foreach (Item i in inventory)
+        {
+            if (i == itemToFind)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+    void AddToCrafting(Label Quantity, Item item)
+    {
+        bool canAfford = true;
+
+        var recipeGrouped = item.craftingRecipe.itemsList
+            .GroupBy(i => i)
+            .Select(g => new { Item = g.Key, Required = g.Count() });
+
+        foreach (var requirement in recipeGrouped)
+        {
+            // Liczymy ile mamy TERAZ w plecaku
+            int inPlayerInv = playerInventory.inventory.Count(i => i != null && i.itemID == requirement.Item.itemID);
+            Debug.Log($"Szukam: {requirement.Item.itemName}. W plecaku mam: {inPlayerInv} sztuk. Potrzebuję: {requirement.Required}");
+            // Sprawdzamy TYLKO czy mamy wystarczająco na JEDNĄ kolejną sztukę
+            // Nie mnożymy przez (currentQty + 1), bo poprzednie sztuki już zabraliśmy!
+            if (inPlayerInv < requirement.Required)
+            {
+                canAfford = false;
+                break;
+            }
+        }
+
+
+        if (canAfford)
+            {
+                int qty = int.Parse(Quantity.text);
+                qty++;
+                Quantity.text = qty.ToString();
+
+                VisualElement tableRoot = root.Q<VisualElement>("Table");
+
+                // 3. Logika przenoszenia
+                foreach (Item ingredient in item.craftingRecipe.itemsList)
+                {
+                    // Pozycja na stole
+                    Vector2 tablePos = new Vector2(50, 50);
+
+                    // WAŻNE: Musisz przekazać pełne dane ItemData, inaczej AddItemToTable wywali błąd na ikonie
+                    ItemData dataForTable = new ItemData
+                    {
+                        originalItem = ingredient,
+                        icon = ingredient.icon != null ? ingredient.icon : defaultPlaceholderIcon,
+                        name = ingredient.itemName,
+                        weight = ingredient.weight
+                    };
+
+                    // Dodaj wizualnie na stół
+                    AddItemToTable(tableRoot, dataForTable, tablePos, 1);
+
+                    // Przenieś w danych
+                    craftingInventory.AddToInventory(craftingInventory.inventory, 1, ingredient);
+                    playerInventory.RemoveFromInventory(playerInventory.inventory, ingredient, 1);
+
+                    // USUWANIE Z UI: 
+                    // Używamy Twojej istniejącej metody RemoveItem, która aktualizuje Label qty w ScrollView
+                    RemoveItem(ingredient.itemName, 1);
+                }
+
+                // WYDAJNOŚĆ: Odświeżamy style (kolory wierszy) TYLKO RAZ po dodaniu wszystkich składników
+                RefreshItemsStyles();
+                weightRefresh(); // Aktualizujemy wagę całkowitą
+            }
+            else
+            {
+                Debug.Log("Brak składników!");
+            }
+        }
+        void UpdateAvalibleRecipies() 
     {
 
         VisualElement AvalibleRecipies = root.Q<VisualElement>("CraftableList");
-        
-        //for z lista dosteopnych craftingow
+
+
+        foreach (Item item in AvalibleToCraft.allItems)
         {
-            VisualElement Recipie=AvalibleRecipie();
+            VisualElement Recipie = AvalibleRecipie(item);
             AvalibleRecipies.Add(Recipie);
-
-
-
         }
 
 
 
-
-
     }
-    private void Start()
+    private async void  Start()
     {
+        await Task.Delay(1000);
         UpdateAvalibleRecipies();
         //Log("Wystartowało UI");
 
