@@ -27,7 +27,7 @@ public class ItemWithPosition
 }
 
 public class UI_Script : MonoBehaviour
-    {
+{
     [SerializeField] int maxWeight;
     public Sprite defaultPlaceholderIcon;
 
@@ -177,6 +177,7 @@ public class UI_Script : MonoBehaviour
             {
                 slotNumbers[i].text = (i + 1).ToString();
                 slotNumbers[i].style.display = DisplayStyle.None;
+                slotNumbers[i].RemoveFromHierarchy();
             }
 
             root.RegisterCallback<PointerMoveEvent>(OnPointerMove);
@@ -485,27 +486,40 @@ public class UI_Script : MonoBehaviour
                 }
             }
         }
-
         // --- CEL: QUICK SLOTS (QSLOT) ---
         else if (target.ClassListContains("QSlot") || target.ClassListContains("Hand"))
         {
             // Jeśli to JEST stack, zignoruj wszystko w tym bloku. 
             // dropSucceeded zostanie false, a item wróci na miejsce.
+            
             if (!isStack)
             {
                 if (currentDragSource == DragSource.PlayerInventory)
                 {
                     // PlayerInventory -> QSlot (single)
+                    if(DataFromTarget(target)!=null)
+                    {
+                        ItemData tempItem = DataFromTarget(target);
+                             addItem(tempItem.name, tempItem.category, 1, tempItem.weight, tempItem.icon, tempItem.originalItem);
+                
+                    }
                     SetSlotData(target, draggedItemData);
                     dropSucceeded = true;
                 }
                 else if (currentDragSource == DragSource.OSInventory)
                 {
                     // OSInventory -> QSlot (single)
+                    if(DataFromTarget(target)!=null)
+                    {
+                        ItemData tempItem = DataFromTarget(target);
+                             AddItemToOutside(tempItem.originalItem,1);
+                            
+                    }
                     playerInventory.AddToInventory(playerInventory.inventory, 1, draggedItemData.originalItem);
                     playerInventory.RemoveFromInventory(playerInventory.outsideInventory.inventory, draggedItemData.originalItem, 1);
                     SetSlotData(target, draggedItemData);
                     dropSucceeded = true;
+                    
                 }
                 else if (currentDragSource == DragSource.Crafting)
                 {
@@ -535,6 +549,17 @@ public class UI_Script : MonoBehaviour
             }
         }
     }
+    public ItemData DataFromTarget(VisualElement target)
+{
+    // Sprawdzamy, czy target nie jest nullem i czy posiada przypisane userData
+    if (target != null && target.userData is ItemData data)
+    {
+        return data;
+    }
+
+
+    return null;
+}
 
     void SetSlotData(VisualElement slot, ItemData data)
     {
@@ -963,7 +988,7 @@ public void SendItemList(List<Item> items)
         for (int i = 0; i < slot.Count; i++) 
             slot[i].style.opacity = 1f;
         var slots = QSlots.parent;
-        slots.style.flexDirection = FlexDirection.Row;
+        slots.style.flexDirection = FlexDirection.Row; 
        // foreach (Item recipeItem in UIRecipes) 
            // AddUnique(recipeItem);
         inventoryIsOpen = true;
@@ -1035,7 +1060,7 @@ public void SendItemList(List<Item> items)
     }
 
     public Item GetItemLeftHand() => GetItemFromQSlot(9)?.originalItem;
-    public Item GetItemRighHand() => GetItemFromQSlot(10)?.originalItem;
+    public Item GetItemRightHand() => GetItemFromQSlot(10)?.originalItem;
 
 
     void AddItemToTable(VisualElement table, ItemData data, Vector2 localPos, int quantity)
@@ -1118,7 +1143,8 @@ public void SendItemList(List<Item> items)
         ClearTable();
         List<Item> CraftingRturn = craftingInventory.inventory;
         SpawnItemsOnTable(CraftingRturn);
-        //craftingInventory.inventory.Clear();
+           UpdateAvalibleRecipies();//aktualizacja receptur
+        //craftingInventory.inventory.Clear();//badziew ktory jest nie potrzebny juz ale egzystuje w razie w gdybym mial wywalone w crafting
     }
 
     void ClearTable()
@@ -1721,6 +1747,123 @@ public void SendItemList(List<Item> items)
 
 
     }
+    public void OnSelectSlot(InputAction.CallbackContext context)
+    {
+      
+        if (context.performed)
+        {
+            
+            string keyName = context.control.name;//pobiera nazwe klawisza -- index QSLOTA
+            if (int.TryParse(keyName, out int slotIndex))
+            {
+                swapQSlots(slotIndex - 1);
+            }
+        }
+    }
+
+    void swapQSlots(int index)
+    {
+        Log("Swapuję na slot: " + index);
+        
+    
+        Item slotItem = GetOriginalItemFromSlot(index);
+        Item leftHandItem = GetItemLeftHand();
+
+        // 2. Przygotuj dane dla slotu (idzie tam to, co było w ręce)
+        if (leftHandItem != null)
+        {
+            ItemData handData = new ItemData
+            {
+                name = leftHandItem.itemName,
+                category = leftHandItem.itemType.ToString(),
+                weight = leftHandItem.weight,
+                icon = leftHandItem.icon != null ? leftHandItem.icon : defaultPlaceholderIcon,
+                originalItem = leftHandItem
+            };
+            SetSlotData(qSlotsList[index], handData);
+        }
+        else
+        {
+            // Jeśli ręka była pusta, wyczyść slot
+            ClearSlot(qSlotsList[index]);
+        }
+
+        // 3. Przygotuj dane dla ręki (idzie tam to, co było w slocie)
+        if (slotItem != null)
+        {
+            ItemData slotData = new ItemData
+            {
+                name = slotItem.itemName,
+                category = slotItem.itemType.ToString(),
+                weight = slotItem.weight,
+                icon = slotItem.icon != null ? slotItem.icon : defaultPlaceholderIcon,
+                originalItem = slotItem
+            };
+            SetSlotData(LHand, slotData);
+        }
+        else 
+        {
+           
+            ClearSlot(LHand);
+        }
+
+        weightRefresh();
+    }
+    public void swapHands()
+    {
+        
+
+        Item rightHandItem = GetItemRightHand();
+        Item leftHandItem = GetItemLeftHand();
+
+        // 2. Przygotuj dane dla slotu (idzie tam to, co było w ręce)
+        if (leftHandItem != null)
+        {
+            ItemData leftHandData = new ItemData
+            {
+                name = leftHandItem.itemName,
+                category = leftHandItem.itemType.ToString(),
+                weight = leftHandItem.weight,
+                icon = leftHandItem.icon != null ? leftHandItem.icon : defaultPlaceholderIcon,
+                originalItem = leftHandItem
+            };
+            SetSlotData(RHand, leftHandData);
+        }
+        else
+        {
+            // Jeśli ręka była pusta, wyczyść slot
+            ClearSlot(RHand);
+        }
+
+        // 3. Przygotuj dane dla ręki (idzie tam to, co było w slocie)
+        if (rightHandItem != null)
+        {
+            ItemData rightHandData = new ItemData
+            {
+                name = rightHandItem.itemName,
+                category = rightHandItem.itemType.ToString(),
+                weight = rightHandItem.weight,
+                icon = rightHandItem.icon != null ? rightHandItem.icon : defaultPlaceholderIcon,
+                originalItem = rightHandItem
+            };
+            SetSlotData(LHand, rightHandData);
+        }
+        else
+        {
+            // Jeśli slot był pusty, wyczyść rękę
+            ClearSlot(LHand);
+        }
+    }
+
+    void ClearSlot(VisualElement slot)
+    {
+        Image icon = slot.Q<Image>("Item_Icon");
+        if (icon != null) icon.image = null;
+        Label nameLabel = slot.Q<Label>("Slot_Info");
+        if (nameLabel != null) nameLabel.text = string.Empty;
+        slot.userData = null;
+    }
+
     private async void  Start()
     {
         await Task.Delay(1000);

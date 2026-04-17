@@ -226,7 +226,8 @@
 
 .Item_QSlot {
     flex-direction: row-reverse;
-    justify-content: space-between;
+    justify-content: center;
+    align-content: center;
 }
 
 .Slot_Number {

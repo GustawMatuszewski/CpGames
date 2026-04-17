@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cf1dab834d4ec34195b920ea7bbf9ec, type: 3}
   m_Name: New HDRenderPipelineAsset
   m_EditorClassIdentifier: 
-  m_Version: 25
+  m_Version: 26
   m_ObsoleteFrameSettings:
     overrides: 0
     enableShadow: 0
@@ -206,6 +206,7 @@ MonoBehaviour:
   m_ObsoleteLensAttenuation: 0
   m_ObsoleteDiffusionProfileSettingsList: []
   m_PrefilterUseLegacyLightmaps: 0
+  m_PrefilterUseLightmapBicubicSampling: 0
   m_RenderPipelineSettings:
     supportShadowMask: 1
     supportSSR: 0
@@ -213,6 +214,7 @@ MonoBehaviour:
     supportSSAO: 1
     supportSSGI: 1
     supportSubsurfaceScattering: 1
+    subsurfaceScatteringAttenuation: 1
     sssSampleBudget:
       m_Values: 140000002800000050000000
       m_SchemaId:
@@ -228,11 +230,13 @@ MonoBehaviour:
     supportWater: 1
     waterSimulationResolution: 128
     supportWaterExclusion: 1
+    supportWaterHorizontalDeformation: 0
     supportWaterDecals: 1
     waterDecalAtlasSize: 1024
     maximumWaterDecalCount: 48
     waterScriptInteractionsMode: 0
     waterFullCPUSimulation: 0
+    waterCausticsMeshResolution: 256
     supportComputeThickness: 0
     computeThicknessResolution: 1
     computeThicknessLayerMask:
@@ -243,7 +247,9 @@ MonoBehaviour:
     supportTransparentDepthPrepass: 1
     supportTransparentDepthPostpass: 1
     colorBufferFormat: 74
+    depthBufferFormat: 0
     supportCustomPass: 1
+    supportVariableRateShading: 1
     customBufferFormat: 8
     supportedLitShaderMode: 2
     planarReflectionResolution:
@@ -360,6 +366,8 @@ MonoBehaviour:
       enabled: 0
       useMipBias: 0
       advancedUpscalersByPriority: 02
+      advancedUpscalerNames:
+      - STP
       DLSSPerfQualitySetting: 0
       DLSSInjectionPoint: 0
       TAAUInjectionPoint: 0
@@ -367,6 +375,11 @@ MonoBehaviour:
       defaultInjectionPoint: 2
       DLSSUseOptimalSettings: 1
       DLSSSharpness: 0.5
+      DLSSRenderPresetForQuality: 0
+      DLSSRenderPresetForBalanced: 0
+      DLSSRenderPresetForPerformance: 0
+      DLSSRenderPresetForUltraPerformance: 0
+      DLSSRenderPresetForDLAA: 0
       FSR2EnableSharpness: 0
       FSR2Sharpness: 0
       FSR2UseOptimalSettings: 0
@@ -540,7 +553,6 @@ MonoBehaviour:
     streamingGpuCacheSettings:
     - format: 0
       sizeInMegaBytes: 128
-  m_UseRenderGraph: 1
   m_CompositorCustomVolumeComponentsList:
     m_InjectionPoint: 1
     m_CustomPostProcessTypesAsString: []
