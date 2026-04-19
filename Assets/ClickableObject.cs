@@ -6,38 +6,49 @@ public class ClickableObject : MonoBehaviour, IInteractable
 {
     public Animator animator;
     public GameObject infoCanvas;
+    public CatWander catWander;
+    public float floatDelay = 3f;
+    public float floatSpeed = 2f;
 
-    // IInteractable — no snapping needed for this object
     public bool UseSnapping => false;
     public List<Transform> InteractionPositions => null;
     public Transform LookAtTarget => null;
 
-
     void Start()
     {
-        // Get animator from children if not assigned directly
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
-        
-        Debug.Log("Animator found: " + animator?.name);
     }
+
     public void OnInteract()
     {
-        Debug.Log("OnInteract called!");
-        animator.SetBool("playanim", true);
-        Debug.Log("PlayAnim set to true, current state: " + animator.GetCurrentAnimatorStateInfo(0).IsName("Armature|EasterEgg (1)"));
+        if (catWander != null) catWander.stopped = true;
+        animator.SetTrigger("playanim");
         StartCoroutine(ShowCanvasAfterAnim());
     }
 
     private IEnumerator ShowCanvasAfterAnim()
     {
-        // Wait one frame for animator to transition into the new state
-        yield return null;
-
+        // Wait for transition to finish
+        yield return new WaitForSeconds(0.3f);
+        
+        // Now we're in the easter egg state, read its length
         float length = animator.GetCurrentAnimatorStateInfo(0).length;
+        Debug.Log("Easter egg clip length: " + length);
         yield return new WaitForSeconds(length);
 
-        // infoCanvas.SetActive(true);
+        infoCanvas.SetActive(true);
+        yield return new WaitForSeconds(floatDelay);
+        StartCoroutine(FloatToSky());
+    }
+
+    private IEnumerator FloatToSky()
+    {
         animator.SetBool("playanim", false);
+        while (true)
+        {
+            transform.position += Vector3.up * floatSpeed * Time.deltaTime;
+            yield return null;
+        }
     }
 }
