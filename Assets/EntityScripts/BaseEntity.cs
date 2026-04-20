@@ -16,35 +16,41 @@ public class BaseEntity : MonoBehaviour
 
     public EntityStatus status;
 
-    //ADD DEFAULT SPHERE AREA FOR NON MIGRATIONAL AND A SPHERE ARE FOR MIGRATIONAL THAT WILL SPAWN ON PLAYER FOR SHORT PEIROD
+    // -----------------------------------------------------------------------
+    // OPTIMIZATION: Cache last destination. TrySetDestination skips
+    // CalculatePath entirely if the new target is within this threshold.
+    // Prevents 50 path recalculations/sec during chase when target barely moved.
+    private Vector3 _lastSetDestination = Vector3.positiveInfinity;
+    private const float DEST_RECALC_THRESHOLD = 0.6f;
+    // -----------------------------------------------------------------------
 
     public enum MentalState
     {
         None,
-        Neutral,    //Doesnt care bout u 
-        Courious,   //Check u out from distance doesnt get near
-        Interested, //Comes closer still keeps distance
-        Scared,     //Runs away anytime u get near
-        Terrified,  //U will never see it close ever again
-        Aggresive,  //It will start attacking
-        SuperAggresive, //U will be killed instanly fast attacks
-        Friendly,   //Doesnt care bout u 
-        Hurt    //Trys to escape maybe still fight
+        Neutral,
+        Courious,
+        Interested,
+        Scared,
+        Terrified,
+        Aggresive,
+        SuperAggresive,
+        Friendly,
+        Hurt
     }
 
     public enum EntityState
     {
         None,
-        Walk,   //Walks casualy
-        Sprint, //Sprint to target (can be escape target or entity target)
-        Jump,   //Jumps thru stuff 
-        Dash,   //Dashes to target for a few sec
-        Attack, //Attacks the target combatscript connection here
-        Hit,    //Entity Status script connection here  
-        Patrol, //Walk around without any care
-        Search, //Look for somethhig an entity or object
-        Crawl,  //Trys to get to the point anyway crawl underneath anything it can fit to
-        Prone   //Stands up after crawing needs to be checked wheter it can if there is space for him to stand
+        Walk,
+        Sprint,
+        Jump,
+        Dash,
+        Attack,
+        Hit,
+        Patrol,
+        Search,
+        Crawl,
+        Prone
     }
 
     public enum EntityFaction
@@ -56,25 +62,6 @@ public class BaseEntity : MonoBehaviour
 
     public EntityFaction faction = EntityFaction.Neutral;
 
-    // void FixedUpdate()
-    // {
-    //     // DetectEntitiesInSphere(transform.position, 20f, entityMask, groundMask, entities); //Detection sphere can be insta create and it will add entities to entitiy list u choose
-
-    //     // if (entities.Count > 0)
-    //     // {
-    //     //     if (currentTarget != entities[0])
-    //     //         currentTarget = entities[0];
-
-    //     //     FollowTarget(currentTarget);    //Follows set target
-    //     // }
-    //     // else
-    //     // {
-    //     //     currentTarget = null;
-    //     //     if (agent != null && agent.hasPath)
-    //     //         agent.ResetPath();
-    //     // }
-    // }
-
     public void DetectEntitiesInSphere(Vector3 origin, float radius, LayerMask entityMask, LayerMask groundMask, List<GameObject> entitiesList)
     {
         Collider[] hits = Physics.OverlapSphere(origin, radius, entityMask);
@@ -84,8 +71,8 @@ public class BaseEntity : MonoBehaviour
         {
             GameObject topParent = GetTopParent(col.gameObject);
             if (topParent == null) continue;
-            if (topParent == this.gameObject) continue; // ← exclude self
-            
+            if (topParent == this.gameObject) continue;
+
             currentEntities.Add(topParent);
             if (!entitiesList.Contains(topParent))
                 entitiesList.Add(topParent);
@@ -102,49 +89,80 @@ public class BaseEntity : MonoBehaviour
     {
         Transform current = obj.transform;
         GameObject foundEntity = null;
-        if(current.GetComponent<EntityStatus>() != null)
-        {
-            foundEntity=current.gameObject;
-        }
+
+        if (current.GetComponent<EntityStatus>() != null)
+            foundEntity = current.gameObject;
 
         while (current.parent != null)
         {
-            current=current.parent;
-
+            current = current.parent;
             if (current.GetComponent<EntityStatus>() != null)
-            {
-                foundEntity=current.gameObject;
-            }
+                foundEntity = current.gameObject;
         }
 
         return foundEntity;
     }
 
-    public bool TrySetDestination(Vector3 target, bool useSmallerCollider = true, bool moveToNearest = true) //check wheter it need smaller hitbox or normal one can fit Crawl: state
+    public bool TrySetDestination(Vector3 target, bool useSmallerCollider = false, bool moveToNearest = true)
     {
-        if (agent == null)
-            return false;
+        if (agent == null || !agent.isOnNavMesh) return false;
 
-        NavMeshPath path = new NavMeshPath();
-        if (agent.CalculatePath(target, path) && path.status == NavMeshPathStatus.PathComplete)
+        // 1. If we already have a path and it's calculated...
+        if (agent.hasPath && !agent.pathPending)
         {
-            agent.SetDestination(target);
+            float distToTarget = Vector3.Distance(agent.destination, target);
+            float yDiff = Mathf.Abs(agent.destination.y - target.y); // NEW: Check height difference
+
+            // If target moved less than 2m AND height barely changed
+            if (distToTarget < 2.0f && yDiff < 0.75f) 
+                return true;
+        }
+
+        // 2. Only calculate a NEW path if the target moved substantially
+        float distToLast = Vector3.Distance(target, _lastSetDestination);
+        float yDiffLast = Mathf.Abs(target.y - _lastSetDestination.y); // NEW: Check height difference
+
+        if (distToLast < 1.5f && yDiffLast < 0.75f) 
             return true;
+
+        // 2. Only calculate a NEW path if the target moved substantially
+        if (Vector3.Distance(target, _lastSetDestination) < 1.5f) // Increased from 0.6f
+            return true;
+
+        // Now do the expensive path calculation
+        NavMeshPath path = new NavMeshPath();
+        if (agent.CalculatePath(target, path))
+        {
+            if (path.status == NavMeshPathStatus.PathComplete || path.status == NavMeshPathStatus.PathPartial)
+            {
+                agent.SetPath(path);
+                _lastSetDestination = target;
+                return true;
+            }
         }
 
         if (useSmallerCollider && smallAgentPrefab != null)
         {
+            // -----------------------------------------------------------------------
+            // WARNING: Instantiate + Destroy every call is very expensive.
+            // If you use this path often, consider pre-creating one temp agent
+            // and reusing it, or use a separate NavMeshQuery approach.
+            // -----------------------------------------------------------------------
             NavMeshAgent temp = Instantiate(smallAgentPrefab, agent.transform.position, agent.transform.rotation);
             temp.enabled = false;
-            temp.radius = smallAgentPrefab.radius;
-            temp.height = smallAgentPrefab.height;
+            temp.radius  = smallAgentPrefab.radius;
+            temp.height  = smallAgentPrefab.height;
 
-            if (NavMesh.CalculatePath(temp.transform.position, target, NavMesh.AllAreas, path) && path.status == NavMeshPathStatus.PathComplete)
+            if (NavMesh.CalculatePath(temp.transform.position, target, NavMesh.AllAreas, path)
+                && path.status == NavMeshPathStatus.PathComplete)
             {
                 agent.radius = temp.radius;
                 agent.height = temp.height;
                 agent.SetDestination(target);
                 Destroy(temp.gameObject);
+                // -----------------------------------------------------------------------
+                _lastSetDestination = target;
+                // -----------------------------------------------------------------------
                 return true;
             }
 
@@ -157,6 +175,9 @@ public class BaseEntity : MonoBehaviour
             if (NavMesh.SamplePosition(target, out hit, 5f, NavMesh.AllAreas))
             {
                 agent.SetDestination(hit.position);
+                // -----------------------------------------------------------------------
+                _lastSetDestination = hit.position;
+                // -----------------------------------------------------------------------
                 return true;
             }
         }
@@ -164,14 +185,23 @@ public class BaseEntity : MonoBehaviour
         return false;
     }
 
-    public void FollowTarget(GameObject target) //Folllows set target
+    // -----------------------------------------------------------------------
+    // OPTIMIZATION: Call this when you want to force a full path recalculation
+    // on the next TrySetDestination call (e.g. after teleport or obstacle change).
+    public void InvalidateDestinationCache()
+    {
+        _lastSetDestination = Vector3.positiveInfinity;
+    }
+    // -----------------------------------------------------------------------
+
+    public void FollowTarget(GameObject target)
     {
         if (target == null || agent == null)
             return;
 
         Vector3 targetPos = target.transform.position;
-        Vector3 dir = (transform.position - targetPos).normalized;
-        targetPos += dir * followDistance;
+        Vector3 dir       = (transform.position - targetPos).normalized;
+        targetPos        += dir * followDistance;
 
         TrySetDestination(targetPos);
 
@@ -179,8 +209,3 @@ public class BaseEntity : MonoBehaviour
             Debug.Log("Following: " + target.name + " | Target Position: " + targetPos);
     }
 }
-
-//Than when u create a new script as this is a base u instead of monobeaviut give BaseEntity than u will be able to use things like state
-// and all the void u create here. This is more modular and all the logic is not held in the base entity but all the instrucitons that 
-//Any entity no matter what can use . Make it so it detect all things on entity layer and if u want to target player check if
-//Game object contains kcc if not its just not the player velocity of the e
