@@ -90,8 +90,7 @@ public class EnemyManager : MonoBehaviour
             {
                 if (allEnemies[j] == null || assigned[j]) continue;
 
-                float dist = Vector3.Distance(leader.transform.position,
-                                              allEnemies[j].transform.position);
+                float dist = Vector3.Distance(leader.transform.position, allEnemies[j].transform.position);
                 if (dist <= groupRadius)
                 {
                     allEnemies[j].isGroupLeader = false;

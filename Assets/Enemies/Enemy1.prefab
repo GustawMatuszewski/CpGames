@@ -477,8 +477,8 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 8
-  hearingRadius: 65.8
-  minVelocityThreshold: 4
+  hearingRadius: 24
+  minVelocityThreshold: 5.9
   patrolRange: 12
   minPatrolInterval: 4
   maxPatrolInterval: 10
@@ -489,6 +489,7 @@ MonoBehaviour:
   groupLeader: {fileID: 0}
   groupSharedTarget: {fileID: 0}
   groupTargetDetected: 0
+  hasIndependentVision: 0
 --- !u!114 &5030636903466042871
 MonoBehaviour:
   m_ObjectHideFlags: 0

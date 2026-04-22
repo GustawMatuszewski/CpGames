@@ -25,7 +25,7 @@ public class EnemyEntity : BaseEntity
 
     [Header("AI Optimization")]
     public float aiUpdateInterval = 0.15f;
-
+    [Header("State")]
     public EntityState enemyState = EntityState.Patrol;
 
     private Vector3 patrolPoint;
@@ -43,9 +43,17 @@ public class EnemyEntity : BaseEntity
     // Leader does all expensive perception; followers just read the result.
     [Header("Group AI (set by EnemyManager)")]
     public bool isGroupLeader = false;
-    public EnemyEntity groupLeader;           // null if this IS the leader
+    public EnemyEntity groupLeader;
     [HideInInspector] public GameObject groupSharedTarget;
     [HideInInspector] public bool groupTargetDetected;
+
+    // -----------------------------------------------------------------------
+    // PERCEPTION: If true, this follower runs its own full vision check
+    // instead of blindly copying the leader's result. Costs more CPU per
+    // enemy but means every enemy with this flag can independently spot
+    // the player and ping the leader to confirm + decide pathing.
+    // Use for elite/tactical enemies. Leave false for dumb grunt types.
+    public bool hasIndependentVision = false;
     // -----------------------------------------------------------------------
  
     // -----------------------------------------------------------------------
@@ -120,18 +128,77 @@ public class EnemyEntity : BaseEntity
     // -----------------------------------------------------------------------
  
     void RunPerception()
+{
+    if (!isGroupLeader && groupLeader != null)
     {
         // -----------------------------------------------------------------------
-        // OPTIMIZATION: Group leader check.
-        // Only the leader (assigned by EnemyManager) runs OverlapSphere + raycasts.
-        // Followers just copy the leader's result — zero perception cost.
-        if (!isGroupLeader && groupLeader != null)
+        // ORPHAN GUARD: If leader reference is stale, self-promote.
+        // EnemyManager will clean this up on next regroup (0.5s).
+        if (groupLeader == null)
+        {
+            isGroupLeader = true;
+            return;
+        }
+
+        if (!hasIndependentVision)
         {
             groupTargetDetected = groupLeader.groupTargetDetected;
             groupSharedTarget   = groupLeader.groupSharedTarget;
             cachedVisibleTarget = groupSharedTarget;
+
+            // STATE SYNC: Follower mirrors leader's alert state.
+            // Without this, followers copy the target data but never act on it —
+            // they stay in Patrol while the leader chases.
+            if (groupLeader.groupTargetDetected && groupSharedTarget != null)
+            {
+                currentTarget      = groupSharedTarget;
+                lastKnownTargetPos = groupSharedTarget.transform.position;
+
+                // Don't override Attack — if a follower is already in melee, let it finish
+                if (enemyState != EntityState.Attack) enemyState = EntityState.Sprint;
+            }
+            else if (groupLeader.enemyState == EntityState.Search && enemyState != EntityState.Attack && enemyState != EntityState.Sprint)
+            {
+                // Leader is investigating something — followers sweep with it
+                lastKnownTargetPos = groupLeader.lastKnownTargetPos;
+                enemyState         = EntityState.Search;
+            }
+
             return;
         }
+
+        // hasIndependentVision == true path:
+        // Run cheap FOV dot product only — no OverlapSphere, no full raycast yet.
+        // If we spot something, ping the leader to confirm and decide movement.
+        // This is the middle ground: aware but not doing the heavy lifting.
+        if (player != null)
+        {
+            Vector3 toPlayer = player.transform.position - transform.position;
+            float sqrDist    = toPlayer.sqrMagnitude;
+
+            if (sqrDist <= viewDistance * viewDistance)
+            {
+                float dot           = Vector3.Dot(transform.forward, toPlayer.normalized);
+                float halfAngleCos  = Mathf.Cos(viewAngle * 0.5f * Mathf.Deg2Rad);
+
+                if (dot >= halfAngleCos)
+                {
+                    // In our FOV — ping the leader with suspected position.
+                    // Leader does the one expensive raycast to confirm.
+                    groupLeader.ReceiveSuspicionPing(player.transform.position);
+                }
+            }
+        }
+
+        // Still inherit the leader's confirmed result for our own movement
+        groupTargetDetected = groupLeader.groupTargetDetected;
+        groupSharedTarget   = groupLeader.groupSharedTarget;
+        cachedVisibleTarget = groupSharedTarget;
+        return;
+        // -----------------------------------------------------------------------
+    }
+
+    // ... rest of leader perception unchanged
         // -----------------------------------------------------------------------
  
         // Leader (or solo enemy) does the real work:
@@ -379,6 +446,38 @@ public class EnemyEntity : BaseEntity
  
         return transform.position;
     }
+
+    // -----------------------------------------------------------------------
+    // Called by followers with hasIndependentVision when their cheap FOV
+    // check passes. Leader does one raycast to confirm, then either
+    // transitions to Sprint or moves to investigate if wall-blocked.
+    public void ReceiveSuspicionPing(Vector3 suspectedPos)
+    {
+        if (!isGroupLeader) return; // safety — only leader processes this
+
+        Vector3 origin = transform.position + Vector3.up;
+        Vector3 dir    = ((suspectedPos + Vector3.up) - origin).normalized;
+        float dist     = Vector3.Distance(origin, suspectedPos + Vector3.up);
+
+        if (!Physics.Raycast(origin, dir, dist, obstacleMask))
+        {
+            // Confirmed — treat as spotted
+            groupSharedTarget   = player != null ? player.gameObject : null;
+            groupTargetDetected = true;
+            lastKnownTargetPos  = suspectedPos;
+            if (enemyState != EntityState.Attack)
+                enemyState = EntityState.Sprint;
+        }
+        else
+        {
+            // Wall blocking leader's view — go investigate the ping
+            // Followers follow naturally since they track leader position
+            lastKnownTargetPos = suspectedPos;
+            enemyState         = EntityState.Search;
+            InvalidateDestinationCache();
+        }
+    }
+    // -----------------------------------------------------------------------
  
     void RotateTowardsTarget(Vector3 targetPosition)
     {
