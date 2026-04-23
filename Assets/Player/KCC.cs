@@ -63,6 +63,7 @@ public class KCC : MonoBehaviour
     float dashTimer = 0f;
     float dashCooldownTimer = 0f;
     Vector3 dashDirection;
+    
 
     public enum State
     {

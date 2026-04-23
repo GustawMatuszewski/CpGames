@@ -298,8 +298,7 @@ public class EnvironmentManager : MonoBehaviour
         if (shouldPlay != rainVFX.gameObject.activeSelf)
             rainVFX.gameObject.SetActive(shouldPlay);
 
-        if (shouldPlay)
-            rainVFX.SetFloat(rainSpawnRateName, intensity * rainMaxSpawnRate);
+        if (shouldPlay) rainVFX.SetFloat(rainSpawnRateName, intensity * rainMaxSpawnRate);
     }
     void HandleWeatherTransitionTimer()
     {

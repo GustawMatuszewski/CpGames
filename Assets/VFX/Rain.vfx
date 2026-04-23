@@ -49,10 +49,10 @@ MonoBehaviour:
   categories: []
   uiBounds:
     serializedVersion: 2
-    x: 0
-    y: -1233
-    width: 3902
-    height: 3396
+    x: 1447
+    y: -1292
+    width: 2455
+    height: 3480
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -339,7 +339,7 @@ MonoBehaviour:
   - {fileID: 8926484042661617009}
   - {fileID: 8926484042661617113}
   dataType: 0
-  capacity: 4000
+  capacity: 6500
   stripCapacity: 16
   particlePerStripCount: 16
   needsComputeBounds: 0
@@ -530,7 +530,7 @@ MonoBehaviour:
   enableRayTracing: 0
   decimationFactor: 1
   raytracedScaleMode: 0
-  needsOwnSort: 0
+  needsOwnSort: 1
   needsOwnAabbBuffer: 0
   shaderGraph: {fileID: 0}
   materialSettings:
@@ -1221,7 +1221,7 @@ MonoBehaviour:
   enableRayTracing: 0
   decimationFactor: 1
   raytracedScaleMode: 0
-  needsOwnSort: 0
+  needsOwnSort: 1
   needsOwnAabbBuffer: 0
   shaderGraph: {fileID: 0}
   materialSettings:
@@ -4776,7 +4776,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: UnityEditor.VFX.OrientedBox, Unity.VisualEffectGraph.Editor,
           Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-      m_SerializableObject: '{"center":{"x":0.0,"y":0.0,"z":0.0},"angles":{"x":0.0,"y":0.0,"z":0.0},"size":{"x":25.0,"y":1.0,"z":25.0}}'
+      m_SerializableObject: '{"center":{"x":0.0,"y":0.0,"z":0.0},"angles":{"x":0.0,"y":0.0,"z":0.0},"size":{"x":30.0,"y":1.0,"z":30.0}}'
     m_Space: 0
   m_Property:
     name: Box
@@ -5779,8 +5779,8 @@ MonoBehaviour:
   - {fileID: 8926484042661618023}
   - {fileID: 8926484042661618025}
   dataType: 1
-  capacity: 200000
-  stripCapacity: 2000
+  capacity: 600000
+  stripCapacity: 6000
   particlePerStripCount: 100
   needsComputeBounds: 0
   boundsMode: 0
@@ -6249,7 +6249,7 @@ MonoBehaviour:
   enableRayTracing: 0
   decimationFactor: 1
   raytracedScaleMode: 0
-  needsOwnSort: 0
+  needsOwnSort: 1
   needsOwnAabbBuffer: 0
   shaderGraph: {fileID: 0}
   materialSettings:
