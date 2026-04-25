@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -621,7 +622,7 @@ public class UI_Script : MonoBehaviour
         VisualElement descriptionPanel = new VisualElement();
         descriptionPanel.name = "descriptionPanel";
         descriptionPanel.style.position = Position.Absolute;
-        descriptionPanel.style.backgroundColor = new Color(0.1f, 0.1f, 0.1f, 0.95f);
+        descriptionPanel.style.backgroundColor = new UnityColor(0.1f, 0.1f, 0.1f, 0.95f);
         {
             descriptionPanel.style.paddingRight = 10;
             descriptionPanel.style.paddingLeft = 10;
@@ -631,7 +632,7 @@ public class UI_Script : MonoBehaviour
         descriptionPanel.style.display = DisplayStyle.None; // Ukryty
         descriptionPanel.pickingMode = PickingMode.Ignore; // Mysz go ignoruje!
         {
-            ColorUtility.TryParseHtmlString("#212018", out Color borderColor);
+            ColorUtility.TryParseHtmlString("#212018", out UnityColor borderColor);
             
             descriptionPanel.style.borderLeftColor = borderColor;
             descriptionPanel.style.borderRightColor = borderColor;
@@ -646,7 +647,7 @@ public class UI_Script : MonoBehaviour
         }
 
         Label tooltipLabel = new Label();
-        tooltipLabel.style.color = Color.white;
+        tooltipLabel.style.color = UnityColor.white;
         tooltipLabel.style.whiteSpace = WhiteSpace.Normal;
         descriptionPanel.Add(tooltipLabel);
 
@@ -1526,9 +1527,9 @@ public void SendItemList(List<Item> items)
         Recipie.style.width = Length.Percent(100);
         Recipie.style.height = 50;
         if (colorAvalibleRecipie)
-            Recipie.style.backgroundColor = (Color)new Color32(35, 32, 29, 255);
+            Recipie.style.backgroundColor = (UnityColor)new Color32(35, 32, 29, 255);
         else
-            Recipie.style.backgroundColor = (Color)new Color32(45, 43, 40, 255);
+            Recipie.style.backgroundColor = (UnityColor)new Color32(45, 43, 40, 255);
         Recipie.style.paddingBottom = 5;
         Recipie.style.paddingTop = 5;
         //ico
@@ -1543,7 +1544,7 @@ public void SendItemList(List<Item> items)
         VisualElement itemName = new VisualElement();
         Label itemTextName = new Label();
         itemTextName.text = item.itemName.ToString();
-        itemTextName.style.color =(Color) new Color32(127, 127, 126, 255);
+        itemTextName.style.color =(UnityColor) new Color32(127, 127, 126, 255);
         itemTextName.style.unityFontStyleAndWeight = FontStyle.Bold;
         itemName.style.justifyContent = Justify.Center;
         itemName.style.alignItems = Align.Center;
@@ -1732,12 +1733,12 @@ public void SendItemList(List<Item> items)
                 Debug.Log("Brak składników!");
             }
         }
-        void UpdateAvalibleRecipies() 
+    void UpdateAvalibleRecipies() 
     {
 
         VisualElement AvalibleRecipies = root.Q<VisualElement>("CraftableList");
-
-
+        AvalibleRecipies.Clear();
+        colorAvalibleRecipie=false;
         foreach (Item item in AvalibleToCraft.allItems)
         {
             VisualElement Recipie = AvalibleRecipie(item);
@@ -1873,4 +1874,16 @@ public void SendItemList(List<Item> items)
 
     }
 
+    private void initRightClick()
+    {
+        VisualElement optionWindow  = new VisualElement();
+        optionWindow.style.width = 300;
+        optionWindow.style.height = StyleKeyword.Auto;
+        optionWindow.style.flexGrow = 0;
+        
+
+
+
+
+    }
 }
