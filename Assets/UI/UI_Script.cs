@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using static UnityEngine.UI.Image;
 using static UnityEngine.Rendering.DebugUI.MessageBox;
+
 public class ItemData
 {
     public string name;
@@ -39,6 +40,7 @@ public class UI_Script : MonoBehaviour
     [SerializeField] UIDocument UI_doc;
     [SerializeField] ItemDatabase AvalibleToCraft;
         ItemData draggedItemData;
+        VisualElement RightClicked;
 
         VisualElement dragOriginElement;
         List<Image> itemIcons;
@@ -84,7 +86,8 @@ public class UI_Script : MonoBehaviour
     void Awake()
     {
             Instance = this;
-           
+            ItemList = new List<Item>();
+            root = UI_doc.rootVisualElement;
             UnityEngine.ColorUtility.TryParseHtmlString("#ADADAD", out style1);
             style1.a = 0.5f;
             UnityEngine.ColorUtility.TryParseHtmlString("#A46C27", out style2);
@@ -94,8 +97,7 @@ public class UI_Script : MonoBehaviour
             style4.a = 0.5f;
             UnityEngine.ColorUtility.TryParseHtmlString("#272727", out style5);
             style5.a = 0.5f;
-        ItemList = new List<Item>();
-        root = UI_doc.rootVisualElement;
+
             List<VisualElement> qSlots = root.Query<VisualElement>(className: "QSlot").ToList();
             qSlotsList = root.Query<VisualElement>(className: "QSlot").ToList();
             LHand = root.Q<VisualElement>("LHand");
@@ -111,6 +113,15 @@ public class UI_Script : MonoBehaviour
                 Image icon = slot.Q<Image>("Item_Icon");
             }
 
+            initRightClick();
+            root.RegisterCallback<PointerDownEvent>(evt => 
+            {
+                // Jeśli kliknięto lewym przyciskiem myszy GDZIEKOLWIEK
+                if (evt.button == (int)MouseButton.LeftMouse)
+                {
+                    HideOptionWindow();
+                }
+            }, TrickleDown.NoTrickleDown);
         foreach (VisualElement slot in qSlotsList)
         {
             Image icon = slot.Q<Image>("Item_Icon");
@@ -129,7 +140,9 @@ public class UI_Script : MonoBehaviour
                 // RIGHT CLICK = USE
                 if (evt.button == (int)MouseButton.RightMouse)
                 {
-                    UseItemInSlot(slot);
+                    RightClicked = slot;
+                    ShowOptionWindow(evt.position);
+                    //UseItem(slot);
                     return;
                 }
 
@@ -347,33 +360,9 @@ public class UI_Script : MonoBehaviour
 
     // ── USE ITEM ─────────────────────────────────────────────────────────────
 
-    void UseItemInSlot(VisualElement slot)
-    {
-        ItemData data = slot.userData as ItemData;
-        if (data == null || data.originalItem == null)
-        {
-            Debug.Log("[UI] Slot is empty.");
-            return;
-        }
 
-        if (playerInventory == null)
-        {
-            Debug.LogWarning("[UI] playerInventory not assigned on UI_Script!");
-            return;
-        }
 
-        Item instance = playerInventory.inventory.Find(i => i != null && i.itemID == data.originalItem.itemID);
-
-        if (instance == null)
-        {
-            Debug.LogWarning($"[UI] Could not find {data.originalItem.itemName} in inventory.");
-            return;
-        }
-
-        data.originalItem.Use(instance, playerInventory);
-    }
-
-    public void UseItemFromList(VisualElement itemRow)
+    public void UseItem(VisualElement itemRow)
     {
         ItemData data = itemRow.userData as ItemData;
         if (data == null || data.originalItem == null) return;
@@ -694,7 +683,10 @@ public class UI_Script : MonoBehaviour
             {
                 if (evt.button == (int)MouseButton.RightMouse)
                 {
-                    UseItemFromList(itemRoot);
+                    RightClicked = itemRoot;
+                    ShowOptionWindow(evt.position);
+                    //UseItem(itemRoot);
+                    
                     return;
                 }
 
@@ -949,6 +941,7 @@ public void SendItemList(List<Item> items)
     public void HideCrafing()
     {
         var Crafting = root.Q<VisualElement>("Crafting");
+        HideOptionWindow();
         Crafting.style.display = DisplayStyle.None;
         crafintgIsOpen = false;
     }
@@ -972,6 +965,7 @@ public void SendItemList(List<Item> items)
         var slots = QSlots.parent;
         slots.style.flexDirection = FlexDirection.RowReverse;
         inventoryIsOpen = false;
+        HideOptionWindow();
     }
 
     public void ShowInventory()
@@ -1008,6 +1002,7 @@ public void SendItemList(List<Item> items)
         VisualElement OSInv = root.Q<VisualElement>("OSInventory");
         OSInv.style.display = DisplayStyle.None;
         ChestIsOpen = false;
+        HideOptionWindow();
 
     }
     public void RemoveItem(string itemName, int amount = 1)
@@ -1877,13 +1872,67 @@ public void SendItemList(List<Item> items)
     private void initRightClick()
     {
         VisualElement optionWindow  = new VisualElement();
-        optionWindow.style.width = 300;
+        optionWindow.style.width = 200;
         optionWindow.style.height = StyleKeyword.Auto;
         optionWindow.style.flexGrow = 0;
+        optionWindow.style.position = Position.Absolute;
+        optionWindow.style.color =(UnityColor) new Color32(127, 127, 126, 255);
+        optionWindow.style.fontSize = 20;
+        optionWindow.style.display = DisplayStyle.None;
+        optionWindow.name = "OptionWindow";
+        optionWindow.style.backgroundColor=(UnityColor)new Color32(28, 28, 28, 255);
+        optionWindow.style.paddingBottom = 5;
+        optionWindow.style.paddingTop = 5;
+        optionWindow.style.paddingLeft = 5;
+        optionWindow.style.paddingRight = 5;
+        Label nameLabel = new Label();
+        nameLabel.style.width = Length.Percent(100);
+        nameLabel.style.height = 20;
+        nameLabel.name = "nameLabel";
+        nameLabel.style.unityTextAlign= TextAnchor.MiddleCenter;
+        nameLabel.style.overflow=Overflow.Hidden;
+        nameLabel.style.marginBottom = 10;
+        optionWindow.Add(nameLabel);
+        Button buildButton = new Button();
+        buildButton.text = "Build";
+        buildButton.clickable.clicked += () => UseItem(RightClicked);
+        buildButton.clickable.clicked += () => HideOptionWindow();
+        buildButton.style.width = Length.Percent(100);
+        buildButton.style.height = 40;
+        buildButton.style.backgroundColor = (UnityColor)new Color32(35, 32, 29, 255);
+        optionWindow.Add(buildButton);
+        Button dropButton = new Button();
+        dropButton.text = "Drop";
+        dropButton.style.height = 40;
+        dropButton.style.width = Length.Percent(100);
+        //dropButton.clickable.clicked=()=>DropItem()
+        dropButton.clickable.clicked += () => HideOptionWindow();
         
+        dropButton.style.backgroundColor = (UnityColor)new Color32(45, 43, 40, 255);
+        optionWindow.Add(dropButton);
+     
+         root.Add(optionWindow);
 
 
 
+    }
 
+    private void HideOptionWindow()
+    {
+        VisualElement optionWindow = root.Q<VisualElement>("OptionWindow");
+        optionWindow.style.display = DisplayStyle.None;
+        optionWindow.pickingMode = PickingMode.Ignore;
+    }
+    private void ShowOptionWindow(Vector2 mousePosition)
+    {
+        VisualElement optionWindow = root.Q<VisualElement>("OptionWindow");
+        Label nameLabel = optionWindow.Q<Label>("nameLabel");
+        ItemData data = RightClicked.userData as ItemData;
+        nameLabel.text = data.originalItem.name.ToString();
+        optionWindow.style.display = DisplayStyle.Flex;
+        optionWindow.pickingMode = PickingMode.Position;
+        Vector2 localPos = optionWindow.parent.WorldToLocal(mousePosition);
+        optionWindow.style.left = localPos.x;
+        optionWindow.style.top = localPos.y;
     }
 }
