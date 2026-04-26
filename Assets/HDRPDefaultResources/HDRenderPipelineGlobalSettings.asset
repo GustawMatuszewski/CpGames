@@ -191,12 +191,12 @@ MonoBehaviour:
       - rid: 7484292715586257113
       - rid: 7484292715586257114
       - rid: 7484292715586257115
-      - rid: 6957699189034975357
-      - rid: 6957699189034975358
-      - rid: 6957699189034975359
-      - rid: 6957699189034975360
-      - rid: 6957699189034975361
-      - rid: 6957699189034975362
+      - rid: 3773809031461470208
+      - rid: 3773809031461470209
+      - rid: 3773809031461470210
+      - rid: 3773809031461470211
+      - rid: 3773809031461470212
+      - rid: 3773809031461470213
     m_RuntimeSettings:
       m_List: []
   renderingLayerNames:
@@ -227,7 +227,7 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 6957699189034975357
+    - rid: 3773809031461470208
       type: {class: RayTracingRenderPipelineResources, ns: UnityEngine.Rendering.UnifiedRayTracing, asm: Unity.UnifiedRayTracing.Runtime}
       data:
         m_Version: 1
@@ -240,11 +240,11 @@ MonoBehaviour:
         m_BuildHlbvh: {fileID: 7200000, guid: 2d70cd6be91bd7843a39a54b51c15b13, type: 3}
         m_RestructureBvh: {fileID: 7200000, guid: 56641cb88dcb31a4398a4997ef7a7a8c, type: 3}
         m_Scatter: {fileID: 7200000, guid: a2eaeefdac4637a44b734e85b7be9186, type: 3}
-    - rid: 6957699189034975358
+    - rid: 3773809031461470209
       type: {class: ColorCheckerResources, ns: UnityEngine.Rendering.HighDefinition, asm: Unity.RenderPipelines.HighDefinition.Runtime}
       data:
         m_ColorCheckerMaterial: {fileID: 2100000, guid: 7a1044256d39dba4aa777255550527bf, type: 2}
-    - rid: 6957699189034975359
+    - rid: 3773809031461470210
       type: {class: VrsRenderPipelineRuntimeResources, ns: UnityEngine.Rendering, asm: Unity.RenderPipelines.Core.Runtime}
       data:
         m_TextureComputeShader: {fileID: 7200000, guid: cacb30de6c40c7444bbc78cb0a81fd2a, type: 3}
@@ -271,16 +271,16 @@ MonoBehaviour:
           - {r: 0.8, g: 1, b: 0.8, a: 1}
           - {r: 0.2, g: 0.4, b: 0.2, a: 1}
           - {r: 0.125, g: 0.22, b: 0.36, a: 1}
-    - rid: 6957699189034975360
+    - rid: 3773809031461470211
       type: {class: RenderingDebuggerRuntimeResources, ns: UnityEngine.Rendering, asm: Unity.RenderPipelines.Core.Runtime}
       data:
         m_version: 0
-    - rid: 6957699189034975361
+    - rid: 3773809031461470212
       type: {class: LightmapSamplingSettings, ns: UnityEngine.Rendering, asm: Unity.RenderPipelines.Core.Runtime}
       data:
         m_Version: 1
         m_UseBicubicLightmapSampling: 0
-    - rid: 6957699189034975362
+    - rid: 3773809031461470213
       type: {class: WorldRenderPipelineResources, ns: UnityEngine.PathTracing.Core, asm: Unity.PathTracing.Runtime}
       data:
         _version: 3
