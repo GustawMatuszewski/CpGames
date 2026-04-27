@@ -106,9 +106,27 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "swapItems",
+                    "type": "Button",
+                    "id": "65c78d3b-ec29-48e1-878e-898b41b1a5db",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "InventoryInput",
                     "type": "Button",
                     "id": "c5500c4f-bffd-4afc-b7e7-530a49c6c1dc",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "swapItemHands",
+                    "type": "Button",
+                    "id": "a92ef21e-dc4a-470c-a7e7-1c3203638980",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -170,6 +188,105 @@
                     "action": "MoveInput",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "33191054-723b-469c-be27-2140dac7c9de",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "swapItems",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "eef05104-b812-4b4c-8aba-ae09bb4f7abf",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "swapItems",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3f9f1a33-2a31-4e5c-8d64-3b466a2752a7",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "swapItems",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "37057fe2-a2bb-44d1-af8a-6ad39a3083b3",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "swapItems",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "73068157-89ba-493f-bb11-003168d0bea9",
+                    "path": "<Keyboard>/5",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "swapItems",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ae04075d-4eb5-45c6-8c27-45eef3caf83c",
+                    "path": "<Keyboard>/6",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "swapItems",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d6ecf1b8-7794-4afd-9fd6-1a505db8e499",
+                    "path": "<Keyboard>/7",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "swapItems",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "346e2e53-cf65-414e-8354-209abe865afb",
+                    "path": "<Keyboard>/8",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "swapItems",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b47a04db-0fae-4269-8eeb-298147fd112d",
+                    "path": "<Keyboard>/9",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "swapItems",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 },
                 {
                     "name": "",
@@ -344,6 +461,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "InventoryInput",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b4dad560-b3e9-4c2a-b4d9-37985492eee1",
+                    "path": "<Keyboard>/backquote",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "swapItemHands",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

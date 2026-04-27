@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1951833633069356626}
-  - component: {fileID: 7638701913247551842}
   - component: {fileID: 1007248564248629264}
+  - component: {fileID: 2832133408970713501}
   m_Layer: 0
   m_Name: Crafting
   m_TagString: Untagged
@@ -33,23 +33,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7638701913247551842
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9187422090564892976}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84698adc8915e13c6be56829bfd64a30, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  debugMode: 0
-  inventory: {fileID: 1007248564248629264}
-  enableCrafting: 1
-  craft: 0
-  outcomeItem: {fileID: 11400000, guid: f964b349baaccf269a40149553930443, type: 2}
 --- !u!114 &1007248564248629264
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -65,5 +48,23 @@ MonoBehaviour:
   debugMode: 1
   type: 3
   outsideInventory: {fileID: 0}
-  itemDatabase: {fileID: 0}
+  itemDatabase: {fileID: 11400000, guid: 8f36d94712b894c1db42db15f9bfba36, type: 2}
   inventory: []
+--- !u!114 &2832133408970713501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9187422090564892976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0766fef71ad6e6d6ad140537af596a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debugMode: 0
+  inventory: {fileID: 1007248564248629264}
+  craftedDatabase: {fileID: 11400000, guid: 135c13c49c956ed48afd7275fa7c6ec8, type: 2}
+  enableCrafting: 0
+  craft: 0
+  outcomeItem: {fileID: 11400000, guid: 7ce7a65a6fb6064258584a9a07e70b81, type: 2}
