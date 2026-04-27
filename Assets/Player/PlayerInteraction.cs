@@ -84,6 +84,15 @@ public class PlayerInteraction : MonoBehaviour
     // ── Szukanie interakcji ───────────────────────────────────────
     void LookForInteraction()
     {
+        if (Keyboard.current.eKey.wasPressedThisFrame) 
+        {
+            Debug.Log("--- E KEY DETECTED BY KEYBOARD DIRECTLY ---");
+        }
+
+        if (!interactAction.WasPressedThisFrame()) return;
+        
+        Debug.Log("[Interact] Input Action Fired Successfully!");
+
         if (!interactAction.WasPressedThisFrame()) return;
         if (debugMode) Debug.Log("[Interact] Przycisk wciśnięty");
 
