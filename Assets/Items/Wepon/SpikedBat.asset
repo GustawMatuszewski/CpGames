@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e98b63a842a178ca3a698f963e20ca45, type: 3}
   m_Name: SpikedBat
   m_EditorClassIdentifier: 
-  itemID: 40
+  itemID: 6
   itemName: SpikedBat
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 0b2ea5cb21b586e71852d06f21cdc9c2, type: 3}
   description: Spiked bat large stick that can poke a few holes.
   useScript: {fileID: 0}
-  craftingRecipe: {fileID: 11400000, guid: 18496a573df4176d3b44a14d827363d8, type: 2}
+  craftingRecipe: {fileID: 11400000, guid: d527668a423e51f47b5c9ffb234be913, type: 2}
   weight: 4
   durability: 100
   usesLeft: 100

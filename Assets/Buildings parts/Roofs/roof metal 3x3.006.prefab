@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5987389756226616332}
   - component: {fileID: 6413919234315301963}
   - component: {fileID: 4849540136451964982}
+  - component: {fileID: -7904108827663879257}
   m_Layer: 0
   m_Name: roof metal 3x3.006
   m_TagString: Untagged
@@ -90,3 +91,25 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &-7904108827663879257
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3258756582840231442}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 1380785219065073768, guid: 0c00526969c34e749b524372b5466462, type: 3}
