@@ -1313,6 +1313,12 @@ public void SendItemList(List<Item> items)
 
             itemRoot.RegisterCallback<PointerDownEvent>(evt =>
             {
+                if (evt.button == (int)MouseButton.RightMouse)
+                {
+                    RightClicked = itemRoot;
+                    ShowOptionWindow(evt.position);
+                }
+
                 if (evt.button != (int)MouseButton.LeftMouse) return;
 
                 // 1. Najpierw zbierz dane
