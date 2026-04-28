@@ -1,1 +1,103 @@
-VisualElement {}
+#MainMenu {
+    background-color: rgb(0, 0, 0);
+    width: 30%;
+    height: 60%;
+    bottom: auto;
+    top: 200px;
+    position: absolute;
+    margin-left: 60px;
+    align-items: center;
+    left: 0;
+}
+
+.AButton {
+    background-color: rgba(0, 172, 0, 0);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    cursor: initial;
+    color: rgb(255, 250, 0);
+    font-size: 40px;
+    -unity-text-align: upper-left;
+    width: auto;
+}
+
+.AButton:hover {
+    background-color: rgba(0, 172, 0, 0);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    cursor: initial;
+    color: rgb(255, 250, 0);
+    font-size: 50px;
+    -unity-text-align: upper-left;
+    scale: 1.05 1;
+    transition-duration: 0.1s;
+    transition-timing-function: ease-in-out;
+    -unity-paragraph-spacing: 0;
+    -unity-font-style: normal;
+    -unity-font-definition: url("project://database/Assets/UI/fonts/Geist_Mono/static/GeistMono-Black.ttf?fileID=12800000&guid=840a5e5d588404c4f9d2e5b3989c474c&type=3#GeistMono-Black");
+}
+
+#Settings {
+    position: absolute;
+    top: 100px;
+    align-self: center;
+    background-color: rgba(0, 0, 0, 0.39);
+}
+
+.SettingWindow {
+    background-color: rgba(27, 27, 27, 0.69);
+    width: 1400px;
+    height: 741px;
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-left-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-top-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    padding-top: 25px;
+    padding-right: 25px;
+    padding-bottom: 25px;
+    padding-left: 25px;
+}
+
+#closeSettings {
+    top: 0;
+    right: 0;
+    position: absolute;
+    translate: 50% 0;
+    border-top-left-radius: 50%;
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+    width: 48px;
+    height: 48px;
+}
+
+.settingsTab {
+    background-color: rgb(0, 0, 0);
+}
+
+#SettingsTabs {
+}
+
+#SettingsTabs .unity-tab__header {
+    background-color: rgb(255, 0, 0);
+}
+
+#SettingsTabs .unity-tab__header:checked {
+    background-color: rgb(5, 255, 0);
+}
+
+#SettingsTabs .unity-tab__header:hover {
+    background-color: rgb(0, 34, 255);
+}

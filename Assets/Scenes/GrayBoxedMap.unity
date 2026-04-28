@@ -68510,10 +68510,82 @@ PrefabInstance:
     - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
       propertyPath: m_Camera
       value: 
-      objectReference: {fileID: 4644525693485909882}
+      objectReference: {fileID: 0}
     - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
       propertyPath: m_UIInputModule
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.size
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[13].m_ActionId
+      value: a92ef21e-dc4a-470c-a7e7-1c3203638980
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[13].m_ActionName
+      value: 'PlayerInputMap/swapItemHands[/Keyboard/backquote]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[12].m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[13].m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[12].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[13].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[11].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1498090774442446391}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[12].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1498090774442446391}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[13].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1498090774442446391}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[12].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[13].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[12].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnSelectSlot
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[13].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: swapHands
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[12].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UI_Script, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[13].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UI_Script, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[12].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[13].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 4584889191468919427, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -68562,8 +68634,46 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6423258912591504495, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1498090774442446391}
   m_SourcePrefab: {fileID: 100100000, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+--- !u!1 &1498090774442446389 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6423258912591504495, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+  m_PrefabInstance: {fileID: 1498090774442446388}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1498090774442446390 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5661807717836066366, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+  m_PrefabInstance: {fileID: 1498090774442446388}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1498090774442446389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1498090774442446391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1498090774442446389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 037a299f20ba2ce4fb05ec04b1998e70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI_Script
+  maxWeight: 0
+  defaultPlaceholderIcon: {fileID: 21300000, guid: 0b2ea5cb21b586e71852d06f21cdc9c2, type: 3}
+  craftingInventory: {fileID: 992010791}
+  playerInventory: {fileID: 930407739}
+  UI_doc: {fileID: 1498090774442446390}
+  AvalibleToCraft: {fileID: 11400000, guid: 135c13c49c956ed48afd7275fa7c6ec8, type: 2}
+  CraftbuttonIco: {fileID: 21300000, guid: c316afdb4cb0b664585542767bb0a7d7, type: 3}
 --- !u!1001 &3525404382616985164
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -68656,11 +68766,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1057939733}
   m_SourcePrefab: {fileID: 100100000, guid: 9e0b845226a840d7a8b81bfd69865ae4, type: 3}
---- !u!20 &4644525693485909882 stripped
-Camera:
-  m_CorrespondingSourceObject: {fileID: 7734288436056666085, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
-  m_PrefabInstance: {fileID: 6984909933116002950}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6984909933116002950
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -69342,6 +69447,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2832133408970713501, guid: 8bfdd0c8d0bcd3d468eef0a0f2f50d1c, type: 3}
+      propertyPath: allItemsDatabase
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f36d94712b894c1db42db15f9bfba36, type: 2}
     - target: {fileID: 9187422090564892976, guid: 8bfdd0c8d0bcd3d468eef0a0f2f50d1c, type: 3}
       propertyPath: m_Name
       value: Crafting

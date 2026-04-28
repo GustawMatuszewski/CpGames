@@ -81,8 +81,7 @@ public class UI_Script : MonoBehaviour
 
     Vector2 lastLocalPosBeforeDrag;
     bool ChestIsOpen = false;
-    public bool DebugMode=false;
-    [Obsolete]
+
     void Awake()
     {
             Instance = this;
@@ -180,10 +179,10 @@ public class UI_Script : MonoBehaviour
                     Label typeCol = about.Q<Label>("type");
                     Label quantityCol = about.Q<Label>("quantity");
                     Label weightCol = about.Q<Label>("weight");
-                    icoCol.RegisterCallback<ClickEvent>(_ => { Debug.Log("Klik: Icon"); });
-                    nameCol.RegisterCallback<ClickEvent>(evt => { Debug.Log("Kliknięto element!"); });
-                    typeCol.RegisterCallback<ClickEvent>(evt => { Debug.Log("Kliknięto element!"); });
-                    quantityCol.RegisterCallback<ClickEvent>(evt => { Debug.Log("Kliknięto element!"); });
+                    icoCol.RegisterCallback<ClickEvent>(_ => { UI_Logs.Log("Klik: Icon"); });
+                    nameCol.RegisterCallback<ClickEvent>(evt => { UI_Logs.Log("Kliknięto element!"); });
+                    typeCol.RegisterCallback<ClickEvent>(evt => { UI_Logs.Log("Kliknięto element!"); });
+                    quantityCol.RegisterCallback<ClickEvent>(evt => { UI_Logs.Log("Kliknięto element!"); });
                     weightCol.RegisterCallback<ClickEvent>(evt => { });
 
             List<Label> slotNumbers = root.Query<Label>(className: "Slot_Number").ToList();
@@ -386,10 +385,7 @@ public class UI_Script : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────────
 
 
-    void Log<T>(T message)
-    {
-        if (DebugMode) Debug.Log(message?.ToString());
-    }
+ 
     void HandleDrop(VisualElement target, Vector2 dropPosition)
     {
         if (draggedItemData == null) return;
@@ -869,7 +865,7 @@ public class UI_Script : MonoBehaviour
 
 public void SendItemList(List<Item> items)
     {
-        Debug.Log("UI dostało listę itemów:");
+        UI_Logs.Log("UI dostało listę itemów:");
         ItemList = new List<Item>(items);
         foreach (Item item in items)
         {
@@ -1048,10 +1044,10 @@ public void SendItemList(List<Item> items)
 
     ItemData GetItemFromQSlot(int index)
     {
-        if (index < 0 || index >= qSlotsList.Count) { Debug.LogWarning($"Indeks {index} poza zakresem!"); return null; }
+        if (index < 0 || index >= qSlotsList.Count) { UI_Logs.Error($"Indeks {index} poza zakresem!"); return null; }
         VisualElement slot = qSlotsList[index];
         ItemData data = slot.userData as ItemData;
-        if (data == null) { Debug.Log($"Slot {index} jest pusty."); return null; }
+        if (data == null) { UI_Logs.Log($"Slot {index} jest pusty."); return null; }
         return data;
     }
 
@@ -1129,9 +1125,9 @@ public void SendItemList(List<Item> items)
     {
         if (craftingInventory == null) { Debug.LogError("craftingInventory jest NULL!"); return; }
         if (crafting.Instance == null) { Debug.LogError("crafting.Instance jest NULL!"); return; }
-        Debug.Log("Button was clicked!");
+        UI_Logs.Log("Button was clicked!");
         List<Item> CraftingItems = GetItemsOnTable();
-        Debug.Log(CraftingItems.Count);
+        UI_Logs.Log(CraftingItems.Count);
         craftingInventory.inventory = new List<Item>(CraftingItems);
         crafting.Instance.craft = true;
         while (crafting.Instance.craft == true) 
@@ -1765,7 +1761,7 @@ public void SendItemList(List<Item> items)
 
     void swapQSlots(int index)
     {
-        Log("Swapuję na slot: " + index);
+        UI_Logs.Log("Swapuję na slot: " + index);
         
     
         Item slotItem = GetOriginalItemFromSlot(index);
@@ -1878,6 +1874,7 @@ public void SendItemList(List<Item> items)
     private void initRightClick()
     {
         VisualElement optionWindow  = new VisualElement();
+   
         optionWindow.style.width = 200;
         optionWindow.style.height = StyleKeyword.Auto;
         optionWindow.style.flexGrow = 0;
@@ -1901,6 +1898,7 @@ public void SendItemList(List<Item> items)
         optionWindow.Add(nameLabel);
         Button buildButton = new Button();
         buildButton.text = "Build";
+        buildButton.name = "Build";
         buildButton.clickable.clicked += () => UseItem(RightClicked);
         buildButton.clickable.clicked += () => HideOptionWindow();
         buildButton.style.width = Length.Percent(100);
@@ -1909,9 +1907,10 @@ public void SendItemList(List<Item> items)
         optionWindow.Add(buildButton);
         Button dropButton = new Button();
         dropButton.text = "Drop";
+        dropButton.name = "Drop";
         dropButton.style.height = 40;
         dropButton.style.width = Length.Percent(100);
-        //dropButton.clickable.clicked=()=>DropItem()
+   
         dropButton.clickable.clicked += () => HideOptionWindow();
         
         dropButton.style.backgroundColor = (UnityColor)new Color32(45, 43, 40, 255);
@@ -1933,12 +1932,26 @@ public void SendItemList(List<Item> items)
     {
         VisualElement optionWindow = root.Q<VisualElement>("OptionWindow");
         Label nameLabel = optionWindow.Q<Label>("nameLabel");
+        Button Drop = optionWindow.Q<Button>("Drop");
+ 
         ItemData data = RightClicked.userData as ItemData;
+        Drop.clickable = new Clickable(() => {
+            ItemData data = RightClicked.userData as ItemData;
+            DropItem(data.originalItem, playerInventory, 1);
+            HideOptionWindow();
+        });
         nameLabel.text = data.originalItem.name.ToString();
         optionWindow.style.display = DisplayStyle.Flex;
         optionWindow.pickingMode = PickingMode.Position;
         Vector2 localPos = optionWindow.parent.WorldToLocal(mousePosition);
         optionWindow.style.left = localPos.x;
         optionWindow.style.top = localPos.y;
+    }
+
+    public void DropItem(Item item,Inventory inv,int quantity=1)
+    {
+        string itemName = item.itemName;
+        RemoveItem(itemName, quantity);
+        playerInventory.RemoveFromInventory(inv.inventory, item, quantity);
     }
 }

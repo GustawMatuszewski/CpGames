@@ -1,0 +1,73 @@
+#BuildingGhostColor {
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 14px;
+    -unity-text-auto-size: best-fit 10px 23px;
+    -unity-text-generator: advanced;
+    text-overflow: ellipsis;
+    -unity-text-align: middle-left;
+}
+
+#BuildingGhostColor #ColorInput Label {
+    background-color: rgb(120, 141, 142);
+    flex-direction: row;
+    justify-content: space-between;
+    display: none;
+}
+
+#BuildingGhostColor #ColorInput {
+    background-color: rgba(40, 40, 40, 0.59);
+    flex-direction: row;
+    justify-content: space-between;
+    display: flex;
+    color: rgb(153, 153, 153);
+    border-top-left-radius: 5%;
+    border-top-right-radius: 5%;
+    border-bottom-right-radius: 5%;
+    border-bottom-left-radius: 5%;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    flex-shrink: 0;
+    width: 170px;
+}
+
+#BuildingGhostColor #ColorInput #unity-text-input {
+    background-color: rgba(40, 40, 40, 0.59);
+    flex-direction: row;
+    justify-content: space-between;
+    display: flex;
+    color: rgb(153, 153, 153);
+    border-top-left-radius: 5%;
+    border-top-right-radius: 5%;
+    border-bottom-right-radius: 5%;
+    border-bottom-left-radius: 5%;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    flex-shrink: 0;
+    width: auto;
+}
+
+#BuildingGhostColor #Color {
+    flex-direction: row;
+    align-self: auto;
+    align-items: center;
+}
+
+#BuildingGhostColor #ColorPrev {
+    flex-direction: row;
+    border-top-left-radius: 50%;
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+    border-top-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    border-left-width: 5px;
+    width: 48px;
+    height: 48px;
+    scale: 0.8 0.8;
+}
