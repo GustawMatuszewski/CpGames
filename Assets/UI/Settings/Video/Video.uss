@@ -1,1 +1,19 @@
-VisualElement {}
+#Resolution {
+}
+
+#Resolution #Res {
+    justify-content: space-between;
+    align-items: center;
+    -unity-font-definition: url("project://database/Assets/UI/fonts/Geist_Mono/static/GeistMono-Bold.ttf?fileID=12800000&guid=022ff504f0309c54682ca81c44fb8d3f&type=3#GeistMono-Bold");
+    -unity-text-auto-size: best-fit 10px 20px;
+    -unity-text-generator: advanced;
+    align-self: auto;
+    align-content: flex-start;
+    -unity-text-align: middle-left;
+}
+
+#Resolution #Res Label {
+    width: 70%;
+}
+
+
