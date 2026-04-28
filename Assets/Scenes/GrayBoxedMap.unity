@@ -60120,6 +60120,42 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1872147648}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1876348180 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6423258912591504495, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+  m_PrefabInstance: {fileID: 1498090774442446388}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1876348182 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5661807717836066366, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
+  m_PrefabInstance: {fileID: 1498090774442446388}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1876348180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1876348184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1876348180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 037a299f20ba2ce4fb05ec04b1998e70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI_Script
+  maxWeight: 0
+  defaultPlaceholderIcon: {fileID: 21300000, guid: 0b2ea5cb21b586e71852d06f21cdc9c2, type: 3}
+  craftingInventory: {fileID: 992010791}
+  playerInventory: {fileID: 930407739}
+  UI_doc: {fileID: 1876348182}
+  AvalibleToCraft: {fileID: 11400000, guid: 135c13c49c956ed48afd7275fa7c6ec8, type: 2}
+  CraftbuttonIco: {fileID: 21300000, guid: 0b2ea5cb21b586e71852d06f21cdc9c2, type: 3}
+  DebugMode: 0
 --- !u!1001 &1878155918
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -68546,15 +68582,15 @@ PrefabInstance:
     - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
       propertyPath: m_ActionEvents.Array.data[11].m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1498090774442446391}
+      objectReference: {fileID: 1876348184}
     - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
       propertyPath: m_ActionEvents.Array.data[12].m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1498090774442446391}
+      objectReference: {fileID: 1876348184}
     - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
       propertyPath: m_ActionEvents.Array.data[13].m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1498090774442446391}
+      objectReference: {fileID: 1876348184}
     - target: {fileID: 1893968557580884439, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
       propertyPath: m_ActionEvents.Array.data[12].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -68637,43 +68673,8 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6423258912591504495, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1498090774442446391}
+      addedObject: {fileID: 1876348184}
   m_SourcePrefab: {fileID: 100100000, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
---- !u!1 &1498090774442446389 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6423258912591504495, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
-  m_PrefabInstance: {fileID: 1498090774442446388}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1498090774442446390 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5661807717836066366, guid: 35aef5230423c0341af4bb27f142913c, type: 3}
-  m_PrefabInstance: {fileID: 1498090774442446388}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1498090774442446389}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1498090774442446391
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1498090774442446389}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 037a299f20ba2ce4fb05ec04b1998e70, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_Script
-  maxWeight: 0
-  defaultPlaceholderIcon: {fileID: 21300000, guid: 0b2ea5cb21b586e71852d06f21cdc9c2, type: 3}
-  craftingInventory: {fileID: 992010791}
-  playerInventory: {fileID: 930407739}
-  UI_doc: {fileID: 1498090774442446390}
-  AvalibleToCraft: {fileID: 11400000, guid: 135c13c49c956ed48afd7275fa7c6ec8, type: 2}
-  CraftbuttonIco: {fileID: 21300000, guid: c316afdb4cb0b664585542767bb0a7d7, type: 3}
 --- !u!1001 &3525404382616985164
 PrefabInstance:
   m_ObjectHideFlags: 0

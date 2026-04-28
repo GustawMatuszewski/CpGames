@@ -112,7 +112,7 @@ public class Build : MonoBehaviour {
         if (hasHit) {
             Vector3 extents = Vector3.Scale(ghostCollider.size, ghost.transform.localScale) * 0.5f;
             Vector3 absNormal = new Vector3(Mathf.Abs(hitNormal.x), Mathf.Abs(hitNormal.y), Mathf.Abs(hitNormal.z));
-            float offsetDist = 0f;
+            float offsetDist = 1.5f;
             targetPosition = lastLookPosition + (hitNormal * offsetDist);
         }
         ghost.transform.position = targetPosition;
