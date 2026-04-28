@@ -47544,7 +47544,6 @@ MonoBehaviour:
   UI_doc: {fileID: 1498090774442446390}
   AvalibleToCraft: {fileID: 11400000, guid: 135c13c49c956ed48afd7275fa7c6ec8, type: 2}
   CraftbuttonIco: {fileID: 21300000, guid: c316afdb4cb0b664585542767bb0a7d7, type: 3}
-  DebugMode: 0
 --- !u!1001 &3525404382616985164
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -48266,7 +48265,11 @@ PrefabInstance:
     - target: {fileID: 2832133408970713501, guid: 8bfdd0c8d0bcd3d468eef0a0f2f50d1c, type: 3}
       propertyPath: outcomeItem
       value: 
-      objectReference: {fileID: 11400000, guid: f964b349baaccf269a40149553930443, type: 2}
+      objectReference: {fileID: 0}
+    - target: {fileID: 2832133408970713501, guid: 8bfdd0c8d0bcd3d468eef0a0f2f50d1c, type: 3}
+      propertyPath: allItemsDatabase
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f36d94712b894c1db42db15f9bfba36, type: 2}
     - target: {fileID: 9187422090564892976, guid: 8bfdd0c8d0bcd3d468eef0a0f2f50d1c, type: 3}
       propertyPath: m_Name
       value: Crafting
