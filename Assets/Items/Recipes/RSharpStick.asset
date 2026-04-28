@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 029a295352290703c93ec2587c40619c, type: 3}
+  m_Name: RSharpStick
+  m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
+  recipeID: 120
+  itemsList:
+  - {fileID: 11400000, guid: 4cf96ba6d904ae54899f1d08e6f79c05, type: 2}
+  outcomeItem: {fileID: 11400000, guid: 9a9399d4a8bcf6b4b8ded5c8ca4e66ba, type: 2}
+  toolNeeded: 2

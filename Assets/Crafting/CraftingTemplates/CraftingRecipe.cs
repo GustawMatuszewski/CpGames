@@ -1,13 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-[CreateAssetMenu(fileName = "CraftingRecipe", menuName = "Inventory/CraftingRecipe")]
+[CreateAssetMenu(fileName = "NewCraftingRecipe", menuName = "Inventory/CraftingRecipe")]
 public class CraftingRecipe : ScriptableObject
 {
     public int recipeID;
+    public List<Item> itemsList = new List<Item>(); // Składniki
+    public Item outcomeItem; // Wynik
 
-    public List<Item> itemsList = new List<Item>();
-    public Item outcomeItem;
     public enum ToolNeeded
     {
         none,
@@ -17,7 +17,9 @@ public class CraftingRecipe : ScriptableObject
         saw,
         drill,
         heat,
-        hammer
+        hammer,
+        screwdriver, // Dodano
+        scissors    // Dodano
     }
     public ToolNeeded toolNeeded;
 }

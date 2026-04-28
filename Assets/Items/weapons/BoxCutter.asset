@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98b63a842a178ca3a698f963e20ca45, type: 3}
+  m_Name: BoxCutter
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponItem
+  itemID: 78
+  itemName: BoxCutter
+  icon: {fileID: 0}
+  description: Retractable blade used for wallpaper and packaging. Razor-sharp.
+  useScript: {fileID: 0}
+  craftingRecipe: {fileID: 0}
+  weight: 0.1
+  durability: 20
+  usesLeft: 20
+  burnCalories: 0.5
+  itemType: 4
+  materialType: 5
+  weaponType: 2
+  useType: 1
+  damage: 12
+  attacksList: []
