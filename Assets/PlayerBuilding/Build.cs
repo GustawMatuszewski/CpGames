@@ -19,6 +19,7 @@ public class Build : MonoBehaviour {
     public bool useContinuousRotation = false;
     public float continuousRotationSpeed = 2f;
     public float snapRotationDegrees = 15f;
+    public float rotationLerpSpeed = 10f;
     [Header("Placement")]
     public bool canBuild = true;
     public float placeDistance = 5f;
@@ -39,6 +40,7 @@ public class Build : MonoBehaviour {
     bool isBlocked;
     bool isGrounded;
     GameObject currentSnappedObject;
+    Quaternion targetRotation;
     void Awake() => SpawnGhost();
     void Update() {
         MoveGhost();
@@ -53,10 +55,10 @@ public class Build : MonoBehaviour {
         if (ghost != null) {
             if (useContinuousRotation) {
                 if (rotateVal > 0)
-                    ghost.transform.Rotate(0, continuousRotationSpeed, 0);
+                    targetRotation *= Quaternion.Euler(0, continuousRotationSpeed, 0);
             } else {
                 if (player.input.PlayerInputMap.RKey.WasPressedThisFrame())
-                    ghost.transform.Rotate(0, snapRotationDegrees, 0);
+                    targetRotation *= Quaternion.Euler(0, snapRotationDegrees, 0);
             }
         }
         if (interactVal <= 0) canBuild = true;
@@ -150,11 +152,11 @@ public class Build : MonoBehaviour {
                 Quaternion delta =
                     bestTargetConn.transform.rotation *
                     Quaternion.Inverse(bestGhostConn.transform.rotation);
-                ghost.transform.rotation = delta * ghost.transform.rotation;
+                targetRotation = delta * targetRotation;
                 if (snapRotationDegrees > 0f) {
-                    Vector3 e = ghost.transform.eulerAngles;
+                    Vector3 e = targetRotation.eulerAngles;
                     e.y = Mathf.Round(e.y / snapRotationDegrees) * snapRotationDegrees;
-                    ghost.transform.eulerAngles = e;
+                    targetRotation = Quaternion.Euler(e);
                 }
             }
             Vector3 offsetFromRoot = bestGhostConn.transform.position - ghost.transform.position;
@@ -162,6 +164,11 @@ public class Build : MonoBehaviour {
             currentSnappedObject = bestTargetConn.transform.root.gameObject;
             isSnapped = true;
         }
+        ghost.transform.rotation = Quaternion.Lerp(
+            ghost.transform.rotation,
+            targetRotation,
+            Time.deltaTime * rotationLerpSpeed
+        );
         Vector3 worldCenter = ghost.transform.TransformPoint(ghostCollider.center);
         Vector3 checkExtents = Vector3.Scale(ghostCollider.size, ghost.transform.lossyScale) * blockCheckScale;
         Collider[] blockers = Physics.OverlapBox(worldCenter, checkExtents, ghost.transform.rotation, buildMask | groundMask);
@@ -247,6 +254,7 @@ public class Build : MonoBehaviour {
         if (ghostConstruction != null)
             foreach (GameObject c in ghostConstruction.connectors) ghostConnectors.Add(c);
         SetLayer(ghost, noRaycastLayer);
+        targetRotation = Quaternion.identity;
         UpdateGhostMaterial();
     }
 }
