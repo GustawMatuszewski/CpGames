@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4584889191468919427}
   - component: {fileID: 5661807717836066366}
-  - component: {fileID: 672566805654556713}
   - component: {fileID: 1893968557580884439}
   m_Layer: 5
   m_Name: Main
@@ -50,26 +49,13 @@ MonoBehaviour:
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 56254bf8e62bd2745bffb8cbcf1f5aa2, type: 3}
   m_SortingOrder: 0
+  m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
---- !u!114 &672566805654556713
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6423258912591504495}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 037a299f20ba2ce4fb05ec04b1998e70, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxWeight: 0
-  defaultPlaceholderIcon: {fileID: 21300000, guid: 0b2ea5cb21b586e71852d06f21cdc9c2, type: 3}
-  craftingInventory: {fileID: 0}
-  UI_doc: {fileID: 5661807717836066366}
-  CraftbuttonIco: {fileID: 21300000, guid: c316afdb4cb0b664585542767bb0a7d7, type: 3}
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
 --- !u!114 &1893968557580884439
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,7 +127,7 @@ MonoBehaviour:
     m_ActionName: 'PlayerInputMap/AttackInput[/Mouse/leftButton]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 672566805654556713}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UI_Script, Assembly-CSharp
         m_MethodName: toggleCrafting
         m_Mode: 1
@@ -155,6 +141,10 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: c5500c4f-bffd-4afc-b7e7-530a49c6c1dc
     m_ActionName: 'PlayerInputMap/InventoryInput[/Keyboard/tab]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 65c78d3b-ec29-48e1-878e-898b41b1a5db
+    m_ActionName: 'PlayerInputMap/swapItems[/Keyboard/1,/Keyboard/2,/Keyboard/3,/Keyboard/4,/Keyboard/5,/Keyboard/6,/Keyboard/7,/Keyboard/8,/Keyboard/9]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: PlayerInputMap

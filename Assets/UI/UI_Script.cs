@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -9,6 +10,10 @@ using Label = UnityEngine.UIElements.Label;
 using MouseButton = UnityEngine.UIElements.MouseButton;
 using UnityColor = UnityEngine.Color;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+using static UnityEngine.UI.Image;
+using static UnityEngine.Rendering.DebugUI.MessageBox;
+
 public class ItemData
 {
     public string name;
@@ -24,7 +29,7 @@ public class ItemWithPosition
 }
 
 public class UI_Script : MonoBehaviour
-    {
+{
     [SerializeField] int maxWeight;
     public Sprite defaultPlaceholderIcon;
 
@@ -33,7 +38,9 @@ public class UI_Script : MonoBehaviour
         public Inventory playerInventory;
 
     [SerializeField] UIDocument UI_doc;
+    [SerializeField] ItemDatabase AvalibleToCraft;
         ItemData draggedItemData;
+        VisualElement RightClicked;
 
         VisualElement dragOriginElement;
         List<Image> itemIcons;
@@ -57,26 +64,30 @@ public class UI_Script : MonoBehaviour
             UnityColor style4;
             UnityColor style5;
     public Sprite CraftbuttonIco;
-        enum DragSourceType
-        {
-            List,
-            QSlot
-        }
+    enum DragSource
+    {
+        PlayerInventory,
+        OSInventory,
+        QSlot,
+        Crafting
+    }
 
-        DragSourceType currentDragSource;
-        VisualElement draggedFromSlot;
+    DragSource currentDragSource;
+
+    VisualElement draggedFromSlot;
         bool dropSucceeded;
         int draggedQuantity = 1;
 
-    private void Start()
-    {
-    }
 
+    Vector2 lastLocalPosBeforeDrag;
+    bool ChestIsOpen = false;
+    public bool DebugMode=false;
     [Obsolete]
     void Awake()
     {
             Instance = this;
-           
+            ItemList = new List<Item>();
+            root = UI_doc.rootVisualElement;
             UnityEngine.ColorUtility.TryParseHtmlString("#ADADAD", out style1);
             style1.a = 0.5f;
             UnityEngine.ColorUtility.TryParseHtmlString("#A46C27", out style2);
@@ -87,14 +98,13 @@ public class UI_Script : MonoBehaviour
             UnityEngine.ColorUtility.TryParseHtmlString("#272727", out style5);
             style5.a = 0.5f;
 
-        root = UI_doc.rootVisualElement;
             List<VisualElement> qSlots = root.Query<VisualElement>(className: "QSlot").ToList();
             qSlotsList = root.Query<VisualElement>(className: "QSlot").ToList();
             LHand = root.Q<VisualElement>("LHand");
             RHand = root.Q<VisualElement>("RHand");
             Button CraftingButton = root.Q<Button>("CraftingButton");
             CraftingButton.clicked += CraftingSend;
-        qSlotsList.Add(LHand);
+            qSlotsList.Add(LHand);
             qSlotsList.Add(RHand);
             itemIcons = new List<Image>();
             
@@ -103,6 +113,15 @@ public class UI_Script : MonoBehaviour
                 Image icon = slot.Q<Image>("Item_Icon");
             }
 
+            initRightClick();
+            root.RegisterCallback<PointerDownEvent>(evt => 
+            {
+                // Jeśli kliknięto lewym przyciskiem myszy GDZIEKOLWIEK
+                if (evt.button == (int)MouseButton.LeftMouse)
+                {
+                    HideOptionWindow();
+                }
+            }, TrickleDown.NoTrickleDown);
         foreach (VisualElement slot in qSlotsList)
         {
             Image icon = slot.Q<Image>("Item_Icon");
@@ -121,22 +140,27 @@ public class UI_Script : MonoBehaviour
                 // RIGHT CLICK = USE
                 if (evt.button == (int)MouseButton.RightMouse)
                 {
-                    UseItemInSlot(slot);
+                    RightClicked = slot;
+                    ShowOptionWindow(evt.position);
+                    //UseItem(slot);
                     return;
                 }
 
-                if (evt.button != (int)MouseButton.LeftMouse) return;
+                if (evt.button != (int)MouseButton.LeftMouse) 
+                    return;
 
                 Image icon = slot.Q<Image>("Item_Icon");
-                if (icon == null || icon.image == null) return;
+                if (icon == null || icon.image == null) 
+                    return;
 
                 ItemData data = slot.userData as ItemData;
-                if (data == null) return;
+                if (data == null) 
+                    return;
 
                 draggedItemData = data;
                 draggedFromSlot = slot;
                 draggedSourceImage = icon;
-                currentDragSource = DragSourceType.QSlot;
+                currentDragSource = DragSource.QSlot;
                 dropSucceeded = false;
 
                 StartDrag(evt.position, icon.image);
@@ -145,7 +169,8 @@ public class UI_Script : MonoBehaviour
                 slot.userData = null;
 
                 Label slotLabel = slot.Q<Label>("Slot_Info");
-                if (slotLabel != null) slotLabel.text = "";
+                if (slotLabel != null) 
+                    slotLabel.text = "";
             });
         }   
 
@@ -166,6 +191,7 @@ public class UI_Script : MonoBehaviour
             {
                 slotNumbers[i].text = (i + 1).ToString();
                 slotNumbers[i].style.display = DisplayStyle.None;
+                slotNumbers[i].RemoveFromHierarchy();
             }
 
             root.RegisterCallback<PointerMoveEvent>(OnPointerMove);
@@ -173,27 +199,30 @@ public class UI_Script : MonoBehaviour
 
             void OnPointerMove(PointerMoveEvent evt)
             {
-                if (!isDragging || dragIcon == null) return;
+                if (!isDragging || dragIcon == null) 
+                    return;
                 dragIcon.style.left = evt.position.x - 32;
                 dragIcon.style.top = evt.position.y - 32;
             }
 
         void OnPointerUp(PointerUpEvent evt)
         {
-            if (!isDragging || evt.button != (int)MouseButton.LeftMouse) return;
+            if (!isDragging || evt.button != (int)MouseButton.LeftMouse)
+                return;
 
             isDragging = false;
             VisualElement picked = root.panel.Pick(evt.position);
             VisualElement target = picked;
 
+            // Szukanie rodzica z odpowiednią klasą/nazwą
             while (target != null &&
                    !target.ClassListContains("QSlot") &&
-                   !target.ClassListContains("Item") &&
                    !target.ClassListContains("Hand") &&
                    !target.ClassListContains("BSlots") &&
-                    target.name != "Table" &&
-                    target.name != "Items_scrol" &&
-                   !target.ClassListContains("CraftSlot"))
+                   target.name != "Table" &&
+                   target.name != "Items_scrol" &&
+                   target.name != "OSItems_scrol" &&
+                   !target.ClassListContains("TableContent")) // Dodano TableContent dla pewności
             {
                 target = target.parent;
             }
@@ -203,24 +232,36 @@ public class UI_Script : MonoBehaviour
             else
                 dropSucceeded = false;
 
+            // --- CO SIĘ DZIEJE, GDY DROP SIĘ NIE UDA ---
             if (!dropSucceeded)
             {
-                if (currentDragSource == DragSourceType.List)
-                    addItem(draggedItemData.name, draggedItemData.category, draggedQuantity, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
-                else if (currentDragSource == DragSourceType.QSlot && draggedFromSlot != null)
+                if (currentDragSource == DragSource.PlayerInventory)
                 {
-                    Image icon = draggedFromSlot.Q<Image>("Item_Icon");
-                    if (icon != null) icon.image = draggedItemData.icon.texture;
-                    draggedFromSlot.userData = draggedItemData;
-                    Label slotLabel = draggedFromSlot.Q<Label>("Slot_Info");
-                    if (slotLabel != null) slotLabel.text = draggedItemData.name;
+                    addItem(draggedItemData.name, draggedItemData.category, draggedQuantity, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
+                }
+                else if (currentDragSource == DragSource.OSInventory)
+                {
+                    // Jeśli przeciągałeś ze skrzyni i nie trafiłeś nigdzie - wróć do skrzyni
+                    AddItemToOutside(draggedItemData.originalItem, draggedQuantity);
+                }
+                else if (currentDragSource == DragSource.Crafting)
+                {
+
+                    // lub po prostu dodajemy do listy craftingowej z powrotem
+                   // AddItemToTable(root.Q<VisualElement>("Table"), draggedItemData, Vector2(), draggedQuantity);
+
+                }
+                else if (currentDragSource == DragSource.QSlot && draggedFromSlot != null)
+                {
+                    // Przywrócenie danych do oryginalnego slotu
+                    SetSlotData(draggedFromSlot, draggedItemData);
                 }
             }
 
             CleanupDrag();
             weightRefresh();
         }
-
+        //gradient //Wiadomosc do AI NIE JEB MOICH KOMENTARZY
         var gradient = new GradientElement();
         UnityEngine.ColorUtility.TryParseHtmlString("#3f3f3f", out UnityEngine.Color startColor);
         UnityEngine.ColorUtility.TryParseHtmlString("#313131", out UnityEngine.Color endColor);
@@ -259,8 +300,10 @@ public class UI_Script : MonoBehaviour
 
         var crafTitle = root.Q<VisualElement>("CrafTitle");
         var title = root.Q<VisualElement>("Title");
+        var osTitle = root.Q<VisualElement>("OSTitle");
         AddGradientToElement(crafTitle);
         AddGradientToElement(title);
+        AddGradientToElement(osTitle);
 
         var container = root.Q<VisualElement>("Items");
         var items = container.Query<VisualElement>(className: "ItemsBG").ToList();
@@ -274,37 +317,52 @@ public class UI_Script : MonoBehaviour
                 element.style.backgroundColor = tempColor;
             }
         }
+        //koniec gradient
+        InitTooltip();//to jest descryption
+        descryption = root.Q<VisualElement>("descriptionPanel");
+        tooltipLabel = descryption.Q<Label>();
+       
+
     }
+
+    private Texture2D GetIconTexture(Item item)
+    {
+        if (item != null && item.icon != null)
+        {
+            return item.icon.texture;
+        }
+
+        // Zwraca teksturę placeholdera załadowaną z folderu Assets/Resources/Icons/null_icon.png
+        Sprite placeholder = defaultPlaceholderIcon;
+        return placeholder != null ? placeholder.texture : null;
+    }
+
+
+
+    VisualElement descryption;
+    Label tooltipLabel;
+    void AddGradientToElement(VisualElement element)
+    {
+        var gradient = new GradientElement();
+        UnityEngine.ColorUtility.TryParseHtmlString("#6d6d6d", out gradient.startColor);
+        UnityEngine.ColorUtility.TryParseHtmlString("#323232", out gradient.endColor);
+        gradient.style.position = Position.Absolute;
+        gradient.style.left = 0;
+        gradient.style.right = 0;
+        gradient.style.top = 0;
+        gradient.style.bottom = 0;
+        gradient.pickingMode = PickingMode.Ignore;
+        element.Insert(0, gradient);
+    }
+
+
+
 
     // ── USE ITEM ─────────────────────────────────────────────────────────────
 
-    void UseItemInSlot(VisualElement slot)
-    {
-        ItemData data = slot.userData as ItemData;
-        if (data == null || data.originalItem == null)
-        {
-            Debug.Log("[UI] Slot is empty.");
-            return;
-        }
 
-        if (playerInventory == null)
-        {
-            Debug.LogWarning("[UI] playerInventory not assigned on UI_Script!");
-            return;
-        }
 
-        Item instance = playerInventory.inventory.Find(i => i != null && i.itemID == data.originalItem.itemID);
-
-        if (instance == null)
-        {
-            Debug.LogWarning($"[UI] Could not find {data.originalItem.itemName} in inventory.");
-            return;
-        }
-
-        data.originalItem.Use(instance, playerInventory);
-    }
-
-    public void UseItemFromList(VisualElement itemRow)
+    public void UseItem(VisualElement itemRow)
     {
         ItemData data = itemRow.userData as ItemData;
         if (data == null || data.originalItem == null) return;
@@ -327,70 +385,171 @@ public class UI_Script : MonoBehaviour
 
     // ─────────────────────────────────────────────────────────────────────────
 
-    void AddGradientToElement(VisualElement element)
-    {
-        var gradient = new GradientElement();
-        UnityEngine.ColorUtility.TryParseHtmlString("#6d6d6d", out gradient.startColor);
-        UnityEngine.ColorUtility.TryParseHtmlString("#323232", out gradient.endColor);
-        gradient.style.position = Position.Absolute;
-        gradient.style.left = 0;
-        gradient.style.right = 0;
-        gradient.style.top = 0;
-        gradient.style.bottom = 0;
-        gradient.pickingMode = PickingMode.Ignore;
-        element.Insert(0, gradient);
-    }
 
+    void Log<T>(T message)
+    {
+        if (DebugMode) Debug.Log(message?.ToString());
+    }
     void HandleDrop(VisualElement target, Vector2 dropPosition)
     {
         if (draggedItemData == null) return;
-       
-        bool isStack = draggedQuantity > 1;
 
+        bool isStack = draggedQuantity > 1;
+        dropSucceeded = false;
+
+        // --- CEL: CRAFTING TABLE ---
         if (target.name == "Table" || target.ClassListContains("TableContent"))
         {
             Vector2 localPos = target.WorldToLocal(dropPosition);
-            AddItemToTable(target, draggedItemData, localPos, draggedQuantity);
-            dropSucceeded = true;
-        }
 
-        if (isStack && !(target.name == "Table" || target.ClassListContains("TableContent")))
-        {
-            Debug.Log(draggedQuantity);
-            dropSucceeded = false;
-            return;
-        }
-
-        if (currentDragSource == DragSourceType.QSlot && target.ClassListContains("Hand"))
-        {
-            SetSlotData(target, draggedItemData);
-            dropSucceeded = true;
-        }
-        else if (currentDragSource == DragSourceType.QSlot && target.ClassListContains("QSlot"))
-        {
-            if (target == draggedFromSlot)
+            if (currentDragSource == DragSource.QSlot)
             {
-                dropSucceeded = false;
-                return;
+                if (!isStack) // Zamiast return, owijamy logikę w if (!isStack)
+                {
+                    AddItemToTable(target, draggedItemData, localPos, 1);
+                    dropSucceeded = true;
+                }
             }
-            ItemData targetData = target.userData as ItemData;
-            SetSlotData(target, draggedItemData);
-            if (targetData != null) SetSlotData(draggedFromSlot, targetData);
-            dropSucceeded = true;
+            else if (currentDragSource == DragSource.PlayerInventory)
+            {
+                // PlayerInventory -> Table (multi)
+                AddItemToTable(target, draggedItemData, localPos, draggedQuantity);
+                craftingInventory.AddToInventory(craftingInventory.inventory, draggedQuantity, draggedItemData.originalItem);
+                playerInventory.RemoveFromInventory(playerInventory.inventory, draggedItemData.originalItem, draggedQuantity);
+                dropSucceeded = true;
+            }
+            else if (currentDragSource == DragSource.Crafting) 
+            {
+
+                AddItemToTable(target, draggedItemData, localPos, draggedQuantity);
+                dropSucceeded = true;
+            }
         }
-        else if (currentDragSource == DragSourceType.QSlot &&
-                (target.name == "Items_scrol" || target.ClassListContains("BSlots") || target.ClassListContains("Item")))
+
+        // --- CEL: PLAYER INVENTORY ---
+        else if (target.name == "Items_scrol" || target.ClassListContains("BSlots"))
         {
-            addItem(draggedItemData.name, draggedItemData.category, 1, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
-            dropSucceeded = true;
+            if (currentDragSource == DragSource.QSlot)
+            {
+                if (!isStack)
+                {
+                    addItem(draggedItemData.name, draggedItemData.category, 1, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
+                    dropSucceeded = true;
+                }
+            }
+            else if (currentDragSource == DragSource.OSInventory)
+            {
+                // OSInventory -> PlayerInventory (multi)
+                playerInventory.AddToInventory(playerInventory.inventory, draggedQuantity, draggedItemData.originalItem);
+                playerInventory.RemoveFromInventory(playerInventory.outsideInventory.inventory, draggedItemData.originalItem, draggedQuantity);
+                addItem(draggedItemData.name, draggedItemData.category, draggedQuantity, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
+                dropSucceeded = true;
+            }
+            else if (currentDragSource == DragSource.Crafting)
+            {
+                // CraftingTable -> PlayerInventory (multi)
+                craftingInventory.RemoveFromInventory(craftingInventory.inventory, draggedItemData.originalItem, draggedQuantity);
+                playerInventory.AddToInventory(playerInventory.inventory, draggedQuantity, draggedItemData.originalItem);
+                addItem(draggedItemData.name, draggedItemData.category, draggedQuantity, draggedItemData.weight, draggedItemData.icon, draggedItemData.originalItem);
+                dropSucceeded = true;
+            }
         }
-        else if (currentDragSource == DragSourceType.List &&
-                (target.ClassListContains("QSlot") || target.ClassListContains("Hand")))
+
+        // --- CEL: OS INVENTORY (SKRZYNIA) ---
+        else if (target.name == "OSItems_scrol")
         {
-            SetSlotData(target, draggedItemData);
-            dropSucceeded = true;
+            if (currentDragSource == DragSource.PlayerInventory)
+            {
+                // PlayerInventory -> OSInventory (multi)
+                playerInventory.AddToInventory(playerInventory.outsideInventory.inventory, draggedQuantity, draggedItemData.originalItem);
+                playerInventory.RemoveFromInventory(playerInventory.inventory, draggedItemData.originalItem, draggedQuantity);
+                AddItemToOutside(draggedItemData.originalItem, draggedQuantity);
+                dropSucceeded = true;
+            }
+            else if (currentDragSource == DragSource.QSlot)
+            {
+                if (!isStack)
+                {
+                    playerInventory.AddToInventory(playerInventory.outsideInventory.inventory, 1, draggedItemData.originalItem);
+                    AddItemToOutside(draggedItemData.originalItem, 1);
+                    dropSucceeded = true;
+                }
+            }
+        }
+        // --- CEL: QUICK SLOTS (QSLOT) ---
+        else if (target.ClassListContains("QSlot") || target.ClassListContains("Hand"))
+        {
+            // Jeśli to JEST stack, zignoruj wszystko w tym bloku. 
+            // dropSucceeded zostanie false, a item wróci na miejsce.
+            
+            if (!isStack)
+            {
+                if (currentDragSource == DragSource.PlayerInventory)
+                {
+                    // PlayerInventory -> QSlot (single)
+                    if(DataFromTarget(target)!=null)
+                    {
+                        ItemData tempItem = DataFromTarget(target);
+                             addItem(tempItem.name, tempItem.category, 1, tempItem.weight, tempItem.icon, tempItem.originalItem);
+                
+                    }
+                    SetSlotData(target, draggedItemData);
+                    dropSucceeded = true;
+                }
+                else if (currentDragSource == DragSource.OSInventory)
+                {
+                    // OSInventory -> QSlot (single)
+                    if(DataFromTarget(target)!=null)
+                    {
+                        ItemData tempItem = DataFromTarget(target);
+                             AddItemToOutside(tempItem.originalItem,1);
+                            
+                    }
+                    playerInventory.AddToInventory(playerInventory.inventory, 1, draggedItemData.originalItem);
+                    playerInventory.RemoveFromInventory(playerInventory.outsideInventory.inventory, draggedItemData.originalItem, 1);
+                    SetSlotData(target, draggedItemData);
+                    dropSucceeded = true;
+                    
+                }
+                else if (currentDragSource == DragSource.Crafting)
+                {
+                    // CraftingTable -> QSlot (single)
+                    craftingInventory.RemoveFromInventory(craftingInventory.inventory, draggedItemData.originalItem, 1);
+                    playerInventory.AddToInventory(playerInventory.inventory, 1, draggedItemData.originalItem);
+                    SetSlotData(target, draggedItemData);
+                    dropSucceeded = true;
+                }
+                else if (currentDragSource == DragSource.QSlot)
+                {
+                    // QSlot -> QSlot (single / zamiana)
+                    if (target != draggedFromSlot)
+                    {
+                        ItemData targetData = target.userData as ItemData;
+                        SetSlotData(target, draggedItemData);
+
+                        if (targetData != null)
+                        {
+                            SetSlotData(draggedFromSlot, targetData);
+                        }
+
+
+                        dropSucceeded = true; 
+                    }
+                }
+            }
         }
     }
+    public ItemData DataFromTarget(VisualElement target)
+{
+    // Sprawdzamy, czy target nie jest nullem i czy posiada przypisane userData
+    if (target != null && target.userData is ItemData data)
+    {
+        return data;
+    }
+
+
+    return null;
+}
 
     void SetSlotData(VisualElement slot, ItemData data)
     {
@@ -447,6 +606,42 @@ public class UI_Script : MonoBehaviour
         itemIcons[i].sprite = mySprite;
     }
 
+    void InitTooltip()
+    {
+        VisualElement descriptionPanel = new VisualElement();
+        descriptionPanel.name = "descriptionPanel";
+        descriptionPanel.style.position = Position.Absolute;
+        descriptionPanel.style.backgroundColor = new UnityColor(0.1f, 0.1f, 0.1f, 0.95f);
+        {
+            descriptionPanel.style.paddingRight = 10;
+            descriptionPanel.style.paddingLeft = 10;
+            descriptionPanel.style.paddingTop = 10;
+            descriptionPanel.style.paddingBottom = 10;
+        }
+        descriptionPanel.style.display = DisplayStyle.None; // Ukryty
+        descriptionPanel.pickingMode = PickingMode.Ignore; // Mysz go ignoruje!
+        {
+            ColorUtility.TryParseHtmlString("#212018", out UnityColor borderColor);
+            
+            descriptionPanel.style.borderLeftColor = borderColor;
+            descriptionPanel.style.borderRightColor = borderColor;
+            descriptionPanel.style.borderTopColor = borderColor;
+            descriptionPanel.style.borderBottomColor = borderColor;
+            
+
+            descriptionPanel.style.borderLeftWidth = 1;
+            descriptionPanel.style.borderRightWidth = 1;
+            descriptionPanel.style.borderTopWidth = 1;
+            descriptionPanel.style.borderBottomWidth = 1;
+        }
+
+        Label tooltipLabel = new Label();
+        tooltipLabel.style.color = UnityColor.white;
+        tooltipLabel.style.whiteSpace = WhiteSpace.Normal;
+        descriptionPanel.Add(tooltipLabel);
+
+        root.Add(descriptionPanel); // DODAJEMY DO ROOT, nie do listy!
+    }
     public void addItem(string name, string category, int quantity, float weight, Sprite icon, Item original)
     {
         ItemList.Add(original);
@@ -488,7 +683,10 @@ public class UI_Script : MonoBehaviour
             {
                 if (evt.button == (int)MouseButton.RightMouse)
                 {
-                    UseItemFromList(itemRoot);
+                    RightClicked = itemRoot;
+                    ShowOptionWindow(evt.position);
+                    //UseItem(itemRoot);
+                    
                     return;
                 }
 
@@ -500,7 +698,8 @@ public class UI_Script : MonoBehaviour
                 draggedQuantity = evt.shiftKey ? totalAvailable : 1;
                 draggedItemData = itemRoot.userData as ItemData;
                 draggedItemRoot = itemRoot;
-                currentDragSource = DragSourceType.List;
+                currentDragSource = DragSource.PlayerInventory;
+
                 draggedFromSlot = null;
                 dropSucceeded = false;
 
@@ -561,7 +760,98 @@ public class UI_Script : MonoBehaviour
             itemRoot.Add(typeLabel);
             itemRoot.Add(qtyLabelNew);
             itemRoot.Add(weightLabel2);
+
+            int hoverVersion = 0;
+            
+
+            itemRoot.RegisterCallback<PointerEnterEvent>(async evt =>
+            {
+                int currentId = ++hoverVersion; // Unikalne ID dla tego konkretnego najechania
+
+
+                await Task.Delay(250);
+                
+
+                if (currentId == hoverVersion && !isDragging)
+                {
+                    descryption.style.display = DisplayStyle.Flex;
+                    tooltipLabel.text = original.description;
+
+                }
+            });
+            itemRoot.RegisterCallback<PointerLeaveEvent>(evt =>
+            {
+                hoverVersion++; // Zmieniamy ID, więc oczekujący Task z PointerEnter nic nie wyświetli
+          
+                 
+                descryption.style.display = DisplayStyle.None;
+               
+            });
+            itemRoot.RegisterCallback<PointerMoveEvent>(evt => {
+
+                // 1. Definiujemy margines od myszki i krawędzi ekranu
+                float offset = 20f;
+                float screenPadding = 10f;
+
+                float mouseX = evt.position.x;
+                float mouseY = evt.position.y;
+                float rootWidth = root.resolvedStyle.width;
+
+                // 2. Obliczamy dostępną szerokość po prawej stronie myszki
+                // Dostępne miejsce = Szerokość ekranu - Pozycja myszy - Margines od myszy - Margines od krawędzi
+                float availableWidth = rootWidth - mouseX - offset - screenPadding;
+
+                // 3. Ograniczamy szerokość elementu (z zachowaniem sensownego minimum, np. 100px)
+                float minWidth = 150f;
+                float finalWidth = Mathf.Max(minWidth, availableWidth);
+
+                descryption.style.maxWidth = finalWidth;
+
+                // 4. Ustawiamy pozycję
+                descryption.style.left = mouseX + offset;
+                descryption.style.top = mouseY + offset;
+
+                // 5. Opcjonalnie: Jeśli nawet przy minimalnej szerokości wystaje za ekran, 
+                // przerzuć go na lewą stronę myszy
+                if (availableWidth < minWidth)
+                {
+                    // Tutaj tooltip "odskoczy" na lewo, jeśli po prawej jest ekstremalnie mało miejsca
+                    descryption.style.left = StyleKeyword.Null; // Czyścimy lewo
+                    descryption.style.right = (rootWidth - mouseX) + offset;
+                    descryption.style.maxWidth = 300; // Resetujemy max width do standardu
+                }
+                else
+                {
+                    descryption.style.right = StyleKeyword.Null;
+                }
+
+            });
+
+
+
+
+
+
+
+
+
+
+
+
+
+           
             scroll.contentContainer.Add(itemRoot);
+
+
+
+
+
+
+
+
+
+
+
         }
         else
         {
@@ -577,7 +867,7 @@ public class UI_Script : MonoBehaviour
         RefreshItemsStyles();
     }
 
-    public void SendItemList(List<Item> items)
+public void SendItemList(List<Item> items)
     {
         Debug.Log("UI dostało listę itemów:");
         ItemList = new List<Item>(items);
@@ -596,11 +886,24 @@ public class UI_Script : MonoBehaviour
         {
             items[i].RemoveFromClassList("row-even");
             items[i].RemoveFromClassList("row-odd");
-            if (i % 2 == 0) items[i].AddToClassList("row-even");
+            if (i % 2 == 0) 
+                items[i].AddToClassList("row-even");
             else items[i].AddToClassList("row-odd");
         }
     }
-
+    private void RefreshOSItemsStyles()
+    {
+        ScrollView scroll = root.Q<ScrollView>("OSItems_scrol");
+        var items = scroll.contentContainer.Children().ToList();
+        for (int i = 0; i < items.Count; i++)
+        {
+            items[i].RemoveFromClassList("row-even");
+            items[i].RemoveFromClassList("row-odd");
+            if (i % 2 == 0)
+                items[i].AddToClassList("row-even");
+            else items[i].AddToClassList("row-odd");
+        }
+    }
     public void ShowCrafting()
     {
         ShowInventory();
@@ -611,13 +914,34 @@ public class UI_Script : MonoBehaviour
 
     public void toggleCrafting()
     {
-        if (inventoryIsOpen == true) HideInventory();
-        else ShowCrafting();
+        if (inventoryIsOpen == true)
+        {
+            HideInventory();
+           
+        }
+        else
+        {
+            ShowCrafting();
+            
+        }
     }
+    public void toggleChest()
+    {
+        if (ChestIsOpen == true)
+        {
+            HideInventory();
 
+        }
+        else
+        {
+            ShowChest();
+
+        }
+    }
     public void HideCrafing()
     {
         var Crafting = root.Q<VisualElement>("Crafting");
+        HideOptionWindow();
         Crafting.style.display = DisplayStyle.None;
         crafintgIsOpen = false;
     }
@@ -636,10 +960,12 @@ public class UI_Script : MonoBehaviour
         BSlots.style.display = DisplayStyle.None;
         Title.style.display = DisplayStyle.None;
         List<Label> slot = root.Query<Label>(className: "QSlot").ToList();
-        for (int i = 0; i < slot.Count; i++) slot[i].style.opacity = 0.8f;
+        for (int i = 0; i < slot.Count; i++) 
+            slot[i].style.opacity = 0.8f;
         var slots = QSlots.parent;
         slots.style.flexDirection = FlexDirection.RowReverse;
         inventoryIsOpen = false;
+        HideOptionWindow();
     }
 
     public void ShowInventory()
@@ -654,22 +980,43 @@ public class UI_Script : MonoBehaviour
         BSlots.style.display = DisplayStyle.Flex;
         Title.style.display = DisplayStyle.Flex;
         List<Label> slot = root.Query<Label>(className: "QSlot").ToList();
-        for (int i = 0; i < slot.Count; i++) slot[i].style.opacity = 1f;
+        for (int i = 0; i < slot.Count; i++) 
+            slot[i].style.opacity = 1f;
         var slots = QSlots.parent;
-        slots.style.flexDirection = FlexDirection.Row;
-        foreach (Item recipeItem in UIRecipes) AddUnique(recipeItem);
+        slots.style.flexDirection = FlexDirection.Row; 
+       // foreach (Item recipeItem in UIRecipes) 
+           // AddUnique(recipeItem);
         inventoryIsOpen = true;
     }
+    public void ShowChest()
+    {
+        ShowInventory();
+        VisualElement OSInv = root.Q<VisualElement>("OSInventory");
+        OSInv.style.display = DisplayStyle.Flex;
+        ChestIsOpen = true;
 
+    }
+    public void HideChest()
+    {
+        ShowInventory();
+        VisualElement OSInv = root.Q<VisualElement>("OSInventory");
+        OSInv.style.display = DisplayStyle.None;
+        ChestIsOpen = false;
+        HideOptionWindow();
+
+    }
     public void RemoveItem(string itemName, int amount = 1)
     {
         ScrollView scroll = root.Q<ScrollView>("Items_scrol");
-        if (scroll == null) return;
+        if (scroll == null) 
+            return;
         VisualElement itemRoot = scroll.contentContainer.Q(itemName);
-        if (itemRoot == null) return;
+        if (itemRoot == null) 
+                return;
         Label qtyLabel = itemRoot.Q<Label>("ItemQty");
         Label weightLabel = itemRoot.Q<Label>("ItemWeight");
-        if (qtyLabel == null || weightLabel == null) return;
+        if (qtyLabel == null || weightLabel == null) 
+            return;
         int currentQty = int.Parse(qtyLabel.text);
         int newQty = currentQty - amount;
         int removedCount = 0;
@@ -709,9 +1056,8 @@ public class UI_Script : MonoBehaviour
     }
 
     public Item GetItemLeftHand() => GetItemFromQSlot(9)?.originalItem;
-    public Item GetItemRighHand() => GetItemFromQSlot(10)?.originalItem;
+    public Item GetItemRightHand() => GetItemFromQSlot(10)?.originalItem;
 
-    void Update() { }
 
     void AddItemToTable(VisualElement table, ItemData data, Vector2 localPos, int quantity)
     {
@@ -724,9 +1070,14 @@ public class UI_Script : MonoBehaviour
         itemOnTable.style.position = Position.Absolute;
         itemOnTable.style.left = localPos.x - (size / 2);
         itemOnTable.style.top = localPos.y - (size / 2);
-        itemOnTable.style.backgroundImage = new StyleBackground(data.icon.texture);
+        itemOnTable.style.backgroundImage = new StyleBackground(GetIconTexture(data.originalItem));
 
-        ItemData tableData = new ItemData { name = data.name, category = data.category, weight = data.weight, icon = data.icon, originalItem = data.originalItem };
+        ItemData tableData = new ItemData { 
+            name = data.name, 
+            category = data.category, 
+            weight = data.weight, 
+            icon = data.icon, 
+            originalItem = data.originalItem };
         itemOnTable.userData = tableData;
         itemOnTable.AddToClassList("TableItem");
 
@@ -748,10 +1099,13 @@ public class UI_Script : MonoBehaviour
             draggedQuantity = quantity;
             draggedItemData = tableData;
             draggedFromSlot = null;
-            currentDragSource = DragSourceType.List;
+            currentDragSource = DragSource.Crafting;
             dropSucceeded = false;
-            StartDrag(evt.position, data.icon.texture);
+            VisualElement tableContainer = root.Q<VisualElement>("Table");//wiem dzienie nazwalem crafting jako table :)
+            lastLocalPosBeforeDrag = tableContainer.WorldToLocal(evt.position);
+            StartDrag(evt.position, GetIconTexture(data.originalItem));
             itemOnTable.RemoveFromHierarchy();
+           
         });
 
         table.Add(itemOnTable);
@@ -768,28 +1122,35 @@ public class UI_Script : MonoBehaviour
             if (itemElement.userData is ItemData data) itemsOnTable.Add(data.originalItem);
         });
         return itemsOnTable;
+
     }
 
     private async void CraftingSend()
     {
+        if (craftingInventory == null) { Debug.LogError("craftingInventory jest NULL!"); return; }
+        if (crafting.Instance == null) { Debug.LogError("crafting.Instance jest NULL!"); return; }
         Debug.Log("Button was clicked!");
         List<Item> CraftingItems = GetItemsOnTable();
         Debug.Log(CraftingItems.Count);
         craftingInventory.inventory = new List<Item>(CraftingItems);
         crafting.Instance.craft = true;
-        while (crafting.Instance.craft == true) await Task.Delay(100);
+        while (crafting.Instance.craft == true) 
+            await Task.Delay(100);
         ClearTable();
         List<Item> CraftingRturn = craftingInventory.inventory;
         SpawnItemsOnTable(CraftingRturn);
-        craftingInventory.inventory.Clear();
+           UpdateAvalibleRecipies();//aktualizacja receptur
+        //craftingInventory.inventory.Clear();//badziew ktory jest nie potrzebny juz ale egzystuje w razie w gdybym mial wywalone w crafting
     }
 
     void ClearTable()
     {
         VisualElement table = root.Q<VisualElement>("Table");
-        if (table == null) return;
+        if (table == null) 
+            return;
         List<VisualElement> itemsToRemove = table.Query<VisualElement>(className: "TableItem").ToList();
-        foreach (var item in itemsToRemove) item.RemoveFromHierarchy();
+        foreach (var item in itemsToRemove) 
+            item.RemoveFromHierarchy();
         Debug.Log("Stół został wyczyszczony.");
     }
 
@@ -803,7 +1164,13 @@ public class UI_Script : MonoBehaviour
         for (int i = 0; i < itemsToPlace.Count; i++)
         {
             Item item = itemsToPlace[i];
-            ItemData data = new ItemData { name = item.itemName, category = item.itemType.ToString(), weight = item.weight, icon = item.icon != null ? item.icon : defaultPlaceholderIcon, originalItem = item };
+            ItemData data = new ItemData { 
+                name = item.itemName, 
+                category = item.itemType.ToString(), 
+                weight = item.weight, 
+                icon = item.icon != null ? item.icon : defaultPlaceholderIcon, 
+                originalItem = item 
+            };
             float x = (i % columns) * (slotSize + padding) + (slotSize / 2);
             float y = (i / columns) * (slotSize + padding) + (slotSize / 2);
             AddItemToTable(table, data, new Vector2(x, y), 1);
@@ -860,9 +1227,718 @@ public class UI_Script : MonoBehaviour
     {
         VisualElement table = root.Q<VisualElement>("Table");
         var items = table.Query<VisualElement>(className: "TableItem").ToList();
-        if (items.Count == 0) return new Vector2(table.layout.width / 2, table.layout.height / 2);
+        if (items.Count == 0) 
+            return new Vector2(table.layout.width / 2, table.layout.height / 2);
         Vector2 sum = Vector2.zero;
-        foreach (var item in items) { sum.x += item.layout.x; sum.y += item.layout.y; }
+        foreach (var item in items) 
+        { 
+            sum.x += item.layout.x; sum.y += item.layout.y; 
+        }
         return new Vector2(sum.x / items.Count, sum.y / items.Count);
+    }
+    List<Item> OutsideInventoryList = new List<Item>();
+    public void SendItemsToChest(List<Item> outsideInventory) //funkcja przyjmujaca liste i wyslajaca polecenia do UI w celu dodani ich na ekran
+    {
+        ScrollView scroll = root.Q<ScrollView>("OSItems_scrol");
+        scroll.Clear();
+
+
+        foreach (Item item in outsideInventory)
+        {
+            if (item == null)
+            {
+                Debug.LogWarning("Znaleziono pusty element na liście przedmiotów!");
+                continue;
+            }
+
+            AddItemToOutside(item);
+        }
+    }
+    void AddItemToOutside(Item item ,int quantity=1)
+    {
+        OutsideInventoryList.Add(item);
+        float weight = item.weight;
+        string name = item.itemName;
+        Sprite icon = item.icon != null ? item.icon : defaultPlaceholderIcon;
+        string category = item.itemType.ToString();
+        ScrollView scroll = root.Q<ScrollView>("OSItems_scrol");
+
+        VisualElement existing = scroll.contentContainer.Q(name);
+
+        VisualElement table = root.Q<VisualElement>("OSAbout");
+
+    
+
+
+
+
+
+
+
+        if (existing == null)
+        {
+            // 🔹 NOWY ITEM (DIV)
+            VisualElement itemRoot = new VisualElement();
+            itemRoot.style.height = 40;
+            itemRoot.style.paddingRight = 5;
+            itemRoot.style.paddingLeft = 5;
+
+
+            itemRoot.name = name;
+            itemRoot.style.flexDirection = FlexDirection.Row;
+            itemRoot.style.color = style3;
+            itemRoot.style.width = Length.Percent(100);
+            itemRoot.style.unityTextAlign = TextAnchor.MiddleCenter;
+            itemRoot.style.fontSize = 20;
+            itemRoot.style.borderTopWidth = 2;
+            itemRoot.style.borderBottomWidth = 2;
+            itemRoot.style.marginTop = 5;
+            itemRoot.AddToClassList("Item");
+
+            itemRoot.style.borderTopColor = UnityEngine.Color.black;
+            itemRoot.style.borderBottomColor = UnityEngine.Color.black;
+            itemRoot.style.borderLeftColor = UnityEngine.Color.black;
+            itemRoot.style.borderRightColor = UnityEngine.Color.black;
+
+            itemRoot.userData = new ItemData
+            {
+                name = name,
+                category = category,
+                weight = weight,
+                icon = icon != null ? icon : defaultPlaceholderIcon,
+                originalItem = item
+            };
+
+
+
+            itemRoot.RegisterCallback<PointerDownEvent>(evt =>
+            {
+                if (evt.button == (int)MouseButton.RightMouse)
+                {
+                    RightClicked = itemRoot;
+                    ShowOptionWindow(evt.position);
+                }
+
+                if (evt.button != (int)MouseButton.LeftMouse) return;
+
+                // 1. Najpierw zbierz dane
+                Label qtyLabel = itemRoot.Q<Label>("ItemQty");
+                if (qtyLabel == null) return;
+                int totalAvailable = int.Parse(qtyLabel.text);
+                if (evt.shiftKey)
+                {
+                    draggedQuantity = totalAvailable; //wszystko
+                }
+                else
+                {
+                    draggedQuantity = 1; //jedna sztuka
+                }
+                draggedItemData = itemRoot.userData as ItemData;
+                draggedItemRoot = itemRoot;
+                currentDragSource = DragSource.OSInventory; // To musi być tutaj!
+
+                draggedFromSlot = null;
+                dropSucceeded = false; // Reset statusu
+
+                // 2. Pobierz ikonę do "ducha" (ghost icon)
+                Image sourceImg = itemRoot.Q<Image>();
+                if (sourceImg == null) return;
+
+                // 3. Rozpocznij przeciąganie (Ghost)
+                StartDrag(evt.position, sourceImg.image);
+
+                // 4. Dopiero teraz odejmij z listy (skoro już mamy dane w draggedItemData)
+
+                // Aktualizacja UI listy po podniesieniu
+                if (draggedQuantity >= totalAvailable)
+                {
+                    itemRoot.RemoveFromHierarchy();
+                    RefreshOSItemsStyles();
+                }
+                else
+                {
+                    int newQty = totalAvailable - draggedQuantity;
+                    qtyLabel.text = newQty.ToString();
+
+                    Label weightLabel = itemRoot.Q<Label>("ItemWeight");
+                    if (weightLabel != null)
+                    {
+                        weightLabel.text = (draggedItemData.weight * newQty).ToString("0.##");
+                    }
+                }
+            });
+
+
+
+
+
+            VisualElement imgContainer = new VisualElement();
+            imgContainer.style.width = Length.Percent(10);
+            imgContainer.style.justifyContent = Justify.Center;
+            imgContainer.style.alignItems = Align.Center;
+
+            imgContainer.style.flexShrink = 0;
+            // imgContainer.style.backgroundColor = style2;
+
+            Image imagediv = new Image();
+            imagediv.image = icon.texture;
+            imagediv.style.height = 32;
+            imagediv.scaleMode = ScaleMode.ScaleToFit;
+
+            imgContainer.Add(imagediv);
+
+            Label nameLabel = new Label(name);
+            nameLabel.name = "ItemName";
+            nameLabel.style.width = Length.Percent(45);
+            nameLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
+            // nameLabel.style.backgroundColor = style1;
+
+            //Label typeLabel = new Label(category);
+            //typeLabel.style.width = Length.Percent(25);
+            //typeLabel.name = "Type";
+            //typeLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
+            ////typeLabel.style.backgroundColor = style5;
+
+            Label qtyLabel = new Label(quantity.ToString());
+            qtyLabel.name = "ItemQty";
+            qtyLabel.style.width = Length.Percent(25);
+            qtyLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
+
+            // qtyLabel.style.backgroundColor = style1;
+
+            Label weightLabel = new Label((weight * quantity).ToString());
+            weightLabel.name = "ItemWeight";
+            weightLabel.style.width = Length.Percent(20);
+            weightLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
+
+            //   weightLabel.style.backgroundColor = style5;
+
+
+
+            itemRoot.Add(imgContainer);
+            itemRoot.Add(nameLabel);
+            //itemRoot.Add(typeLabel);
+            itemRoot.Add(qtyLabel);
+            itemRoot.Add(weightLabel);
+
+
+
+
+
+            int hoverVersion = 0;
+
+
+            itemRoot.RegisterCallback<PointerEnterEvent>(async evt =>
+            {
+                int currentId = ++hoverVersion; // Unikalne ID dla tego konkretnego najechania
+
+
+                await Task.Delay(250);
+
+
+                if (currentId == hoverVersion && !isDragging)
+                {
+                    descryption.style.display = DisplayStyle.Flex;
+                    tooltipLabel.text = item.description;
+
+                }
+            });
+            itemRoot.RegisterCallback<PointerLeaveEvent>(evt =>
+            {
+                hoverVersion++; // Zmieniamy ID, więc oczekujący Task z PointerEnter nic nie wyświetli
+
+
+                descryption.style.display = DisplayStyle.None;
+
+            });
+            itemRoot.RegisterCallback<PointerMoveEvent>(evt => {
+
+                // 1. Definiujemy margines od myszki i krawędzi ekranu
+                float offset = 20f;
+                float screenPadding = 10f;
+
+                float mouseX = evt.position.x;
+                float mouseY = evt.position.y;
+                float rootWidth = root.resolvedStyle.width;
+
+                // 2. Obliczamy dostępną szerokość po prawej stronie myszki
+                // Dostępne miejsce = Szerokość ekranu - Pozycja myszy - Margines od myszy - Margines od krawędzi
+                float availableWidth = rootWidth - mouseX - offset - screenPadding;
+
+                // 3. Ograniczamy szerokość elementu (z zachowaniem sensownego minimum, np. 100px)
+                float minWidth = 150f;
+                float finalWidth = Mathf.Max(minWidth, availableWidth);
+
+                descryption.style.maxWidth = finalWidth;
+
+                // 4. Ustawiamy pozycję
+                descryption.style.left = mouseX + offset;
+                descryption.style.top = mouseY + offset;
+
+                // 5. Opcjonalnie: Jeśli nawet przy minimalnej szerokości wystaje za ekran, 
+                // przerzuć go na lewą stronę myszy
+                if (availableWidth < minWidth)
+                {
+                    // Tutaj tooltip "odskoczy" na lewo, jeśli po prawej jest ekstremalnie mało miejsca
+                    descryption.style.left = StyleKeyword.Null; // Czyścimy lewo
+                    descryption.style.right = (rootWidth - mouseX) + offset;
+                    descryption.style.maxWidth = 300; // Resetujemy max width do standardu
+                }
+                else
+                {
+                    descryption.style.right = StyleKeyword.Null;
+                }
+
+            });
+
+
+
+            scroll.contentContainer.Add(itemRoot);
+
+
+
+
+        }
+        else
+        {
+            // 🔹 ITEM ISTNIEJE → UPDATE
+            Label qtyLabel = existing.Q<Label>("ItemQty");
+            Label weightLabel = existing.Q<Label>("ItemWeight");
+
+            if (qtyLabel == null)
+            {
+                return;
+            }
+
+            int oldQty = int.Parse(qtyLabel.text);
+            int newQty = oldQty + quantity;
+
+            qtyLabel.text = newQty.ToString();
+            weightLabel.text = (newQty * weight).ToString();
+        }
+        RefreshOSItemsStyles();
+
+    }
+    bool colorAvalibleRecipie;
+    VisualElement AvalibleRecipie(Item item) 
+    {
+        //root element
+        VisualElement Recipie = new VisualElement();
+        Recipie.style.flexDirection = FlexDirection.Row;
+        Recipie.style.width = Length.Percent(100);
+        Recipie.style.height = 50;
+        if (colorAvalibleRecipie)
+            Recipie.style.backgroundColor = (UnityColor)new Color32(35, 32, 29, 255);
+        else
+            Recipie.style.backgroundColor = (UnityColor)new Color32(45, 43, 40, 255);
+        Recipie.style.paddingBottom = 5;
+        Recipie.style.paddingTop = 5;
+        //ico
+        
+            VisualElement icon = new VisualElement();
+            icon.style.width = Length.Percent(10);
+            Image iconImage = new Image();
+            iconImage.sprite = item.icon;
+            iconImage.scaleMode = ScaleMode.ScaleToFit;
+            icon.Add(iconImage);
+        //item name
+        VisualElement itemName = new VisualElement();
+        Label itemTextName = new Label();
+        itemTextName.text = item.itemName.ToString();
+        itemTextName.style.color =(UnityColor) new Color32(127, 127, 126, 255);
+        itemTextName.style.unityFontStyleAndWeight = FontStyle.Bold;
+        itemName.style.justifyContent = Justify.Center;
+        itemName.style.alignItems = Align.Center;
+        itemName.style.width = Length.Percent(50);
+        itemName.Add(itemTextName);
+        //Crafintg selector buttons
+        VisualElement buttons = new VisualElement();
+        Label craftQuantity = new Label();//quantity ile craftujesz
+        buttons.style.width = Length.Percent(40);
+        buttons.style.flexDirection = FlexDirection.Row;
+        buttons.style.justifyContent = Justify.FlexEnd;
+        buttons.style.alignItems = Align.Center;
+        buttons.style.paddingRight = 10;
+        Button subButton = new Button();
+        subButton.text = "-";
+        subButton.style.unityFontStyleAndWeight = FontStyle.Bold;
+        subButton.style.fontSize = 30;
+        subButton.style.width = Length.Percent(25);
+        subButton.style.height = Length.Percent(80);
+        subButton.clicked += () => subFromCrafting(craftQuantity , item);
+        buttons.Add(subButton);
+        //-----------------------------------
+       
+        craftQuantity.text = "0";
+        craftQuantity.style.unityTextAlign = TextAnchor.MiddleCenter;
+        craftQuantity.style.fontSize = 30;
+        craftQuantity.style.unityFontStyleAndWeight = FontStyle.Bold;
+        craftQuantity.style.width = Length.Percent(50);
+
+
+        
+        //-----------------------------------
+        Button addButton = new Button();
+        addButton.text = "+";
+        addButton.style.unityFontStyleAndWeight = FontStyle.Bold;
+        addButton.style.fontSize = 30;
+        addButton.style.width = Length.Percent(25);
+        addButton.style.height = Length.Percent(80);
+        addButton.clicked += () => AddToCrafting(craftQuantity, item);
+
+        buttons.Add(craftQuantity);
+        buttons.Add(addButton);
+
+
+        Recipie.Add(icon);
+        Recipie.Add(itemName);
+        Recipie.Add(buttons);
+
+        colorAvalibleRecipie = !colorAvalibleRecipie;
+        return Recipie;
+    }
+    void subFromCrafting(Label Quantity, Item item)
+    {
+        int qty = int.Parse(Quantity.text);
+
+  
+        if (qty > 0)
+        {
+      
+            qty--;
+            Quantity.text = qty.ToString();
+
+
+            foreach (Item ingredient in item.craftingRecipe.itemsList)
+            {
+                // A. Logika danych: Zabierz z craftingu, oddaj graczowi
+                craftingInventory.RemoveFromInventory(craftingInventory.inventory, ingredient, 1);
+                playerInventory.AddToInventory(playerInventory.inventory, 1, ingredient);
+
+
+                // B. Logika UI Ekwipunku: Dodaj przedmiot z powrotem do listy UI
+                // Korzystamy z Twojej metody 'addItem' (z UI_Script), 
+                // która sprawdza czy dodać nowy wiersz, czy zwiększyć cyferkę
+                addItem(ingredient.itemName, ingredient.itemType.ToString(),1, ingredient.weight, ingredient.icon, ingredient);
+
+                // C. Logika Wizualna: Usuń fizyczny element ze stołu
+                RemoveOneItemFromTable(ingredient);
+            }
+
+            // 3. Odświeżenie wyglądu listy i wagi
+            RefreshItemsStyles();
+            weightRefresh();
+        }
+    }
+    void RemoveOneItemFromTable(Item itemToRemove)
+    {
+        // 1. Znajdź kontener stołu
+        VisualElement table = root.Q<VisualElement>("Table");
+        if (table == null) return;
+
+        // 2. Pobierz wszystkie elementy na stole, które mają klasę "TableItem"
+        // (tę klasę nadajesz w funkcji AddItemToTable w linii 1042)
+        var itemsOnTable = table.Query<VisualElement>(className: "TableItem").ToList();
+
+        // 3. Przeszukaj elementy, aby znaleźć ten pasujący do zwracanego przedmiotu
+        foreach (var itemElement in itemsOnTable)
+        {
+            if (itemElement.userData is ItemData data)
+            {
+                // Sprawdzamy, czy to jest ten sam przedmiot (ScriptableObject)
+                if (data.originalItem == itemToRemove)
+                {
+                    // 4. Usuwamy tylko JEDNĄ sztukę z UI i kończymy funkcję (return)
+                    itemElement.RemoveFromHierarchy();
+                    return;
+                }
+            }
+        }
+    }
+    int GetCountManual(List<Item> inventory, Item itemToFind)
+    {
+        int count = 0;
+        foreach (Item i in inventory)
+        {
+            if (i == itemToFind)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+    void AddToCrafting(Label Quantity, Item item)
+    {
+        bool canAfford = true;
+
+        var recipeGrouped = item.craftingRecipe.itemsList
+            .GroupBy(i => i)
+            .Select(g => new { Item = g.Key, Required = g.Count() });
+
+        foreach (var requirement in recipeGrouped)
+        {
+            // Liczymy ile mamy TERAZ w plecaku
+            int inPlayerInv = playerInventory.inventory.Count(i => i != null && i.itemID == requirement.Item.itemID);
+            Debug.Log($"Szukam: {requirement.Item.itemName}. W plecaku mam: {inPlayerInv} sztuk. Potrzebuję: {requirement.Required}");
+            // Sprawdzamy TYLKO czy mamy wystarczająco na JEDNĄ kolejną sztukę
+            // Nie mnożymy przez (currentQty + 1), bo poprzednie sztuki już zabraliśmy!
+            if (inPlayerInv < requirement.Required)
+            {
+                canAfford = false;
+                break;
+            }
+        }
+
+
+        if (canAfford)
+            {
+                int qty = int.Parse(Quantity.text);
+                qty++;
+                Quantity.text = qty.ToString();
+
+                VisualElement tableRoot = root.Q<VisualElement>("Table");
+
+                // 3. Logika przenoszenia
+                foreach (Item ingredient in item.craftingRecipe.itemsList)
+                {
+                    // Pozycja na stole
+                    Vector2 tablePos = new Vector2(50, 50);
+
+                    // WAŻNE: Musisz przekazać pełne dane ItemData, inaczej AddItemToTable wywali błąd na ikonie
+                    ItemData dataForTable = new ItemData
+                    {
+                        originalItem = ingredient,
+                        icon = ingredient.icon != null ? ingredient.icon : defaultPlaceholderIcon,
+                        name = ingredient.itemName,
+                        weight = ingredient.weight
+                    };
+
+                    // Dodaj wizualnie na stół
+                    AddItemToTable(tableRoot, dataForTable, tablePos, 1);
+
+                    // Przenieś w danych
+                    craftingInventory.AddToInventory(craftingInventory.inventory, 1, ingredient);
+                    playerInventory.RemoveFromInventory(playerInventory.inventory, ingredient, 1);
+
+                    // USUWANIE Z UI: 
+                    // Używamy Twojej istniejącej metody RemoveItem, która aktualizuje Label qty w ScrollView
+                    RemoveItem(ingredient.itemName, 1);
+                }
+
+                // WYDAJNOŚĆ: Odświeżamy style (kolory wierszy) TYLKO RAZ po dodaniu wszystkich składników
+                RefreshItemsStyles();
+                weightRefresh(); // Aktualizujemy wagę całkowitą
+            }
+            else
+            {
+                Debug.Log("Brak składników!");
+            }
+        }
+    void UpdateAvalibleRecipies() 
+    {
+
+        VisualElement AvalibleRecipies = root.Q<VisualElement>("CraftableList");
+        AvalibleRecipies.Clear();
+        colorAvalibleRecipie=false;
+        foreach (Item item in AvalibleToCraft.allItems)
+        {
+            VisualElement Recipie = AvalibleRecipie(item);
+            AvalibleRecipies.Add(Recipie);
+        }
+
+
+
+    }
+    public void OnSelectSlot(InputAction.CallbackContext context)
+    {
+      
+        if (context.performed)
+        {
+            
+            string keyName = context.control.name;//pobiera nazwe klawisza -- index QSLOTA
+            if (int.TryParse(keyName, out int slotIndex))
+            {
+                swapQSlots(slotIndex - 1);
+            }
+        }
+    }
+
+    void swapQSlots(int index)
+    {
+        Log("Swapuję na slot: " + index);
+        
+    
+        Item slotItem = GetOriginalItemFromSlot(index);
+        Item leftHandItem = GetItemLeftHand();
+
+        // 2. Przygotuj dane dla slotu (idzie tam to, co było w ręce)
+        if (leftHandItem != null)
+        {
+            ItemData handData = new ItemData
+            {
+                name = leftHandItem.itemName,
+                category = leftHandItem.itemType.ToString(),
+                weight = leftHandItem.weight,
+                icon = leftHandItem.icon != null ? leftHandItem.icon : defaultPlaceholderIcon,
+                originalItem = leftHandItem
+            };
+            SetSlotData(qSlotsList[index], handData);
+        }
+        else
+        {
+            // Jeśli ręka była pusta, wyczyść slot
+            ClearSlot(qSlotsList[index]);
+        }
+
+        // 3. Przygotuj dane dla ręki (idzie tam to, co było w slocie)
+        if (slotItem != null)
+        {
+            ItemData slotData = new ItemData
+            {
+                name = slotItem.itemName,
+                category = slotItem.itemType.ToString(),
+                weight = slotItem.weight,
+                icon = slotItem.icon != null ? slotItem.icon : defaultPlaceholderIcon,
+                originalItem = slotItem
+            };
+            SetSlotData(LHand, slotData);
+        }
+        else 
+        {
+           
+            ClearSlot(LHand);
+        }
+
+        weightRefresh();
+    }
+    public void swapHands()
+    {
+        
+
+        Item rightHandItem = GetItemRightHand();
+        Item leftHandItem = GetItemLeftHand();
+
+        // 2. Przygotuj dane dla slotu (idzie tam to, co było w ręce)
+        if (leftHandItem != null)
+        {
+            ItemData leftHandData = new ItemData
+            {
+                name = leftHandItem.itemName,
+                category = leftHandItem.itemType.ToString(),
+                weight = leftHandItem.weight,
+                icon = leftHandItem.icon != null ? leftHandItem.icon : defaultPlaceholderIcon,
+                originalItem = leftHandItem
+            };
+            SetSlotData(RHand, leftHandData);
+        }
+        else
+        {
+            // Jeśli ręka była pusta, wyczyść slot
+            ClearSlot(RHand);
+        }
+
+        // 3. Przygotuj dane dla ręki (idzie tam to, co było w slocie)
+        if (rightHandItem != null)
+        {
+            ItemData rightHandData = new ItemData
+            {
+                name = rightHandItem.itemName,
+                category = rightHandItem.itemType.ToString(),
+                weight = rightHandItem.weight,
+                icon = rightHandItem.icon != null ? rightHandItem.icon : defaultPlaceholderIcon,
+                originalItem = rightHandItem
+            };
+            SetSlotData(LHand, rightHandData);
+        }
+        else
+        {
+            // Jeśli slot był pusty, wyczyść rękę
+            ClearSlot(LHand);
+        }
+    }
+
+    void ClearSlot(VisualElement slot)
+    {
+        Image icon = slot.Q<Image>("Item_Icon");
+        if (icon != null) icon.image = null;
+        Label nameLabel = slot.Q<Label>("Slot_Info");
+        if (nameLabel != null) nameLabel.text = string.Empty;
+        slot.userData = null;
+    }
+
+    private async void  Start()
+    {
+        await Task.Delay(1000);
+        UpdateAvalibleRecipies();
+        //Log("Wystartowało UI");
+
+
+    }
+
+    private void initRightClick()
+    {
+        VisualElement optionWindow  = new VisualElement();
+        optionWindow.style.width = 200;
+        optionWindow.style.height = StyleKeyword.Auto;
+        optionWindow.style.flexGrow = 0;
+        optionWindow.style.position = Position.Absolute;
+        optionWindow.style.color =(UnityColor) new Color32(127, 127, 126, 255);
+        optionWindow.style.fontSize = 20;
+        optionWindow.style.display = DisplayStyle.None;
+        optionWindow.name = "OptionWindow";
+        optionWindow.style.backgroundColor=(UnityColor)new Color32(28, 28, 28, 255);
+        optionWindow.style.paddingBottom = 5;
+        optionWindow.style.paddingTop = 5;
+        optionWindow.style.paddingLeft = 5;
+        optionWindow.style.paddingRight = 5;
+        Label nameLabel = new Label();
+        nameLabel.style.width = Length.Percent(100);
+        nameLabel.style.height = 20;
+        nameLabel.name = "nameLabel";
+        nameLabel.style.unityTextAlign= TextAnchor.MiddleCenter;
+        nameLabel.style.overflow=Overflow.Hidden;
+        nameLabel.style.marginBottom = 10;
+        optionWindow.Add(nameLabel);
+        Button buildButton = new Button();
+        buildButton.text = "Build";
+        buildButton.clickable.clicked += () => UseItem(RightClicked);
+        buildButton.clickable.clicked += () => HideOptionWindow();
+        buildButton.style.width = Length.Percent(100);
+        buildButton.style.height = 40;
+        buildButton.style.backgroundColor = (UnityColor)new Color32(35, 32, 29, 255);
+        optionWindow.Add(buildButton);
+        Button dropButton = new Button();
+        dropButton.text = "Drop";
+        dropButton.style.height = 40;
+        dropButton.style.width = Length.Percent(100);
+        //dropButton.clickable.clicked=()=>DropItem()
+        dropButton.clickable.clicked += () => HideOptionWindow();
+        
+        dropButton.style.backgroundColor = (UnityColor)new Color32(45, 43, 40, 255);
+        optionWindow.Add(dropButton);
+     
+         root.Add(optionWindow);
+
+
+
+    }
+
+    private void HideOptionWindow()
+    {
+        VisualElement optionWindow = root.Q<VisualElement>("OptionWindow");
+        optionWindow.style.display = DisplayStyle.None;
+        optionWindow.pickingMode = PickingMode.Ignore;
+    }
+    private void ShowOptionWindow(Vector2 mousePosition)
+    {
+        VisualElement optionWindow = root.Q<VisualElement>("OptionWindow");
+        Label nameLabel = optionWindow.Q<Label>("nameLabel");
+        ItemData data = RightClicked.userData as ItemData;
+        nameLabel.text = data.originalItem.name.ToString();
+        optionWindow.style.display = DisplayStyle.Flex;
+        optionWindow.pickingMode = PickingMode.Position;
+        Vector2 localPos = optionWindow.parent.WorldToLocal(mousePosition);
+        optionWindow.style.left = localPos.x;
+        optionWindow.style.top = localPos.y;
     }
 }
