@@ -68776,7 +68776,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: inventory.Array.size
-      value: 56
+      value: 53
       objectReference: {fileID: 0}
     - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: 'inventory.Array.data[4]'
@@ -68969,23 +68969,11 @@ PrefabInstance:
     - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: 'inventory.Array.data[51]'
       value: 
-      objectReference: {fileID: 11400000, guid: 9070327771e793863ba2375f3663809e, type: 2}
+      objectReference: {fileID: 11400000, guid: e94dd22570b286963ad44a4a7790587e, type: 2}
     - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: 'inventory.Array.data[52]'
       value: 
-      objectReference: {fileID: 11400000, guid: 9070327771e793863ba2375f3663809e, type: 2}
-    - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
-      propertyPath: 'inventory.Array.data[53]'
-      value: 
-      objectReference: {fileID: 11400000, guid: 9070327771e793863ba2375f3663809e, type: 2}
-    - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
-      propertyPath: 'inventory.Array.data[54]'
-      value: 
-      objectReference: {fileID: 11400000, guid: 9070327771e793863ba2375f3663809e, type: 2}
-    - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
-      propertyPath: 'inventory.Array.data[55]'
-      value: 
-      objectReference: {fileID: 11400000, guid: 9070327771e793863ba2375f3663809e, type: 2}
+      objectReference: {fileID: 11400000, guid: e94dd22570b286963ad44a4a7790587e, type: 2}
     - target: {fileID: 262931418499783343, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: m_Layer
       value: 1
@@ -69126,10 +69114,6 @@ PrefabInstance:
       propertyPath: blockedMaterial
       value: 
       objectReference: {fileID: 2100000, guid: 44431b2131a5d2d599e2ae838bfa44c5, type: 2}
-    - target: {fileID: 3632851759638591114, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
-      propertyPath: snapRotationDegrees
-      value: 45
-      objectReference: {fileID: 0}
     - target: {fileID: 3666541362520654510, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: m_Layer
       value: 1

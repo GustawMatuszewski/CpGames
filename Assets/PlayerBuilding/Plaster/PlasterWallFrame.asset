@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 773518987f83ce650876c2337be76d44, type: 3}
-  m_Name: BrickDoorFrame
+  m_Name: PlasterWallFrame
   m_EditorClassIdentifier: 
-  itemID: 3
-  itemName: Brick Door Frame
+  itemID: 2137
+  itemName: PlasterWallFrame
   icon: {fileID: 0}
-  description: A brick door frame.
+  description: Wall :3 w/ a hole
   useScript: {fileID: 0}
-  craftingRecipe: {fileID: 11400000, guid: 64cf50d8aa7829ec9a0789eb87b0ad91, type: 2}
-  weight: 10
+  craftingRecipe: {fileID: 0}
+  weight: 0
   durability: 0
-  usesLeft: 1
+  usesLeft: 0
   burnCalories: 0
-  itemType: 10
-  materialType: 3
-  constructionPrefab: {fileID: 6612603227374951970, guid: ab73eafb528d4c9fa89ac119ee81bd19, type: 3}
+  itemType: 5
+  materialType: 1
+  constructionPrefab: {fileID: 6612603227374951970, guid: 5c45f6e785a92b538896941496ddc296, type: 3}
