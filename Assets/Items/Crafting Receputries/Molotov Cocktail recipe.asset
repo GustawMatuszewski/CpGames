@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 029a295352290703c93ec2587c40619c, type: 3}
+  m_Name: Molotov Cocktail recipe
+  m_EditorClassIdentifier: 
+  recipeID: 2
+  itemsList:
+  - {fileID: 11400000, guid: 348aceb350eebba4b8be8061b2864432, type: 2}
+  - {fileID: 11400000, guid: cef4a8d3215ad4841bdfd6d9f5c21298, type: 2}
+  - {fileID: 11400000, guid: 5affb1f451c09944084f9637b96aae79, type: 2}
+  outcomeItem: {fileID: 11400000, guid: 00b6cdeedc539c044a8dd6d6721b93e7, type: 2}
+  toolNeeded: 0

@@ -9,18 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2f2a8361b3cd33018170cab145fe1a4, type: 3}
-  m_Name: Coal
+  m_Script: {fileID: 11500000, guid: dd8830252424942188d77e1ae61b005a, type: 3}
+  m_Name: Roll of Duct Tape
   m_EditorClassIdentifier: 
-  itemID: 0
-  itemName: Coal
-  icon: {fileID: 21300000, guid: fc4f729d9c42900d3bb55e82c93c4d9d, type: 3}
-  description: Coal BUUURN ITTTT
+  itemID: 20
+  itemName: Roll of Duct Tape
+  icon: {fileID: 0}
+  description: 
   useScript: {fileID: 0}
   craftingRecipe: {fileID: 0}
-  weight: 0.1
+  weight: 0
   durability: 0
-  usesLeft: 1
-  burnCalories: 68
-  itemType: 1
-  materialType: 1
+  usesLeft: 0
+  burnCalories: 0
+  itemType: 5
+  materialType: 0
