@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 1784096281}
   - component: {fileID: 1784096280}
   - component: {fileID: 1784096283}
+  - component: {fileID: 1784096284}
   - component: {fileID: 1784096279}
   m_Layer: 5
   m_Name: Main
@@ -241,6 +242,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3a9508e692a3739aad14d64852f4345, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_AudioSettings
+--- !u!114 &1784096284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1784096275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ece294c62aca9e0428867089d93668b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI_CustomizationSettings
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
