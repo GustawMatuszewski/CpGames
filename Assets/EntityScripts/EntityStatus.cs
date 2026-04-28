@@ -611,7 +611,7 @@ public class EntityStatus : MonoBehaviour
 
         if (environmentManager == null)
         {
-            environmentManager = Object.FindFirstObjectByType<EnvironmentManager>();
+            environmentManager = Object.FindAnyObjectByType<EnvironmentManager>();
             if (environmentManager == null && debugMode) Debug.LogWarning("no env manager");
         }
 

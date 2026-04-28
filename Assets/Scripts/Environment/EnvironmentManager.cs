@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.Rendering;
 using Unity.VisualScripting;
+using UnityEngine.VFX;
 
 public class EnvironmentManager : MonoBehaviour
 {
@@ -57,6 +58,19 @@ public class EnvironmentManager : MonoBehaviour
     [Range(0,100)] public float currentHumidity;
     public float windSpeed;
 
+    [Header("Rain VFX")]
+    public VisualEffect rainVFX;
+
+    [Header("VFX Parameter Names")]
+    public string rainSpawnRateName = "SpawnRate";
+    
+    [Tooltip("Max particles/s at rainIntensity =1")]
+    public float rainMaxSpawnRate = 200f;
+
+    [Tooltip("Rain won't play at all below this threshold")]
+    [Range(0f, 0.1f)]
+    public float rainMinIntensityThreshold = 0.02f;
+
     [Header("Wind settings")]
     public Vector2 windDirection = new Vector2(1f, 0f); 
     [Tooltip("The temperature perveived with the wind, can be used for things like making the player feel colder when the wind is strong")]
@@ -71,7 +85,11 @@ public class EnvironmentManager : MonoBehaviour
 
 
     private VisualEnvironment visualEnv;
-    private WeatherPreset nextPreset;
+    // private WeatherPreset nextPreset;
+    // Add anywhere inside EnvironmentManager class
+    public bool IsTransitioning => isTransitioning;
+    public WeatherPreset TargetPreset => targetPreset;
+    public float TransitionProgress => transitionProgress;
 
     
     void Start()
@@ -119,8 +137,10 @@ public class EnvironmentManager : MonoBehaviour
     }
     private void OnValidate()
     {
+        if(sunLight==null || moonLight == null) return;
         UpdateLight();
         CheckShadowStatus();
+        if (activePreset != null) ApplyCloudsAndFog();
     }
     void UpdateTimeText()
     {
@@ -148,6 +168,8 @@ public class EnvironmentManager : MonoBehaviour
         }
         
         perceivedWindTemperature = currentTemperature - (windSpeed*windChillFactor);
+
+        
         
     }
 
@@ -157,6 +179,7 @@ public class EnvironmentManager : MonoBehaviour
         CheckShadowStatus();
         ApplyCloudsAndFog();
         ApplyWind();
+        ApplyRainVFX();
     }
 
     void UpdateLight()
@@ -200,27 +223,46 @@ public class EnvironmentManager : MonoBehaviour
         moonLight.gameObject.SetActive(moonActive);
     }
     void ApplyCloudsAndFog()
+{
+    if (activePreset == null) return;
+    float normalizedTime = currentTime / 24f;
+
+    float density      = activePreset.cloudsDensityCurve.Evaluate(normalizedTime);
+    float altitude     = activePreset.cloudsBottomAltitudeCurve.Evaluate(normalizedTime);
+    float fogDensity   = activePreset.fogDensityCurve.Evaluate(normalizedTime);
+    float shapeFactor  = activePreset.shapeFactor;
+    float erosionFactor = activePreset.erosionFactor;
+    float altRange     = activePreset.AltitudeRange;
+    float rainIntensity = activePreset.rainIntensity;
+    Color rainFogColor  = activePreset.rainFogColor;
+
+    if (isTransitioning && targetPreset != null)
     {
-        if (activePreset == null) return;
-        float normalizedTime = currentTime/24f;
-        if(volumetricClouds != null)
-        {
-            volumetricClouds.densityMultiplier.value = activePreset.cloudsDensityCurve.Evaluate(normalizedTime);
-            volumetricClouds.bottomAltitude.value = activePreset.cloudsBottomAltitudeCurve.Evaluate(normalizedTime);
-
-            volumetricClouds.shapeFactor.value = activePreset.shapeFactor;
-            volumetricClouds.erosionFactor.value = activePreset.erosionFactor;
-            volumetricClouds.altitudeRange.value = activePreset.AltitudeRange;
-        }
-
-        // if(volumetricClouds != null && ) 
-
-        if(volumetricFog != null)
-        {
-            volumetricFog.meanFreePath.value = activePreset.fogDensityCurve.Evaluate(normalizedTime);
-            volumetricFog.albedo.value = Color.Lerp(baseFogColor, activePreset.rainFogColor, activePreset.rainIntensity); // if it's raining, lerp the fog color towards the rain fog color based on the rain intensity
-        }
+        density       = Mathf.Lerp(density, targetPreset.cloudsDensityCurve.Evaluate(normalizedTime), transitionProgress);
+        altitude      = Mathf.Lerp(altitude, targetPreset.cloudsBottomAltitudeCurve.Evaluate(normalizedTime), transitionProgress);
+        fogDensity    = Mathf.Lerp(fogDensity, targetPreset.fogDensityCurve.Evaluate(normalizedTime), transitionProgress);
+        shapeFactor   = Mathf.Lerp(shapeFactor, targetPreset.shapeFactor, transitionProgress);
+        erosionFactor = Mathf.Lerp(erosionFactor, targetPreset.erosionFactor, transitionProgress);
+        altRange      = Mathf.Lerp(altRange, targetPreset.AltitudeRange, transitionProgress);
+        rainIntensity = Mathf.Lerp(rainIntensity, targetPreset.rainIntensity, transitionProgress);
+        rainFogColor  = Color.Lerp(rainFogColor, targetPreset.rainFogColor, transitionProgress);
     }
+
+    if (volumetricClouds != null)
+    {
+        volumetricClouds.densityMultiplier.value = density;
+        volumetricClouds.bottomAltitude.value    = altitude;
+        volumetricClouds.shapeFactor.value       = shapeFactor;
+        volumetricClouds.erosionFactor.value     = erosionFactor;
+        volumetricClouds.altitudeRange.value     = altRange;
+    }
+
+    if (volumetricFog != null)
+    {
+        volumetricFog.meanFreePath.value = fogDensity;
+        volumetricFog.albedo.value = Color.Lerp(baseFogColor, rainFogColor, rainIntensity);
+    }
+}
     void ApplyWind()
     {
         if(windZone != null)
@@ -241,6 +283,22 @@ public class EnvironmentManager : MonoBehaviour
             // visualEnv.windOrientation.value = windAngle;
             visualEnv.windOrientation.value = windZone.transform.eulerAngles.y;
         }
+    }
+
+    void ApplyRainVFX(){
+        if (rainVFX == null || activePreset == null) return;
+
+        float intensity = activePreset.rainIntensity;
+
+        if (isTransitioning && targetPreset != null)
+            intensity = Mathf.Lerp(intensity, targetPreset.rainIntensity, transitionProgress);
+
+        bool shouldPlay = intensity >= rainMinIntensityThreshold;
+
+        if (shouldPlay != rainVFX.gameObject.activeSelf)
+            rainVFX.gameObject.SetActive(shouldPlay);
+
+        if (shouldPlay) rainVFX.SetFloat(rainSpawnRateName, intensity * rainMaxSpawnRate);
     }
     void HandleWeatherTransitionTimer()
     {

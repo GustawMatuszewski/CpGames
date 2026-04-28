@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 773518987f83ce650876c2337be76d44, type: 3}
+  m_Name: BrickCornerWall
+  m_EditorClassIdentifier: 
+  itemID: 3
+  itemName: Brick corner wall
+  icon: {fileID: 0}
+  description: A brick door frame.
+  useScript: {fileID: 0}
+  craftingRecipe: {fileID: 11400000, guid: 64cf50d8aa7829ec9a0789eb87b0ad91, type: 2}
+  weight: 10
+  durability: 0
+  usesLeft: 1
+  burnCalories: 0
+  itemType: 10
+  materialType: 3
+  constructionPrefab: {fileID: 6612603227374951970, guid: 502a0c7257a2bf0e7b0a72d773be36a4, type: 3}
