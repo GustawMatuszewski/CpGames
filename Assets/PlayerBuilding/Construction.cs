@@ -9,8 +9,6 @@ public class Construction : MonoBehaviour, IInteractable
     public float timeToBuild;
     public bool canBeBurnt;
     public float tempHealth;
-    [Header("Variants")]
-    public List<Construction> variants;
     [Header("Ghost Visuals")]
     public Material ghostMaterial;
     public Material slotUnfilledMaterial;
