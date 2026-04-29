@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections.Generic;
 using System.Collections;
-using UnityEngine.Rendering;
 
 public class EnemyEntity : BaseEntity
 {
@@ -25,254 +24,134 @@ public class EnemyEntity : BaseEntity
 
     [Header("AI Optimization")]
     public float aiUpdateInterval = 0.15f;
+
     [Header("State")]
     public EntityState enemyState = EntityState.Patrol;
 
-    private Vector3 patrolPoint;
-    private float patrolTimer;
-    private Vector3 lastKnownTargetPos;
-    private float investigateTimer;
-    private bool isWaiting;
-    private Combat combat;
-    private AttackTemplate currentAttack;
-    private float attackRange;
-    private float attackRotateSpeed = 5f;
+    // ── Window traversal ──────────────────────────────────────────
+    [Header("Window Traversal")]
+    [Tooltip("Speed the enemy moves while vaulting through a window.")]
+    public float windowTraversalSpeed = 2.5f;
+    [Tooltip("Animator state name to play during the vault. Empty = skip.")]
+    public string windowVaultAnimation = "WindowVault";
 
-        // -----------------------------------------------------------------------
-    // OPTIMIZATION: Group AI fields.
-    // Leader does all expensive perception; followers just read the result.
+    // ── Private ───────────────────────────────────────────────────
+    private Vector3 patrolPoint;
+    private float   patrolTimer;
+    private Vector3 lastKnownTargetPos;
+    private float   investigateTimer;
+    private bool    isWaiting;
+    private Combat  combat;
+    private float   attackRange;
+    private float   attackRotateSpeed = 5f;
+    private bool    _traversingWindow = false;
+
+    // ── Group AI ──────────────────────────────────────────────────
     [Header("Group AI (set by EnemyManager)")]
-    public bool isGroupLeader = false;
+    public bool        isGroupLeader = false;
     public EnemyEntity groupLeader;
     [HideInInspector] public GameObject groupSharedTarget;
-    [HideInInspector] public bool groupTargetDetected;
-
-    // -----------------------------------------------------------------------
-    // PERCEPTION: If true, this follower runs its own full vision check
-    // instead of blindly copying the leader's result. Costs more CPU per
-    // enemy but means every enemy with this flag can independently spot
-    // the player and ping the leader to confirm + decide pathing.
-    // Use for elite/tactical enemies. Leave false for dumb grunt types.
+    [HideInInspector] public bool       groupTargetDetected;
     public bool hasIndependentVision = false;
-    // -----------------------------------------------------------------------
- 
-    // -----------------------------------------------------------------------
-    // OPTIMIZATION: Cached visible target from last perception tick.
-    // Behavior methods read this instead of re-running detection.
-    private GameObject cachedVisibleTarget;
-    // -----------------------------------------------------------------------
 
-    // BUG FIX: Przeniesione z Awake do Start — Awake odpala się zanim Unity
-    // przypisze serializowane pola (jak attackTemplates) do komponentów,
-    // które mogły być dodane w tym samym czasie co EnemyEntity.
-    // Start gwarantuje że wszystkie Awake() już się wykonały.
+    private GameObject cachedVisibleTarget;
+
+    // ─────────────────────────────────────────────────────────────
     void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
+        agent  = GetComponent<NavMeshAgent>();
         player = FindAnyObjectByType<KCC>();
         combat = GetComponent<Combat>();
 
         if (combat != null && combat.attackTemplates.Count > 0)
         {
             attackRange = combat.attackTemplates[0].range;
-
-            // Jesli range w AttackTemplate jest za male (np. 0.5), NavMesh nigdy
-            // nie zatrzyma wroga wystarczajaco blisko i nigdy nie wejdzie w stan Attack.
             if (attackRange < 1.5f)
             {
-                Debug.LogWarning("[EnemyEntity] AttackTemplate.range = " + attackRange +
-                    " jest za male. Zmien range na >= 1.5 w AttackTemplate. Tymczasowo uzywam 1.5.");
+                Debug.LogWarning("[EnemyEntity] AttackTemplate.range " + attackRange +
+                    " too small — using 1.5. Fix in AttackTemplate.");
                 attackRange = 1.5f;
             }
-
             agent.stoppingDistance = attackRange * 0.8f;
-            Debug.Log("[EnemyEntity] Zasieg ataku: " + attackRange + ", stoppingDistance: " + agent.stoppingDistance);
         }
         else
         {
-            Debug.LogError("[EnemyEntity] LISTA ATAKOW JEST PUSTA! Dodaj AttackTemplate do listy Combat na tym obiekcie.");
+            Debug.LogError("[EnemyEntity] No AttackTemplates found on " + name);
         }
 
-        // -----------------------------------------------------------------------
-        // OPTIMIZATION: Register with EnemyManager so it can assign groups.
-        // Stagger each enemy's first AI tick randomly to spread load across frames.
+        // IMPORTANT: disable auto-traversal so we can run our own coroutine
+        // for window vaulting. Without this, Unity just glides the agent
+        // across the link with no animation or speed control.
+        agent.autoTraverseOffMeshLink = false;
+
         EnemyManager.Instance?.RegisterEnemy(this);
         StartCoroutine(AIPerceptionLoop());
-        // -----------------------------------------------------------------------
     }
 
-        void OnDestroy()
+    void OnDestroy()
     {
-        // -----------------------------------------------------------------------
         EnemyManager.Instance?.UnregisterEnemy(this);
-        // -----------------------------------------------------------------------
     }
 
-    // -----------------------------------------------------------------------
-    // OPTIMIZATION: Replaces FixedUpdate for all perception logic.
-    // Runs every aiUpdateInterval seconds, staggered per enemy.
-    // For 8 enemies at 0.15s: ~53 perception ticks/sec total
-    // vs old FixedUpdate: 400 ticks/sec (8 × 50Hz). ~7.5× less work.
+    // ── AI loop (coroutine, staggered) ────────────────────────────
     IEnumerator AIPerceptionLoop()
     {
-        // Stagger startup so enemies don't all tick on frame 1
         yield return new WaitForSeconds(Random.Range(0f, aiUpdateInterval));
- 
         while (true)
         {
-            RunPerception();
-            RunStateMachine();
+            if (!_traversingWindow)
+            {
+                RunPerception();
+                RunStateMachine();
+            }
             yield return new WaitForSeconds(aiUpdateInterval);
         }
     }
-    // -----------------------------------------------------------------------
- 
-    void RunPerception()
-{
-    if (!isGroupLeader && groupLeader != null)
-    {
-        // -----------------------------------------------------------------------
-        // ORPHAN GUARD: If leader reference is stale, self-promote.
-        // EnemyManager will clean this up on next regroup (0.5s).
-        if (groupLeader == null)
-        {
-            isGroupLeader = true;
-            return;
-        }
 
-        if (!hasIndependentVision)
-        {
-            groupTargetDetected = groupLeader.groupTargetDetected;
-            groupSharedTarget   = groupLeader.groupSharedTarget;
-            cachedVisibleTarget = groupSharedTarget;
-
-            // STATE SYNC: Follower mirrors leader's alert state.
-            // Without this, followers copy the target data but never act on it —
-            // they stay in Patrol while the leader chases.
-            if (groupLeader.groupTargetDetected && groupSharedTarget != null)
-            {
-                currentTarget      = groupSharedTarget;
-                lastKnownTargetPos = groupSharedTarget.transform.position;
-
-                // Don't override Attack — if a follower is already in melee, let it finish
-                if (enemyState != EntityState.Attack) enemyState = EntityState.Sprint;
-            }
-            else if (groupLeader.enemyState == EntityState.Search && enemyState != EntityState.Attack && enemyState != EntityState.Sprint)
-            {
-                // Leader is investigating something — followers sweep with it
-                lastKnownTargetPos = groupLeader.lastKnownTargetPos;
-                enemyState         = EntityState.Search;
-            }
-
-            return;
-        }
-
-        // hasIndependentVision == true path:
-        // Run cheap FOV dot product only — no OverlapSphere, no full raycast yet.
-        // If we spot something, ping the leader to confirm and decide movement.
-        // This is the middle ground: aware but not doing the heavy lifting.
-        if (player != null)
-        {
-            Vector3 toPlayer = player.transform.position - transform.position;
-            float sqrDist    = toPlayer.sqrMagnitude;
-
-            if (sqrDist <= viewDistance * viewDistance)
-            {
-                float dot           = Vector3.Dot(transform.forward, toPlayer.normalized);
-                float halfAngleCos  = Mathf.Cos(viewAngle * 0.5f * Mathf.Deg2Rad);
-
-                if (dot >= halfAngleCos)
-                {
-                    // In our FOV — ping the leader with suspected position.
-                    // Leader does the one expensive raycast to confirm.
-                    groupLeader.ReceiveSuspicionPing(player.transform.position);
-                }
-            }
-        }
-
-        // Still inherit the leader's confirmed result for our own movement
-        groupTargetDetected = groupLeader.groupTargetDetected;
-        groupSharedTarget   = groupLeader.groupSharedTarget;
-        cachedVisibleTarget = groupSharedTarget;
-        return;
-        // -----------------------------------------------------------------------
-    }
-
-    // ... rest of leader perception unchanged
-        // -----------------------------------------------------------------------
- 
-        // Leader (or solo enemy) does the real work:
-        DetectEntitiesInSphere(transform.position, viewDistance, entityMask, groundMask, entities);
- 
-        GameObject visible = CheckForVisibleTarget();
-        if (visible == null && player != null && CanSeeTarget(player.transform))
-            visible = player.gameObject;
- 
-        Vector3? heard = null;
-        if (visible == null && enemyState != EntityState.Attack)
-            heard = CheckForNoise();
- 
-        cachedVisibleTarget = visible;
- 
-        // -----------------------------------------------------------------------
-        // OPTIMIZATION: Write shared result so group followers can read it.
-        groupTargetDetected = visible != null;
-        groupSharedTarget   = visible;
-        // -----------------------------------------------------------------------
- 
-        // Update state based on perception result
-        if (visible != null)
-        {
-            currentTarget        = visible;
-            lastKnownTargetPos   = currentTarget.transform.position;
-            investigateTimer     = investigateTime;
-            if (enemyState != EntityState.Attack)
-                enemyState = EntityState.Sprint;
-        }
-        else if (heard.HasValue)
-        {
-            if (enemyState != EntityState.Attack && enemyState != EntityState.Sprint)
-            {
-                lastKnownTargetPos = heard.Value;
-                enemyState         = EntityState.Search;
-                investigateTimer   = investigateTime;
-                if (debugMode) Debug.Log("Noise heard from: " + lastKnownTargetPos);
-            }
-        }
-    }
- 
-    void RunStateMachine()
-    {
-        switch (enemyState)
-        {
-            case EntityState.Patrol:  PatrolBehavior();                   break;
-            case EntityState.Sprint:  ChaseBehavior(cachedVisibleTarget); break;
-            case EntityState.Search:  InvestigateBehavior();              break;
-            case EntityState.Attack:  AttackBehavior();                   break;
-        }
-    }
- 
-    // -----------------------------------------------------------------------
-    // OPTIMIZATION: Smooth rotation lives in Update() — it needs per-frame
-    // precision. Everything else moved to the coroutine.
+    // ── Update: per-frame work + link detection ───────────────────
     void Update()
     {
+        // ── Window link detection ──────────────────────────────────
+        // agent.isOnOffMeshLink is true for BOTH old OffMeshLinks AND
+        // NavMeshLink — that property name is kept for API compatibility.
+        // We identify it as a window by checking for a Window component
+        // in the parent hierarchy of the link's GameObject.
+        if (!_traversingWindow && agent != null && agent.isOnOffMeshLink)
+        {
+            OffMeshLinkData linkData = agent.currentOffMeshLinkData;
+
+            // linkData.offMeshLink is only populated for the legacy OffMeshLink.
+            // For NavMeshLink, linkData.offMeshLink is NULL — we use the
+            // nearest position to find our Window GO instead.
+            Window window = FindWindowAtLink(linkData);
+
+            if (window != null)
+            {
+                StartCoroutine(TraverseWindow(linkData));
+                return;
+            }
+
+            // Not a window link — let the agent handle it normally.
+            // (autoTraverseOffMeshLink = false means we must complete it manually
+            //  for non-window links too, otherwise the agent gets stuck.)
+            agent.CompleteOffMeshLink();
+        }
+
+        // ── Normal per-frame ───────────────────────────────────────
         if (enemyState == EntityState.Attack && currentTarget != null)
             RotateTowardsTarget(currentTarget.transform.position);
- 
-        // Patrol wait timer still needs real time
+
         if (isWaiting)
         {
             patrolTimer -= Time.deltaTime;
             if (patrolTimer <= 0f)
             {
-                isWaiting  = false;
+                isWaiting   = false;
                 patrolPoint = GetRandomPatrolPoint();
                 TrySetDestination(patrolPoint);
             }
         }
- 
-        // Investigate countdown needs real time
+
         if (enemyState == EntityState.Search && agent.remainingDistance <= agent.stoppingDistance)
         {
             investigateTimer -= Time.deltaTime;
@@ -280,85 +159,186 @@ public class EnemyEntity : BaseEntity
                 enemyState = EntityState.Patrol;
         }
     }
-    // -----------------------------------------------------------------------
- 
-    GameObject CheckForVisibleTarget()
+
+    // ── Window link identification ────────────────────────────────
+    // NavMeshLink does not expose itself through OffMeshLinkData.offMeshLink.
+    // Instead we do an OverlapSphere at the link's start position and look
+    // for a GO that has a Window component anywhere in its hierarchy.
+    // Radius 1.5f is tight enough to avoid false positives at normal door spacing.
+    Window FindWindowAtLink(OffMeshLinkData linkData)
     {
-        foreach (GameObject entity in entities)
+        // Check start position of the link
+        Collider[] nearby = Physics.OverlapSphere(linkData.startPos, 1.5f);
+        foreach (Collider col in nearby)
         {
-            if (entity == null) continue;
-            if (entity == this.gameObject) continue;
- 
-            BaseEntity other = entity.GetComponent<BaseEntity>();
-            if (other != null && other.faction == this.faction) continue;
- 
-            if (CanSeeTarget(entity.transform))
-                return entity;
+            Window w = col.GetComponentInParent<Window>();
+            if (w != null && w.state == Window.WindowState.Broken)
+                return w;
         }
+
+        // Also check end position (bidirectional: enemy may approach from inside)
+        nearby = Physics.OverlapSphere(linkData.endPos, 1.5f);
+        foreach (Collider col in nearby)
+        {
+            Window w = col.GetComponentInParent<Window>();
+            if (w != null && w.state == Window.WindowState.Broken)
+                return w;
+        }
+
         return null;
     }
- 
-    bool CanSeeTarget(Transform target)
+
+    // ── Window vault coroutine ────────────────────────────────────
+    IEnumerator TraverseWindow(OffMeshLinkData linkData)
     {
-        Vector3 origin    = transform.position + Vector3.up;
-        Vector3 targetPos = target.position + Vector3.up;
- 
-        Vector3 dirToTarget = targetPos - origin;
-        float distance      = dirToTarget.magnitude;
- 
-        if (distance > viewDistance) return false;
- 
-        dirToTarget.Normalize();
- 
-        Vector3 flatDir = (target.position - transform.position).normalized;
-        flatDir.y = 0;
- 
-        if (Vector3.Angle(transform.forward, flatDir) > viewAngle * 0.5f) return false;
-        if (Physics.Raycast(origin, dirToTarget, distance, obstacleMask))  return false;
- 
-        return true;
-    }
- 
-    Vector3? CheckForNoise()
-    {
-        Collider[] collidersInRange = Physics.OverlapSphere(transform.position, hearingRadius);
- 
-        SoundController loudest = null;
-        float maxSpeed  = 0f;
-        bool foundSound = false;
- 
-        for (int i = 0; i < collidersInRange.Length; i++)
+        _traversingWindow = true;
+        agent.isStopped   = true;       // we drive movement, not the agent
+
+        Vector3 startPos = agent.transform.position;
+        Vector3 endPos   = linkData.endPos + Vector3.up * agent.baseOffset;
+
+        // Play vault animation if configured
+        Animator anim = GetComponent<Animator>();
+        if (anim != null && !string.IsNullOrEmpty(windowVaultAnimation))
+            anim.CrossFade(windowVaultAnimation, 0.1f);
+
+        // Smooth lerp across the opening
+        float distance = Vector3.Distance(startPos, endPos);
+        float duration = Mathf.Max(distance / Mathf.Max(windowTraversalSpeed, 0.1f), 0.15f);
+        float elapsed  = 0f;
+
+        while (elapsed < duration)
         {
-            SoundController sc = collidersInRange[i].GetComponent<SoundController>();
-            if (sc == null) continue;
- 
-            float speed = sc.GetVelocity().magnitude;
-            if (speed < minVelocityThreshold) continue;
-            if (speed > maxSpeed)
-            {
-                maxSpeed    = speed;
-                loudest     = sc;
-                foundSound  = true;
-            }
+            elapsed += Time.deltaTime;
+            float t  = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            agent.transform.position = Vector3.Lerp(startPos, endPos, t);
+
+            Vector3 dir = (endPos - startPos).normalized;
+            if (dir != Vector3.zero)
+                agent.transform.rotation = Quaternion.Slerp(
+                    agent.transform.rotation,
+                    Quaternion.LookRotation(dir),
+                    Time.deltaTime * 12f);
+
+            yield return null;
         }
- 
-        return (foundSound && loudest != null) ? loudest.transform.position : (Vector3?)null;
+
+        agent.transform.position = endPos;
+
+        // Hand control back to the NavMeshAgent on the far side
+        agent.CompleteOffMeshLink();
+        agent.isStopped   = false;
+        _traversingWindow = false;
+
+        // Old path was computed from outside — invalidate so next
+        // TrySetDestination does a clean CalculatePath from inside.
+        InvalidateDestinationCache();
+
+        if (debugMode) Debug.Log("[EnemyEntity] Window traversal complete → " + endPos);
     }
- 
+
+    // ── Perception ────────────────────────────────────────────────
+    void RunPerception()
+    {
+        if (!isGroupLeader && groupLeader != null)
+        {
+            if (groupLeader == null) { isGroupLeader = true; return; }
+
+            if (!hasIndependentVision)
+            {
+                groupTargetDetected = groupLeader.groupTargetDetected;
+                groupSharedTarget   = groupLeader.groupSharedTarget;
+                cachedVisibleTarget = groupSharedTarget;
+
+                if (groupLeader.groupTargetDetected && groupSharedTarget != null)
+                {
+                    currentTarget      = groupSharedTarget;
+                    lastKnownTargetPos = groupSharedTarget.transform.position;
+                    if (enemyState != EntityState.Attack) enemyState = EntityState.Sprint;
+                }
+                else if (groupLeader.enemyState == EntityState.Search
+                         && enemyState != EntityState.Attack
+                         && enemyState != EntityState.Sprint)
+                {
+                    lastKnownTargetPos = groupLeader.lastKnownTargetPos;
+                    enemyState         = EntityState.Search;
+                }
+                return;
+            }
+
+            // Independent vision follower: cheap FOV dot-product only
+            if (player != null)
+            {
+                Vector3 toPlayer = player.transform.position - transform.position;
+                if (toPlayer.sqrMagnitude <= viewDistance * viewDistance)
+                {
+                    float dot          = Vector3.Dot(transform.forward, toPlayer.normalized);
+                    float halfAngleCos = Mathf.Cos(viewAngle * 0.5f * Mathf.Deg2Rad);
+                    if (dot >= halfAngleCos)
+                        groupLeader.ReceiveSuspicionPing(player.transform.position);
+                }
+            }
+
+            groupTargetDetected = groupLeader.groupTargetDetected;
+            groupSharedTarget   = groupLeader.groupSharedTarget;
+            cachedVisibleTarget = groupSharedTarget;
+            return;
+        }
+
+        // ── Leader / solo full perception ─────────────────────────
+        DetectEntitiesInSphere(transform.position, viewDistance, entityMask, groundMask, entities);
+
+        GameObject visible = CheckForVisibleTarget();
+        if (visible == null && player != null && CanSeeTarget(player.transform))
+            visible = player.gameObject;
+
+        Vector3? heard = null;
+        if (visible == null && enemyState != EntityState.Attack)
+            heard = CheckForNoise();
+
+        cachedVisibleTarget = visible;
+        groupTargetDetected = visible != null;
+        groupSharedTarget   = visible;
+
+        if (visible != null)
+        {
+            currentTarget      = visible;
+            lastKnownTargetPos = currentTarget.transform.position;
+            investigateTimer   = investigateTime;
+            if (enemyState != EntityState.Attack) enemyState = EntityState.Sprint;
+        }
+        else if (heard.HasValue && enemyState != EntityState.Attack && enemyState != EntityState.Sprint)
+        {
+            lastKnownTargetPos = heard.Value;
+            enemyState         = EntityState.Search;
+            investigateTimer   = investigateTime;
+            if (debugMode) Debug.Log("Noise heard at: " + lastKnownTargetPos);
+        }
+    }
+
+    // ── State machine ─────────────────────────────────────────────
+    void RunStateMachine()
+    {
+        switch (enemyState)
+        {
+            case EntityState.Patrol: PatrolBehavior();                    break;
+            case EntityState.Sprint: ChaseBehavior(cachedVisibleTarget);  break;
+            case EntityState.Search: InvestigateBehavior();               break;
+            case EntityState.Attack: AttackBehavior();                    break;
+        }
+    }
+
     void PatrolBehavior()
     {
-        if (isWaiting) return; // timer handled in Update()
- 
+        if (isWaiting) return;
         if (!agent.hasPath || agent.remainingDistance <= agent.stoppingDistance)
         {
             isWaiting   = true;
             patrolTimer = Random.Range(minPatrolInterval, maxPatrolInterval);
             agent.ResetPath();
         }
- 
-        if (debugMode) Debug.Log("Patrol");
     }
- 
+
     void ChaseBehavior(GameObject visibleTarget)
     {
         if (visibleTarget == null)
@@ -370,7 +350,6 @@ public class EnemyEntity : BaseEntity
             return;
         }
 
-        // Project player to ground
         Vector3 targetPos = visibleTarget.transform.position;
         NavMeshHit hit;
         if (NavMesh.SamplePosition(targetPos, out hit, 10f, NavMesh.AllAreas))
@@ -381,146 +360,161 @@ public class EnemyEntity : BaseEntity
 
         if (dist <= agent.stoppingDistance + 0.2f)
         {
-            enemyState = EntityState.Attack;
+            enemyState      = EntityState.Attack;
             agent.isStopped = true;
         }
         else
         {
             agent.isStopped = false;
-            
-            // ONLY update the destination if the agent is stuck OR the player moved a lot
-            // This keeps the steering "clean" for those 20m stretches
-            bool isMoving = agent.velocity.sqrMagnitude > 0.1f;
-            bool targetMovedSignificantly = Vector3.Distance(agent.destination, targetPos) > 2.5f || Mathf.Abs(agent.destination.y - targetPos.y) > 1.0f;
-
-            if (!isMoving || targetMovedSignificantly)
-            {
+            bool isMoving             = agent.velocity.sqrMagnitude > 0.1f;
+            bool targetMovedSignif    = Vector3.Distance(agent.destination, targetPos) > 2.5f
+                                     || Mathf.Abs(agent.destination.y - targetPos.y) > 1.0f;
+            if (!isMoving || targetMovedSignif)
                 TrySetDestination(targetPos);
-            }
         }
     }
- 
+
     void InvestigateBehavior()
     {
-        // -----------------------------------------------------------------------
-        // BUG FIX: Was calling TrySetDestination twice (once in if, once in else).
-        // Now called once. Timer countdown moved to Update().
         TrySetDestination(lastKnownTargetPos);
-        // -----------------------------------------------------------------------
- 
-        if (debugMode) Debug.Log("Investigate");
     }
- 
+
     void AttackBehavior()
     {
         if (currentTarget == null)
         {
-            enemyState        = EntityState.Search;
+            enemyState          = EntityState.Search;
             combat.combatActive = false;
             return;
         }
- 
+
         float dist = Vector3.Distance(transform.position, currentTarget.transform.position);
- 
         if (dist >= attackRange * 1.5f)
         {
-            enemyState        = EntityState.Sprint;
+            enemyState          = EntityState.Sprint;
             combat.combatActive = false;
             return;
         }
- 
+
         if (combat.currentAttack == null && combat.attackTemplates.Count > 0)
             combat.currentAttack = combat.attackTemplates[0];
- 
         combat.combatActive = true;
     }
- 
+
     Vector3 GetRandomPatrolPoint()
     {
-        Vector3 randomDir = Random.insideUnitSphere * patrolRange;
-        randomDir += transform.position;
- 
+        Vector3 randomDir = Random.insideUnitSphere * patrolRange + transform.position;
         NavMeshHit hit;
-        if (NavMesh.SamplePosition(randomDir, out hit, patrolRange, NavMesh.AllAreas))
-            return hit.position;
- 
-        return transform.position;
+        return NavMesh.SamplePosition(randomDir, out hit, patrolRange, NavMesh.AllAreas)
+            ? hit.position : transform.position;
     }
 
-    // -----------------------------------------------------------------------
-    // Called by followers with hasIndependentVision when their cheap FOV
-    // check passes. Leader does one raycast to confirm, then either
-    // transitions to Sprint or moves to investigate if wall-blocked.
     public void ReceiveSuspicionPing(Vector3 suspectedPos)
     {
-        if (!isGroupLeader) return; // safety — only leader processes this
+        if (!isGroupLeader) return;
 
         Vector3 origin = transform.position + Vector3.up;
         Vector3 dir    = ((suspectedPos + Vector3.up) - origin).normalized;
-        float dist     = Vector3.Distance(origin, suspectedPos + Vector3.up);
+        float   dist   = Vector3.Distance(origin, suspectedPos + Vector3.up);
 
         if (!Physics.Raycast(origin, dir, dist, obstacleMask))
         {
-            // Confirmed — treat as spotted
             groupSharedTarget   = player != null ? player.gameObject : null;
             groupTargetDetected = true;
             lastKnownTargetPos  = suspectedPos;
-            if (enemyState != EntityState.Attack)
-                enemyState = EntityState.Sprint;
+            if (enemyState != EntityState.Attack) enemyState = EntityState.Sprint;
         }
         else
         {
-            // Wall blocking leader's view — go investigate the ping
-            // Followers follow naturally since they track leader position
             lastKnownTargetPos = suspectedPos;
             enemyState         = EntityState.Search;
             InvalidateDestinationCache();
         }
     }
-    // -----------------------------------------------------------------------
- 
+
     void RotateTowardsTarget(Vector3 targetPosition)
     {
         Vector3 direction = (targetPosition - transform.position).normalized;
         direction.y = 0;
- 
         if (direction != Vector3.zero)
-        {
-            Quaternion lookRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * attackRotateSpeed);
-        }
+            transform.rotation = Quaternion.Slerp(transform.rotation,
+                Quaternion.LookRotation(direction), Time.deltaTime * attackRotateSpeed);
     }
- 
+
+    // ── Perception helpers ────────────────────────────────────────
+    GameObject CheckForVisibleTarget()
+    {
+        foreach (GameObject entity in entities)
+        {
+            if (entity == null || entity == gameObject) continue;
+            BaseEntity other = entity.GetComponent<BaseEntity>();
+            if (other != null && other.faction == faction) continue;
+            if (CanSeeTarget(entity.transform)) return entity;
+        }
+        return null;
+    }
+
+    bool CanSeeTarget(Transform target)
+    {
+        Vector3 origin    = transform.position + Vector3.up;
+        Vector3 targetPos = target.position + Vector3.up;
+        Vector3 dir       = targetPos - origin;
+        float   distance  = dir.magnitude;
+
+        if (distance > viewDistance) return false;
+
+        Vector3 flatDir = (target.position - transform.position).normalized;
+        flatDir.y = 0;
+        if (Vector3.Angle(transform.forward, flatDir) > viewAngle * 0.5f) return false;
+        if (Physics.Raycast(origin, dir.normalized, distance, obstacleMask)) return false;
+
+        return true;
+    }
+
+    Vector3? CheckForNoise()
+    {
+        Collider[] cols = Physics.OverlapSphere(transform.position, hearingRadius);
+        SoundController loudest = null;
+        float maxSpeed = 0f;
+
+        foreach (Collider col in cols)
+        {
+            SoundController sc = col.GetComponent<SoundController>();
+            if (sc == null) continue;
+            float speed = sc.GetVelocity().magnitude;
+            if (speed < minVelocityThreshold || speed <= maxSpeed) continue;
+            maxSpeed = speed;
+            loudest  = sc;
+        }
+
+        return loudest != null ? loudest.transform.position : (Vector3?)null;
+    }
+
+    // ── Gizmos ────────────────────────────────────────────────────
     void OnDrawGizmos()
     {
         if (!debugMode) return;
- 
+
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, viewDistance);
- 
-        Vector3 left  = Quaternion.Euler(0, -viewAngle / 2, 0) * transform.forward;
-        Vector3 right = Quaternion.Euler(0,  viewAngle / 2, 0) * transform.forward;
- 
+
         Gizmos.color = Color.red;
-        Gizmos.DrawRay(transform.position, left  * viewDistance);
-        Gizmos.DrawRay(transform.position, right * viewDistance);
- 
+        Gizmos.DrawRay(transform.position, Quaternion.Euler(0, -viewAngle / 2, 0) * transform.forward * viewDistance);
+        Gizmos.DrawRay(transform.position, Quaternion.Euler(0,  viewAngle / 2, 0) * transform.forward * viewDistance);
+
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, hearingRadius);
- 
+
         if (enemyState == EntityState.Search || enemyState == EntityState.Sprint)
         {
             Gizmos.color = Color.magenta;
             Gizmos.DrawWireSphere(lastKnownTargetPos, 0.5f);
             Gizmos.DrawLine(transform.position, lastKnownTargetPos);
         }
- 
-        // -----------------------------------------------------------------------
-        // DEBUG: Show which enemy is the group leader (green = leader, white = follower)
+
         Gizmos.color = isGroupLeader ? Color.green : Color.white;
         Gizmos.DrawWireSphere(transform.position, 0.6f);
-        // -----------------------------------------------------------------------
- 
+
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
     }
