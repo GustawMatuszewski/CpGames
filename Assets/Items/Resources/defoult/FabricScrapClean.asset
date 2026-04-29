@@ -9,18 +9,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2f2a8361b3cd33018170cab145fe1a4, type: 3}
-  m_Name: FabricScrap(Clean)
-  m_EditorClassIdentifier: Assembly-CSharp::ResourceItem
+  m_Script: {fileID: 11500000, guid: 4a9a7ed2b29bb197780353b85411c539, type: 3}
+  m_Name: FabricScrapClean
+  m_EditorClassIdentifier: Assembly-CSharp::FoodItem
   itemID: 543
-  itemName: FabricScrap(Clean)
+  itemName: FabricScrapClean
   icon: {fileID: 0}
-  description: Torn piece of cloth. Bandage padding, filter or repair patch.
+  description: Clean torn piece of cloth. Bandage padding, filter or repair patch.
   useScript: {fileID: 0}
   craftingRecipe: {fileID: 11400000, guid: 4dd5aa369893e63459d7a6800cce92d5, type: 2}
   weight: 0.1
   durability: 0
   usesLeft: 0
   burnCalories: 1000
-  itemType: 1
+  itemType: 6
   materialType: 6
+  foodState: 0
+  effects: 
+  protein: 0
+  fats: 0
+  carbs: 0
+  calories: 0
+  nurishment: 0
+  hydration: 0
+  eneryBoost: 0
