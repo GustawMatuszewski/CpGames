@@ -33963,7 +33963,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1066331543
 Transform:
   m_ObjectHideFlags: 0
@@ -69516,16 +69516,24 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 6984909933116002957}
     - target: {fileID: 4146921969818549613, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: debugMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4146921969818549613, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: entityType
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4146921969818549613, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
-      propertyPath: environmentManager
+      propertyPath: currentItem
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 4146921969818549613, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: environmentManager
+      value: 
+      objectReference: {fileID: 373898710}
+    - target: {fileID: 4146921969818549613, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: obstacleMask.m_Bits
-      value: 128
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4189086033720656838, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: m_Layer
