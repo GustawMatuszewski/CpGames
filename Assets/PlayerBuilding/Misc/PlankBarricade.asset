@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 773518987f83ce650876c2337be76d44, type: 3}
-  m_Name: MetalRoof1x1
+  m_Name: PlankBarricade
   m_EditorClassIdentifier: 
-  itemID: 3
-  itemName: Metal Roof 1x1
+  itemID: 2137
+  itemName: PlankBarricade
   icon: {fileID: 0}
-  description: A brick door frame.
+  description: Wall :3
   useScript: {fileID: 0}
-  craftingRecipe: {fileID: 11400000, guid: 64cf50d8aa7829ec9a0789eb87b0ad91, type: 2}
-  weight: 10
+  craftingRecipe: {fileID: 11400000, guid: 72c42e1cb41ce6c488bf06b199a91568, type: 2}
+  weight: 0
   durability: 0
-  usesLeft: 1
+  usesLeft: 0
   burnCalories: 0
-  itemType: 10
-  materialType: 3
-  constructionPrefab: {fileID: 6612603227374951970, guid: cb8d3ab5f4ae9cc6292c5b2f373d3c5a, type: 3}
+  itemType: 5
+  materialType: 1
+  constructionPrefab: {fileID: 6612603227374951970, guid: bf73d37c55d84603faf4a08dd84036d8, type: 3}

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7657176643036626990}
   - component: {fileID: 4110332912193720193}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (11)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26,11 +26,11 @@ Transform:
   m_GameObject: {fileID: 26148110577699304}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1, y: 0, z: 2.15}
+  m_LocalPosition: {x: -1, y: -1.5, z: 1.1500001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1339954351718128819}
+  m_Father: {fileID: 2832167520565782791}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &4110332912193720193
 BoxCollider:
@@ -63,7 +63,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6396856248716020901}
   - component: {fileID: 6117824051108379141}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -79,11 +79,11 @@ Transform:
   m_GameObject: {fileID: 355206671922477335}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: 0, z: 0.2}
+  m_LocalPosition: {x: 1, y: -1.5, z: -0.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1339954351718128819}
+  m_Father: {fileID: 2832167520565782791}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &6117824051108379141
 BoxCollider:
@@ -116,7 +116,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4765523555396024856}
   - component: {fileID: 1771891333824273717}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (14)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -132,11 +132,11 @@ Transform:
   m_GameObject: {fileID: 359024431505047849}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.8, y: 3, z: 2.15}
+  m_LocalPosition: {x: -0.8, y: 1.5, z: 1.1500001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1339954351718128819}
+  m_Father: {fileID: 2832167520565782791}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1771891333824273717
 BoxCollider:
@@ -169,7 +169,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1429094007700899533}
   - component: {fileID: 1658217261771734789}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (12)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -185,11 +185,11 @@ Transform:
   m_GameObject: {fileID: 2176861520920514820}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.8, y: 0, z: 2.15}
+  m_LocalPosition: {x: -0.8, y: -1.5, z: 1.1500001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1339954351718128819}
+  m_Father: {fileID: 2832167520565782791}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1658217261771734789
 BoxCollider:
@@ -222,7 +222,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6255121930382890745}
   - component: {fileID: 1703916339918580426}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (13)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -238,11 +238,11 @@ Transform:
   m_GameObject: {fileID: 2356229842577192883}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1, y: 3, z: 2.15}
+  m_LocalPosition: {x: -1, y: 1.5, z: 1.1500001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1339954351718128819}
+  m_Father: {fileID: 2832167520565782791}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1703916339918580426
 BoxCollider:
@@ -275,7 +275,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4816501396640150244}
   - component: {fileID: 8633527476299382069}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -291,11 +291,11 @@ Transform:
   m_GameObject: {fileID: 4016279477322209072}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: 0, z: 0}
+  m_LocalPosition: {x: 1, y: -1.5, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1339954351718128819}
+  m_Father: {fileID: 2832167520565782791}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &8633527476299382069
 BoxCollider:
@@ -328,7 +328,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7277804958707394433}
   - component: {fileID: 7799836615973154294}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (10)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -344,11 +344,11 @@ Transform:
   m_GameObject: {fileID: 7015542648013428509}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: 3, z: 0.2}
+  m_LocalPosition: {x: 1, y: 1.5, z: -0.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1339954351718128819}
+  m_Father: {fileID: 2832167520565782791}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &7799836615973154294
 BoxCollider:
@@ -381,7 +381,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1667404263042543704}
   - component: {fileID: 3792087426941064703}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -397,11 +397,11 @@ Transform:
   m_GameObject: {fileID: 7553366007636719687}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: 3, z: 0}
+  m_LocalPosition: {x: 1, y: 1.5, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1339954351718128819}
+  m_Father: {fileID: 2832167520565782791}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &3792087426941064703
 BoxCollider:
@@ -455,6 +455,14 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4816501396640150244}
+  - {fileID: 7657176643036626990}
+  - {fileID: 1429094007700899533}
+  - {fileID: 6255121930382890745}
+  - {fileID: 4765523555396024856}
+  - {fileID: 6396856248716020901}
+  - {fileID: 1667404263042543704}
+  - {fileID: 7277804958707394433}
   - {fileID: 1339954351718128819}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -486,10 +494,7 @@ MonoBehaviour:
   timeToBuild: 10
   canBeBurnt: 1
   tempHealth: 100
-  variants: []
   ghostMaterial: {fileID: 0}
-  slotUnfilledMaterial: {fileID: 0}
-  slotFilledMaterial: {fileID: 0}
   snapPoints: []
   lookAtPoint: {fileID: 0}
 --- !u!65 &5414134376522058442
@@ -571,31 +576,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 624151568049768807, guid: 038e520017ac4724f87d100078153fbd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4816501396640150244}
-    - targetCorrespondingSourceObject: {fileID: 624151568049768807, guid: 038e520017ac4724f87d100078153fbd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 7657176643036626990}
-    - targetCorrespondingSourceObject: {fileID: 624151568049768807, guid: 038e520017ac4724f87d100078153fbd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1429094007700899533}
-    - targetCorrespondingSourceObject: {fileID: 624151568049768807, guid: 038e520017ac4724f87d100078153fbd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6255121930382890745}
-    - targetCorrespondingSourceObject: {fileID: 624151568049768807, guid: 038e520017ac4724f87d100078153fbd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4765523555396024856}
-    - targetCorrespondingSourceObject: {fileID: 624151568049768807, guid: 038e520017ac4724f87d100078153fbd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6396856248716020901}
-    - targetCorrespondingSourceObject: {fileID: 624151568049768807, guid: 038e520017ac4724f87d100078153fbd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1667404263042543704}
-    - targetCorrespondingSourceObject: {fileID: 624151568049768807, guid: 038e520017ac4724f87d100078153fbd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 7277804958707394433}
+    m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 038e520017ac4724f87d100078153fbd, type: 3}
 --- !u!4 &1339954351718128819 stripped
