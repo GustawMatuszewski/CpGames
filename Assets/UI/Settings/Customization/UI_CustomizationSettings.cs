@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 public class UI_CustomizationSettings : MonoBehaviour
 {
     [SerializeField] private Material ghostMaterial;
-    private UIDocument UI_doc => GetComponent<MenuScript>().UI_doc;
+    private UIDocument UI_doc => GetComponent<UIDocument>();
     VisualElement BuildingGhostColor;
     void Awake()
     {

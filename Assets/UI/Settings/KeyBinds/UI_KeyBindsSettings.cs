@@ -5,8 +5,8 @@ public class UI_KeyBindsSettings : MonoBehaviour
 {
 
     [SerializeField] private Material ghostMaterial;
-    private UIDocument UI_doc => GetComponent<MenuScript>().UI_doc;
-    VisualElement BuildingGhostColor;
+    private UIDocument UI_doc => GetComponent<UIDocument>();
+  
     void Awake()
     {
 

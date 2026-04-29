@@ -1901,6 +1901,7 @@ public void SendItemList(List<Item> items)
         buildButton.name = "Build";
         buildButton.clickable.clicked += () => UseItem(RightClicked);
         buildButton.clickable.clicked += () => HideOptionWindow();
+        buildButton.clickable.clicked += () => HideInventory();
         buildButton.style.width = Length.Percent(100);
         buildButton.style.height = 40;
         buildButton.style.backgroundColor = (UnityColor)new Color32(35, 32, 29, 255);

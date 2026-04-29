@@ -6,8 +6,7 @@ using UnityEngine.UIElements;
 
 public class UI_VideoSettings : MonoBehaviour
 {
-
-    private UIDocument UI_doc => GetComponent<MenuScript>().UI_doc;
+    private UIDocument UI_doc => GetComponent<UIDocument>();
     void Awake()
     {
 
