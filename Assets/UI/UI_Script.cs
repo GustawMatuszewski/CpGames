@@ -363,9 +363,19 @@ public class UI_Script : MonoBehaviour
 
     public void UseItem(VisualElement itemRow)
     {
-        ItemData data = itemRow.userData as ItemData;
-        if (data == null || data.originalItem == null) return;
 
+        ItemData data = itemRow.userData as ItemData;
+
+        if (data == null || data.originalItem == null) return;
+        if (data.originalItem is FoodItem food)
+        {
+            Debug.Log($"Kliknięto jedzenie: {food.itemName}. Stan: {food.foodState}");
+            food.Use(data.originalItem, playerInventory);
+            RemoveItem(data.name);
+           
+            return;
+
+        }
         if (playerInventory == null)
         {
             Debug.LogWarning("[UI] playerInventory not assigned on UI_Script!");
@@ -378,7 +388,8 @@ public class UI_Script : MonoBehaviour
             Debug.LogWarning($"[UI] Could not find {data.originalItem.itemName} in inventory.");
             return;
         }
-
+        RemoveItem(data.name);
+        HideInventory();
         data.originalItem.Use(instance, playerInventory);
     }
 
@@ -1901,7 +1912,7 @@ public void SendItemList(List<Item> items)
         buildButton.name = "Build";
         buildButton.clickable.clicked += () => UseItem(RightClicked);
         buildButton.clickable.clicked += () => HideOptionWindow();
-        buildButton.clickable.clicked += () => HideInventory();
+       
         buildButton.style.width = Length.Percent(100);
         buildButton.style.height = 40;
         buildButton.style.backgroundColor = (UnityColor)new Color32(35, 32, 29, 255);

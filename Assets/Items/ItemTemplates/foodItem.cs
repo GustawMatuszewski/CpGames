@@ -23,7 +23,6 @@ public class FoodItem : Item
         rottenRaw
     }
 
-
     public enum Effect
     {
         none,
@@ -33,6 +32,7 @@ public class FoodItem : Item
         diareah,
         drunk
     }
+
     public FoodState foodState;
     public List<Effect> effects;
     public float protein;
@@ -43,5 +43,25 @@ public class FoodItem : Item
     public float hydration;
     public float eneryBoost;
 
-    
+    public override void Use(Item instance, Inventory playerInventory)
+    {
+        EntityStatus entity = playerInventory.GetComponentInChildren<EntityStatus>();
+        if (entity == null) entity = playerInventory.GetComponentInParent<EntityStatus>();
+
+        if (entity == null)
+        {
+            Debug.LogWarning($"[FoodItem] No EntityStatus found on player!");
+            return;
+        }
+
+        if (entity.isDead)
+        {
+            Debug.LogWarning($"[FoodItem] Cannot consume {itemName} — entity is dead.");
+            return;
+        }
+
+        entity.Consume(this);
+
+        Debug.Log($"[FoodItem] {itemName} consumed by {playerInventory.gameObject.name}");
+    }
 }
