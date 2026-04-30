@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 773518987f83ce650876c2337be76d44, type: 3}
-  m_Name: PlasterWallFrame
+  m_Name: BrickWallCorner
   m_EditorClassIdentifier: 
   itemID: 2137
-  itemName: PlasterWallFrame
+  itemName: BrickWallCorner
   icon: {fileID: 0}
-  description: Wall :3 w/ a hole
+  description: BrickWallCorner
   useScript: {fileID: 0}
   craftingRecipe: {fileID: 0}
   weight: 0
@@ -23,5 +23,5 @@ MonoBehaviour:
   usesLeft: 0
   burnCalories: 0
   itemType: 5
-  materialType: 1
-  constructionPrefab: {fileID: 6612603227374951970, guid: 5c45f6e785a92b538896941496ddc296, type: 3}
+  materialType: 3
+  constructionPrefab: {fileID: 6612603227374951970, guid: 997dd9cf91e61b2819e34fb3be9a0d36, type: 3}
