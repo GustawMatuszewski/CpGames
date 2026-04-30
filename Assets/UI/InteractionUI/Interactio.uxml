@@ -1,0 +1,23 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/InteractionUI/Interaction.uss?fileID=7433441132597879392&amp;guid=ce917e3c190ec454aa30a6748f0671d9&amp;type=3#Interaction"/>
+    <ui:VisualElement name="root">
+        <Rondo focusable="false" style="aspect-ratio: 1;">
+            <ui:VisualElement>
+                <ui:Image/>
+                <ui:Label text="Label"/>
+            </ui:VisualElement>
+            <ui:VisualElement>
+                <ui:Image/>
+                <ui:Label text="Label"/>
+            </ui:VisualElement>
+            <ui:VisualElement>
+                <ui:Image/>
+                <ui:Label text="Label"/>
+            </ui:VisualElement>
+            <ui:VisualElement>
+                <ui:Image/>
+                <ui:Label text="Label"/>
+            </ui:VisualElement>
+        </Rondo>
+    </ui:VisualElement>
+</ui:UXML>

@@ -39789,7 +39789,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1121775140}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
@@ -73873,16 +73873,32 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: inventory.Array.size
-      value: 37
+      value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: 'inventory.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: f097b58d95b1834f98d76bf3287b915b, type: 2}
+    - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: 'inventory.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: f097b58d95b1834f98d76bf3287b915b, type: 2}
+    - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: 'inventory.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: f097b58d95b1834f98d76bf3287b915b, type: 2}
+    - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: 'inventory.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 1be4c106c7cce625a89f23c4eed63f78, type: 2}
     - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: 'inventory.Array.data[4]'
       value: 
-      objectReference: {fileID: 11400000, guid: ee7c9300343312eb38c52498b2ac7eb3, type: 2}
+      objectReference: {fileID: 11400000, guid: 808a40a3a8cb2b24c927c2a4b7472b99, type: 2}
     - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: 'inventory.Array.data[5]'
       value: 
-      objectReference: {fileID: 11400000, guid: ee7c9300343312eb38c52498b2ac7eb3, type: 2}
+      objectReference: {fileID: 11400000, guid: 808a40a3a8cb2b24c927c2a4b7472b99, type: 2}
     - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: 'inventory.Array.data[6]'
       value: 
@@ -74187,6 +74203,10 @@ PrefabInstance:
       propertyPath: entityType
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4146921969818549613, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: currentItem
+      value: 
+      objectReference: {fileID: 11400000, guid: 808a40a3a8cb2b24c927c2a4b7472b99, type: 2}
     - target: {fileID: 4146921969818549613, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: environmentManager
       value: 
