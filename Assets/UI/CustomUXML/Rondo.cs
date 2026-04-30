@@ -15,7 +15,9 @@ public partial class Rondo : VisualElement
     private Color _segmentBorderColor = Color.black;
 
     private int hoverIndex = -1;
-    
+    // Wewnątrz klasy Rondo dodaj:
+    private List<float> _segmentAnimationWeights = new List<float>();
+    private const int AnimTimeMs = 200; // Czas trwania animacji w milisekundach
     public float InnerRadiusRatio 
     { 
         get => _innerRadiusRatio; 
@@ -48,24 +50,32 @@ public partial class Rondo : VisualElement
 
     public void SetSelectedSegment(int index, float scaleAmount)
     {
-        // Nawet jeśli index jest taki sam, pozwalamy przejść dalej, 
-        // jeśli chcemy mieć pewność odświeżenia, ale lepiej sprawdzić:
-        if (hoverIndex == index) return; 
-
+        if (hoverIndex == index) return;
         hoverIndex = index;
+
         var children = GetVisibleChildren();
+    
+        // Inicjalizacja wag, jeśli ich liczba się zmieniła
+        while (_segmentAnimationWeights.Count < children.Count) 
+            _segmentAnimationWeights.Add(0f);
 
         for (int i = 0; i < children.Count; i++)
         {
-            // 1. Resetujemy skale wszystkich dzieci
-            float s = (i == index) ? scaleAmount : 1f;
-            children[i].style.scale = new StyleScale(new Scale(new Vector2(s, s)));
-        
-            if (i == index) children[i].BringToFront();
-        }
+            int currentIndex = i; // Lokalne dla animacji
+            float targetWeight = (i == index) ? 1f : 0f;
+            float startWeight = _segmentAnimationWeights[i];
 
-        // 2. KLUCZOWE: Informujemy system, że geometria Painter2D (promienie) musi zostać przeliczona
-        MarkDirtyRepaint();
+            // 1. Animacja ikon (VisualElement) - to działa automatycznie
+            float targetScale = (i == index) ? scaleAmount : 1f;
+            children[i].experimental.animation.Scale(targetScale, AnimTimeMs);
+            if (i == index) children[i].BringToFront();
+
+            // 2. Animacja rysunku (Painter2D) - musimy animować naszą wagę ręcznie
+            this.experimental.animation.Start(startWeight, targetWeight, AnimTimeMs, (element, val) => {
+                _segmentAnimationWeights[currentIndex] = val;
+                MarkDirtyRepaint(); // Wymuszamy przerysowanie w każdej klatce animacji!
+            });
+        }
     }
 
     void OnGenerateVisualContent(MeshGenerationContext mgc)
@@ -75,33 +85,37 @@ public partial class Rondo : VisualElement
         int count = children.Count;
         if (count == 0) return;
 
+        // Upewniamy się, że mamy wagi dla wszystkich
+        while (_segmentAnimationWeights.Count < count) _segmentAnimationWeights.Add(0f);
+
         float maxRadius = Mathf.Min(contentRect.width, contentRect.height) / 2;
         Vector2 center = contentRect.size / 2;
         float angleStep = 360f / count;
 
-        // KROK 1: Rysujemy tła zwykłych segmentów
+        // Rysujemy najpierw te, które mają mniejszą wagę (są w tle)
+        // Aby to zrobić idealnie, można posortować indeksy po wadze, 
+        // ale zazwyczaj wystarczy narysować wszystko prócz hoverIndex, a on na końcu.
         for (int i = 0; i < count; i++)
         {
             if (i == hoverIndex) continue;
-            DrawSegment(painter, center, i, angleStep, maxRadius, children[i].resolvedStyle.backgroundColor, false);
+            DrawSegment(painter, center, i, angleStep, maxRadius, children[i].resolvedStyle.backgroundColor, _segmentAnimationWeights[i]);
         }
 
-        // KROK 2: Rysujemy zaznaczony segment na górze
         if (hoverIndex >= 0 && hoverIndex < count)
         {
-            DrawSegment(painter, center, hoverIndex, angleStep, maxRadius, children[hoverIndex].resolvedStyle.backgroundColor, true);
+            DrawSegment(painter, center, hoverIndex, angleStep, maxRadius, children[hoverIndex].resolvedStyle.backgroundColor, _segmentAnimationWeights[hoverIndex]);
         }
     }
 
-    private void DrawSegment(Painter2D painter, Vector2 center, int i, float angleStep, float maxRadius, Color fillColor, bool isHovered)
+    // Zmieniamy sygnaturę metody na przyjmowanie wagi
+    private void DrawSegment(Painter2D painter, Vector2 center, int i, float angleStep, float maxRadius, Color fillColor, float weight)
     {
-        // 1. Zmiana promienia (w głąb i na zewnątrz)
-       // float currentOuter = isHovered ? maxRadius + 12f : maxRadius;
-        //float currentInner = isHovered ? (maxRadius * InnerRadiusRatio) - 6f : (maxRadius * InnerRadiusRatio);
         float currentOuter = maxRadius;
         float currentInner = (maxRadius * InnerRadiusRatio);
-        // 2. POWIĘKSZANIE WZDŁUŻ 
-        float offsetAngle = isHovered ? 10 : 0f; 
+    
+        // PŁYNNE POWIĘKSZANIE WZDŁUŻ: Interpolacja od 0 do 10 stopni
+        float offsetAngle = Mathf.Lerp(0f, 20f, weight); 
+    
         float startAngle = (i * angleStep - 90f) - offsetAngle; 
         float endAngle = ((i + 1) * angleStep - 90f) + offsetAngle;
 
@@ -111,14 +125,16 @@ public partial class Rondo : VisualElement
         painter.ClosePath();
 
         if (fillColor.a == 0) fillColor = new Color(0.3f, 0.3f, 0.3f, 1f);
-        painter.fillColor = fillColor;
+    
+        // Opcjonalnie: możemy też animować kolor (rozjaśnianie wybranego)
+        painter.fillColor = Color.Lerp(fillColor, fillColor * 1.2f, weight);
         painter.Fill();
 
-        if (SegmentBorderWidth > 0 && SegmentBorderColor.a > 0)
+        if (SegmentBorderWidth > 0)
         {
-            painter.lineWidth = isHovered ? SegmentBorderWidth + 1f : SegmentBorderWidth;
+            painter.lineWidth = Mathf.Lerp(SegmentBorderWidth, SegmentBorderWidth + 1f, weight);
             painter.strokeColor = SegmentBorderColor;
-            painter.Stroke(); // Border rysuje się na wierzchu wypełnienia[cite: 1]
+            painter.Stroke();
         }
     }
 
