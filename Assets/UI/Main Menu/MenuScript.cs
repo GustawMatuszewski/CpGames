@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 public class MenuScript : MonoBehaviour
 {
-    public UIDocument UI_doc;
+    private UIDocument UI_doc => GetComponent<UIDocument>();
     VisualElement  root;
     VisualElement  Settings;
     TabView  SettingsTabs;

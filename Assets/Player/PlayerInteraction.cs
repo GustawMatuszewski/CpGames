@@ -52,8 +52,44 @@ public class PlayerInteraction : MonoBehaviour
     };
 
     // ── Unity ─────────────────────────────────────────────────────
-    void OnEnable() { interactAction.Enable(); }
-    void OnDisable() { interactAction.Disable(); }
+    void OnEnable() 
+    { 
+        interactAction.Enable(); 
+        // Podpinamy się pod moment wykonania interakcji
+        interactAction.performed += OnInteractPerformed; 
+    }
+
+    void OnDisable() 
+    { 
+        interactAction.Disable(); 
+        interactAction.performed -= OnInteractPerformed; 
+    }
+    private void OnInteractPerformed(InputAction.CallbackContext context)
+    {
+        // 1. Najpierw robimy Raycast, żeby wiedzieć na co patrzymy
+        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+        if (!Physics.Raycast(ray, out RaycastHit hit, interactionDistance)) return;
+
+        Door door = hit.collider.GetComponentInParent<Door>();
+        if (door == null) return;
+
+        // 2. Rozróżniamy Tap od Hold na podstawie ustawień z obrazka
+        if (context.interaction is UnityEngine.InputSystem.Interactions.TapInteraction)
+        {
+            // KLIKNIĘCIE: Wykonaj pierwszą akcję z listy (Default Action)
+            var actions = door.GetDoorActions();
+            if (actions.Count > 0 && actions[0].enabled) 
+            {
+                actions[0].execute?.Invoke();
+            }
+        }
+        else if (context.interaction is UnityEngine.InputSystem.Interactions.HoldInteraction)
+        {
+            // TRZYMANIE: Otwórz menu UI Toolkit (Rondo)
+            HandleSnapping(door, hit);
+            OpenMenu(door); // Ta metoda wywoła Twoje nowe UI
+        }
+    }
 
     void Start()
     {
@@ -67,74 +103,11 @@ public class PlayerInteraction : MonoBehaviour
 
     void Update()
     {
-        if (menuOpen)
-        {
-            Vector2 moveInput = player.input.PlayerInputMap.MoveInput.ReadValue<Vector2>();
-            if (moveInput.magnitude > 0.1f || Keyboard.current.escapeKey.wasPressedThisFrame)
-            {
-                CloseMenu();
-            }
-            return;
-        }
-
-        LookForInteraction();
-        HandleSnapLock();
+        HandleSnapLock();//Kiedys to wypierdzziele Wieze w to --- Windforce
     }
 
-    // ── Szukanie interakcji ───────────────────────────────────────
-    void LookForInteraction()
-    {
-        if (Keyboard.current.eKey.wasPressedThisFrame) 
-        {
-            Debug.Log("--- E KEY DETECTED BY KEYBOARD DIRECTLY ---");
-        }
 
-        if (!interactAction.WasPressedThisFrame()) return;
-        
-        Debug.Log("[Interact] Input Action Fired Successfully!");
 
-        if (!interactAction.WasPressedThisFrame()) return;
-        if (debugMode) Debug.Log("[Interact] Przycisk wciśnięty");
-
-        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        if (!Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
-        {
-            if (debugMode) Debug.Log("[Interact] Raycast nic nie trafił");
-            return;
-        }
-        if (debugMode) Debug.Log($"[Interact] Trafiono: {hit.collider.gameObject.name} (tag: {hit.collider.tag}, layer: {LayerMask.LayerToName(hit.collider.gameObject.layer)})");
-
-        // Sprawdź drzwi
-        Door door = hit.collider.GetComponentInParent<Door>();
-        if (door != null)
-        {
-            if (debugMode) Debug.Log("[Interact] Znaleziono Door — otwieram menu");
-            HandleSnapping(door, hit);
-            OpenMenu(door);
-            return;
-        }
-
-        // Sprawdź okno
-        Window window = hit.collider.GetComponentInParent<Window>();
-        if (window != null)
-        {
-            if (debugMode) Debug.Log("[Interact] Znaleziono Window — otwieram menu");
-            HandleSnapping(window, hit);
-            OpenMenu(window);
-            return;
-        }
-
-        // Inne IInteractable
-        IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
-        if (interactable == null)
-        {
-            if (debugMode) Debug.Log("[Interact] Brak IInteractable, Door ani Window na obiekcie");
-            return;
-        }
-
-        HandleSnapping(interactable, hit);
-        interactable.OnInteract();
-    }
 
     void HandleSnapping(IInteractable interactable, RaycastHit hit)
     {

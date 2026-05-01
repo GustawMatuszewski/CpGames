@@ -54,30 +54,83 @@ public partial class Rondo : VisualElement
         hoverIndex = index;
 
         var children = GetVisibleChildren();
-    
-        // Inicjalizacja wag, jeśli ich liczba się zmieniła
         while (_segmentAnimationWeights.Count < children.Count) 
             _segmentAnimationWeights.Add(0f);
 
         for (int i = 0; i < children.Count; i++)
         {
-            int currentIndex = i; // Lokalne dla animacji
+            int currentIndex = i;
             float targetWeight = (i == index) ? 1f : 0f;
             float startWeight = _segmentAnimationWeights[i];
 
-            // 1. Animacja ikon (VisualElement) - to działa automatycznie
-            float targetScale = (i == index) ? scaleAmount : 1f;
-            children[i].experimental.animation.Scale(targetScale, AnimTimeMs);
-            if (i == index) children[i].BringToFront();
+            // LOGIKA SKALI: Tylko sąsiedzi
+            float targetIconScale = 1.0f;
+            if (index != -1) {
+                bool isNeighbor = (i == (index + 1) % children.Count) || 
+                                  (i == (index - 1 + children.Count) % children.Count);
+            
+                if (i == index) targetIconScale = 1.0f; // Wybrany zostaje normalny
+                else if (isNeighbor) targetIconScale = 0.5f; // Sąsiedzi maleją[cite: 5]
+                else targetIconScale = 1.0f; // Reszta bez zmian
+            }
 
-            // 2. Animacja rysunku (Painter2D) - musimy animować naszą wagę ręcznie
+            // Animacja skali ikon
+            children[i].experimental.animation.Scale(targetIconScale, AnimTimeMs);
+
+            // Animacja tła i pozycji
             this.experimental.animation.Start(startWeight, targetWeight, AnimTimeMs, (element, val) => {
                 _segmentAnimationWeights[currentIndex] = val;
-                MarkDirtyRepaint(); // Wymuszamy przerysowanie w każdej klatce animacji!
+            
+                // KLUCZOWE: W każdej klatce animacji przeliczamy układ, 
+                // aby ikony płynnie reagowały na zmiany wag
+                UpdateIconLayout();
+                MarkDirtyRepaint();
             });
         }
     }
+    private void UpdateIconLayout()
+    {
+        var children = GetVisibleChildren();
+        int count = children.Count;
+        if (count == 0 || contentRect.width <= 0) return;
 
+        // Upewniamy się, że wagi są gotowe
+        while (_segmentAnimationWeights.Count < count) _segmentAnimationWeights.Add(0f);
+
+        float radius = Mathf.Min(contentRect.width, contentRect.height) / 2;
+        float placementRadius = radius * (1 + InnerRadiusRatio) / 2;
+        Vector2 center = contentRect.size / 2;
+        float angleStepRad = (2.0f * Mathf.PI) / count;
+
+        for (int i = 0; i < count; i++)
+        {
+            var child = children[i];
+    
+            // Pobieramy wagę animacji lewego i prawego sąsiada
+            float w_prev = _segmentAnimationWeights[(i - 1 + count) % count];
+            float w_next = _segmentAnimationWeights[(i + 1) % count];
+
+            // WAŻNE: maxOffsetDegrees MUSI być takie samo jak w DrawSegment (tutaj 20 stopni)
+            float maxOffsetDegrees = 20f; 
+
+            // Różnica wag sąsiadów wpływa na przesunięcie wizualnego środka tego elementu
+            float shiftDegrees = (w_prev * maxOffsetDegrees - w_next * maxOffsetDegrees) / 2f;
+            float shiftRadians = shiftDegrees * Mathf.Deg2Rad;
+
+            // OBLICZANIE NOWEGO ŚRODKA: Podstawowy kąt + przesunięcie wymuszone przez sąsiada
+            float midAngle = (i * angleStepRad) + (angleStepRad / 2f) - (Mathf.PI / 2f) + shiftRadians;
+    
+            float targetX = center.x + Mathf.Cos(midAngle) * placementRadius;
+            float targetY = center.y + Mathf.Sin(midAngle) * placementRadius;
+
+            child.style.position = Position.Absolute;
+            child.style.left = targetX;
+            child.style.top = targetY;
+        
+            // Zapewniamy wyśrodkowanie samej ikonki (pivot na środek grafiki)
+            child.style.translate = new Translate(new Length(-50, LengthUnit.Percent), new Length(-50, LengthUnit.Percent));
+        }
+    }
     void OnGenerateVisualContent(MeshGenerationContext mgc)
     {
         var painter = mgc.painter2D;
@@ -158,6 +211,7 @@ public partial class Rondo : VisualElement
             child.style.translate = new Translate(new Length(-50, LengthUnit.Percent), new Length(-50, LengthUnit.Percent));
         }
         MarkDirtyRepaint();
+        UpdateIconLayout();
     }
     private List<VisualElement> GetVisibleChildren() {
         List<VisualElement> visible = new List<VisualElement>();

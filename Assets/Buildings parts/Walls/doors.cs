@@ -71,16 +71,16 @@ public class Door : MonoBehaviour, IInteractable
             case DoorState.Locked:
                 actions.Add(new DoorAction
                 {
+                    label = "Odblokuj",
+                    enabled = true,
+                    execute = DoorUnlock
+                });
+                actions.Add(new DoorAction
+                {
                     label = "Otwórz (wyważ)",
                     enabled = true,
                     duration = 3f,
                     execute = DoorOpen
-                });
-                actions.Add(new DoorAction
-                {
-                    label = "Odblokuj",
-                    enabled = true,
-                    execute = DoorUnlock
                 });
                 break;
         }

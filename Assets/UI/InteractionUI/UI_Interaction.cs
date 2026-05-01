@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 public class UI_Interaction : MonoBehaviour
 {
-    public UIDocument UI_doc;
+    private UIDocument UI_doc => GetComponent<UIDocument>();
     private Rondo _rondoElement;
     private VisualElement _root; // Dodajemy referencję do roota
     private int _lastIndex = -1; // Śledzimy poprzedni wybór
