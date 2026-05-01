@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 773518987f83ce650876c2337be76d44, type: 3}
-  m_Name: WallTemplate
+  m_Name: PlasterWallWindow
   m_EditorClassIdentifier: 
-  itemID: 1
-  itemName: Wall template
+  itemID: 2137
+  itemName: PlasterWallWindow
   icon: {fileID: 0}
-  description: 
+  description: Wall :3 w/ a hole
   useScript: {fileID: 0}
   craftingRecipe: {fileID: 0}
   weight: 0
@@ -24,4 +24,4 @@ MonoBehaviour:
   burnCalories: 0
   itemType: 5
   materialType: 1
-  constructionPrefab: {fileID: 6612603227374951970, guid: ad2f24e7f393b2a1ca5ce4aa85da1db3, type: 3}
+  constructionPrefab: {fileID: 6612603227374951970, guid: ce4b6036b2c0654c397eb079769c5c92, type: 3}

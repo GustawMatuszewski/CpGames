@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 773518987f83ce650876c2337be76d44, type: 3}
-  m_Name: Barricade
-  m_EditorClassIdentifier: Assembly-CSharp::BuildingItem
-  itemID: 8
-  itemName: Barricade
+  m_Name: PlasterWallCorner
+  m_EditorClassIdentifier: 
+  itemID: 2137
+  itemName: PlasterWallCorner
   icon: {fileID: 0}
-  description: 
+  description: Wall corner
   useScript: {fileID: 0}
-  craftingRecipe: {fileID: 11400000, guid: 72c42e1cb41ce6c488bf06b199a91568, type: 2}
-  weight: 7
+  craftingRecipe: {fileID: 0}
+  weight: 0
   durability: 0
   usesLeft: 0
-  burnCalories: 45000
-  itemType: 10
+  burnCalories: 0
+  itemType: 5
   materialType: 1
-  constructionPrefab: {fileID: 0}
+  constructionPrefab: {fileID: 6612603227374951970, guid: 1ab4c0af5b5aa3f839360018074c68f1, type: 3}
