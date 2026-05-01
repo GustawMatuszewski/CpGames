@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 029a295352290703c93ec2587c40619c, type: 3}
+  m_Name: Nailed Baseball Bat Recipe
+  m_EditorClassIdentifier: 
+  recipeID: 3
+  itemsList:
+  - {fileID: 11400000, guid: e6ee2b3f4107be7418e082def7ade83f, type: 2}
+  - {fileID: 11400000, guid: cafcbb8d904d8bc44a2f86c0c6b0e7ee, type: 2}
+  outcomeItem: {fileID: 11400000, guid: 38e1dd3202caf634eb225a7051ffb714, type: 2}
+  toolNeeded: 7

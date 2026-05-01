@@ -1,0 +1,88 @@
+#root {
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    filter: blur(10);
+    align-items: center;
+    align-self: auto;
+    justify-content: center;
+}
+
+#Settings {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+#PauseMenu {
+    background-color: rgba(0, 0, 0, 0.4);
+    width: 30%;
+    height: 70%;
+    flex-grow: 0;
+}
+
+#Blur {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    background-color: rgba(40, 40, 40, 0.75);
+}
+
+#PauseLabelV {
+    height: 30%;
+    -unity-font-definition: url("project://database/Assets/UI/fonts/Geist_Mono/static/GeistMono-ExtraBold.ttf?fileID=12800000&guid=30e1adb8f2439b54bb0d02f1469e2c39&type=3#GeistMono-ExtraBold");
+    -unity-font-style: bold-and-italic;
+    font-size: 100px;
+    -unity-text-align: middle-center;
+    color: rgb(101, 100, 100);
+}
+
+
+
+#PauseMenu Button {
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    font-size: 30px;
+    -unity-text-auto-size: best-fit 10px 50px;
+    -unity-text-generator: advanced;
+    padding-top: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    color: rgb(219, 218, 218);
+    transition-duration: 0.25s;
+}
+
+#PauseMenu Button:hover {
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    font-size: 30px;
+    -unity-text-auto-size: best-fit 10px 50px;
+    -unity-text-generator: advanced;
+    padding-top: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    color: rgb(185, 222, 224);
+}
+
+

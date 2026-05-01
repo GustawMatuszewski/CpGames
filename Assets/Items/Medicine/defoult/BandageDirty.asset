@@ -9,13 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2f2a8361b3cd33018170cab145fe1a4, type: 3}
+  m_Script: {fileID: 11500000, guid: 4a9a7ed2b29bb197780353b85411c539, type: 3}
   m_Name: BandageDirty
-  m_EditorClassIdentifier: Assembly-CSharp::ResourceItem
+  m_EditorClassIdentifier: Assembly-CSharp::FoodItem
   itemID: 737
   itemName: BandageDirty
   icon: {fileID: 0}
-  description: Rolled sterile cotton bandage. Wraps and protects dressed wounds.
+  description: Rolled cotton bandage. Wraps and protects dressed wounds.
   useScript: {fileID: 0}
   craftingRecipe: {fileID: 0}
   weight: 0.1
@@ -24,3 +24,12 @@ MonoBehaviour:
   burnCalories: 0
   itemType: 6
   materialType: 6
+  foodState: 0
+  effects: 
+  protein: 0
+  fats: 0
+  carbs: 0
+  calories: 0
+  nurishment: 0
+  hydration: 0
+  eneryBoost: 0

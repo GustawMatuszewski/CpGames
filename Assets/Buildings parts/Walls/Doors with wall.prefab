@@ -55,13 +55,38 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7079222572080446732, guid: 734560a5157835f4881c6dd44c07f554, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2151740882579299841}
   m_SourcePrefab: {fileID: 100100000, guid: 734560a5157835f4881c6dd44c07f554, type: 3}
 --- !u!4 &2091400514928951801 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 204005363520948763, guid: 734560a5157835f4881c6dd44c07f554, type: 3}
   m_PrefabInstance: {fileID: 2293141983995628514}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &9073789046598153966 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7079222572080446732, guid: 734560a5157835f4881c6dd44c07f554, type: 3}
+  m_PrefabInstance: {fileID: 2293141983995628514}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2151740882579299841
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9073789046598153966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d0ab3b4fd39853468f08257baffd03d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Door
+  state: 0
+  openAngle: 90
+  openDuration: 0.5
+  interactionPositions: []
+  lookAtTarget: {fileID: 0}
 --- !u!1001 &8338346952972129185
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -112,7 +137,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7873503044696484340, guid: 14610d8ad1ecfb844a35867407cff148, type: 3}
       propertyPath: m_Name
-      value: frame Variant
+      value: Doors with wall
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

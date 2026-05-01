@@ -2,6 +2,7 @@
     <ui:Template name="Audio" src="project://database/Assets/UI/Settings/Audio/Audio.uxml?fileID=9197481963319205126&amp;guid=b37ab664b64fd35ea81ca9bb17339351&amp;type=3#Audio"/>
     <ui:Template name="Customization" src="project://database/Assets/UI/Settings/Customization/Customization.uxml?fileID=9197481963319205126&amp;guid=8e9652bc6eb7d838e80c00b341c60ae8&amp;type=3#Customization"/>
     <ui:Template name="General" src="project://database/Assets/UI/Settings/General/General.uxml?fileID=9197481963319205126&amp;guid=368de15167aa69a5bb0e7c86a1c14d09&amp;type=3#General"/>
+    <ui:Template name="KeyBinds" src="project://database/Assets/UI/Settings/KeyBinds/KeyBinds.uxml?fileID=9197481963319205126&amp;guid=4af1acfb7e1d41ab19a735bb41a05b95&amp;type=3#KeyBinds"/>
     <ui:Template name="Video" src="project://database/Assets/UI/Settings/Video/Video.uxml?fileID=9197481963319205126&amp;guid=e6ec10dc344bb1620836dbf6703c15e9&amp;type=3#Video"/>
     <Style src="project://database/Assets/UI/Main%20Menu/Menu%20Styles.uss?fileID=7433441132597879392&amp;guid=076dfdd9946cb62469c6a751007fcfa8&amp;type=3#Menu Styles"/>
     <ui:VisualElement name="root" style="flex-grow: 1; background-color: rgb(108, 102, 102); align-items: center;">
@@ -17,7 +18,7 @@
                     <ui:Instance template="General" style="flex-grow: 1;"/>
                 </ui:VisualElement>
             </ui:Tab>
-            <ui:Tab label="VIDEO&#10;" name="Video" class="settingsTab">
+            <ui:Tab label="GRAPHIC" name="Video" class="settingsTab">
                 <ui:VisualElement name="TabRoot" class="SettingWindow" style="flex-grow: 1;">
                     <ui:Instance template="Video" style="flex-grow: 1;"/>
                 </ui:VisualElement>
@@ -30,6 +31,11 @@
             <ui:Tab label="CUSTOMIZATION" name="Customization" closeable="false" class="settingsTab">
                 <ui:VisualElement name="TabRoot" class="SettingWindow" style="flex-grow: 1;">
                     <ui:Instance template="Customization" style="flex-grow: 1;"/>
+                </ui:VisualElement>
+            </ui:Tab>
+            <ui:Tab label="KEY BINDINGS" name="KeyBinds" closeable="false" class="settingsTab">
+                <ui:VisualElement name="TabRoot" class="SettingWindow" style="flex-grow: 1;">
+                    <ui:Instance template="KeyBinds" style="flex-grow: 1;"/>
                 </ui:VisualElement>
             </ui:Tab>
         </ui:TabView>

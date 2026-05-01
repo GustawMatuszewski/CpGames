@@ -8,7 +8,7 @@
             </ui:VisualElement>
             <ui:VisualElement name="settingsDiv" class="settingsDiv" style="align-self: flex-end;">
                 <ui:VisualElement name="MainSoundControl">
-                    <ui:Slider label="Main Volume" value="42" high-value="100" fill="true"/>
+                    <ui:Slider label="Main Volume" value="42" high-value="100" fill="true" name="MasterVolume"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
