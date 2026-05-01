@@ -7,7 +7,7 @@
     <Style src="project://database/Assets/UI/PauseMenu/PauseMenu.uss?fileID=7433441132597879392&amp;guid=45cc324a7d4d7133c8cbaa549069b166&amp;type=3#PauseMenu"/>
     <Style src="project://database/Assets/UI/Settings/Universal.uss?fileID=7433441132597879392&amp;guid=61163bb83260125189a86ec6c7ca18b4&amp;type=3#Universal"/>
     <Style src="project://database/Assets/UI/PauseMenu/PauseMenuSettings.uss?fileID=7433441132597879392&amp;guid=c1580efad89494505b9e1e8378a7e6ed&amp;type=3#PauseMenuSettings"/>
-    <ui:VisualElement name="root" style="flex-grow: 1; filter: blur(0);">
+    <ui:VisualElement name="root" style="flex-grow: 1; filter: blur(0); display: none;">
         <ui:VisualElement name="Blur" picking-mode="Ignore" style="flex-grow: 1;"/>
         <ui:VisualElement name="PauseMenu">
             <ui:VisualElement name="PauseLabelV">
