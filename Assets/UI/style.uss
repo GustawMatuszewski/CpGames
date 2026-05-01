@@ -576,10 +576,31 @@
 }
 
 Rondo {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    translate: 50% 50%;
+    width: 800px;
     aspect-ratio: 1;
-    width: 600px;
+}
+
+.rondo-icon {
+    width: 100px;
+    aspect-ratio: 1;
+}
+
+#RondoBox {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+}
+
+#RondoBox Label {
+    height: 15%;
+    position: relative;
+    bottom: 0%;
+    width: auto;
+    -unity-text-generator: advanced;
+    -unity-text-auto-size: best-fit 10px 80px;
+    -unity-text-align: middle-center;
+    color: rgb(118, 118, 118);
+    min-width: 100%;
+    flex-grow: 1;
 }

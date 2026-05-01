@@ -169,28 +169,39 @@ public partial class Rondo : VisualElement
     // Zmieniamy sygnaturę metody na przyjmowanie wagi
     private void DrawSegment(Painter2D painter, Vector2 center, int i, float angleStep, float maxRadius, Color fillColor, float weight)
     {
+        // 1. Obliczenie promieni (zewnętrzny i wewnętrzny)
         float currentOuter = maxRadius;
         float currentInner = (maxRadius * InnerRadiusRatio);
-    
-        // PŁYNNE POWIĘKSZANIE WZDŁUŻ: Interpolacja od 0 do 10 stopni
+
+        // 2. Animacja rozszerzania segmentu (offset kątowy)
+        // Interpolacja od 0 do 20 stopni w zależności od wagi animacji
         float offsetAngle = Mathf.Lerp(0f, 20f, weight); 
-    
+
+        // 3. Obliczenie kątów startowych i końcowych dla łuku[cite: 1]
         float startAngle = (i * angleStep - 90f) - offsetAngle; 
         float endAngle = ((i + 1) * angleStep - 90f) + offsetAngle;
 
+        // 4. Rysowanie ścieżki segmentu[cite: 1]
         painter.BeginPath();
+        // Łuk zewnętrzny (zgodnie z ruchem wskazówek zegara)[cite: 1]
         painter.Arc(center, currentOuter, startAngle, endAngle, ArcDirection.Clockwise);
+        // Łuk wewnętrzny (przeciwnie do ruchu wskazówek zegara)[cite: 1]
         painter.Arc(center, currentInner, endAngle, startAngle, ArcDirection.CounterClockwise);
         painter.ClosePath();
 
+        // 5. Obsługa koloru wypełnienia[cite: 1]
+        // Jeśli kolor nie jest ustawiony, używamy domyślnego szarego[cite: 1]
         if (fillColor.a == 0) fillColor = new Color(0.3f, 0.3f, 0.3f, 1f);
-    
-        // Opcjonalnie: możemy też animować kolor (rozjaśnianie wybranego)
+
+        // ANIMACJA KOLORU: Interpolujemy między kolorem bazowym a rozjaśnionym o 20%[cite: 1]
+        // Możesz zamienić 'fillColor * 1.2f' na zmienną '_hoverColor', jeśli ją dodałeś[cite: 1]
         painter.fillColor = Color.Lerp(fillColor, fillColor * 1.2f, weight);
         painter.Fill();
 
+        // 6. Rysowanie obramowania (jeśli szerokość > 0)[cite: 1]
         if (SegmentBorderWidth > 0)
         {
+            // Animujemy również szerokość linii obramowania dla lepszego efektu wizualnego[cite: 1]
             painter.lineWidth = Mathf.Lerp(SegmentBorderWidth, SegmentBorderWidth + 1f, weight);
             painter.strokeColor = SegmentBorderColor;
             painter.Stroke();

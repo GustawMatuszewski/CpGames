@@ -29,6 +29,13 @@ public class PauseMenu : MonoBehaviour
         {
             SceneManager.LoadScene("Main Menu");
         };
+        Button Resume = root.Q<Button>("Resume");
+        Resume.clickable.clicked += () => 
+        { 
+            UI_doc.sortingOrder = -999;
+            root.style.display = DisplayStyle.None;
+            
+        };
     }
 
     void HideOptionWindow()

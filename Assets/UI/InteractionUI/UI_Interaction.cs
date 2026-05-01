@@ -17,16 +17,20 @@ public class UI_Interaction : MonoBehaviour
     public List<ActionIconMapping> iconMappings;
     private Dictionary<Door.DoorActionType, Sprite> _iconCache;
     private Rondo _rondoElement;
+    private VisualElement rondoParent;
     private VisualElement _root; // Dodajemy referencję do roota
     private int _lastIndex = -1; // Śledzimy poprzedni wybór
     private int index;
+    private Label actionLabel;
     private void OnEnable()
     {
         if (UI_doc == null) return;
 
         _root = UI_doc.rootVisualElement;
-        _rondoElement = _root?.Q<Rondo>();
-
+        rondoParent=_root?.Q<VisualElement>("RondoBox");
+        _rondoElement = rondoParent?.Q<Rondo>();
+         actionLabel  = rondoParent.Q<Label>();
+        
         if (_root != null && _rondoElement != null)
         {
             // WAŻNE: Rejestrujemy ruch myszy na całym ekranie (Root)
@@ -53,6 +57,14 @@ public class UI_Interaction : MonoBehaviour
         // WYWOŁANIE: Musi być poza jakimkolwiek if (index != -1). 
         // Jeśli index to -1, SetSelectedSegment przywróci normalny wygląd.
         _rondoElement.SetSelectedSegment(index, 1.25f);
+        if (index < 0 || _rondoElement == null) 
+            actionLabel.text="";
+        else
+        {
+            VisualElement selectedElement = _rondoElement.ElementAt(index);
+            DoorAction data =selectedElement.userData as DoorAction;
+            actionLabel.text =  data.label.ToString();
+        }
     }
 
     private void Awake()
@@ -64,11 +76,13 @@ public class UI_Interaction : MonoBehaviour
             _iconCache[mapping.type] = mapping.icon;
         }
         
+        
     }
 
     public void SendRondoActions(List<DoorAction> actions)
     {
         _rondoElement.style.display = DisplayStyle.Flex;
+        actionLabel.style.display = DisplayStyle.Flex;
         _rondoElement.Clear();
 
         foreach (var action in actions)
@@ -89,11 +103,13 @@ public class UI_Interaction : MonoBehaviour
             _rondoElement.Add(temp);
         }
     
+        _rondoElement.UpdateLayout();
         _rondoElement.MarkDirtyRepaint();
     }
     public DoorAction SelectRondoAction()
     {
         _rondoElement.style.display = DisplayStyle.None;
+        actionLabel.style.display = DisplayStyle.None;
         if (index < 0 || _rondoElement == null) return null;
         VisualElement selectedElement = _rondoElement.ElementAt(index);
         return selectedElement?.userData as DoorAction;
