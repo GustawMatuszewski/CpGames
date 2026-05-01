@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a9a7ed2b29bb197780353b85411c539, type: 3}
+  m_Name: Sausage
+  m_EditorClassIdentifier: Assembly-CSharp::FoodItem
+  itemID: 123
+  itemName: Sausage
+  icon: {fileID: 0}
+  description: Cured pork sausage. Ready to eat; high in fat and protein.
+  useScript: {fileID: 0}
+  craftingRecipe: {fileID: 0}
+  weight: 0.3
+  durability: 0
+  usesLeft: 0
+  burnCalories: 0
+  itemType: 2
+  materialType: 0
+  foodState: 1
+  effects: 00000000
+  protein: 15
+  fats: 25
+  carbs: 2
+  calories: 300
+  nurishment: 30
+  hydration: -10
+  eneryBoost: 5
