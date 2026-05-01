@@ -603,30 +603,30 @@ MonoBehaviour:
   debugMode: 0
   animator: {fileID: 4322998576290659199}
   ownerHitboxes:
-  - name: 
+  - name: LeftFoot
     limbHitbox: {fileID: 132139224410423488}
-    health: 0
-    damageMultiplier: 0
-    severeMultiplier: 0
-    fractureMultiplier: 0
+    health: 100
+    damageMultiplier: 1
+    severeMultiplier: 2
+    fractureMultiplier: 1.2
     limbDamageList: 
     severed: 0
     beatStacks: 0
-  - name: 
+  - name: RightFoot
     limbHitbox: {fileID: 8677462034645997468}
-    health: 0
-    damageMultiplier: 0
-    severeMultiplier: 0
-    fractureMultiplier: 0
+    health: 100
+    damageMultiplier: 1
+    severeMultiplier: 2
+    fractureMultiplier: 1.2
     limbDamageList: 
     severed: 0
     beatStacks: 0
-  - name: 
+  - name: LeftHand
     limbHitbox: {fileID: 8018422234320817260}
-    health: 0
-    damageMultiplier: 0
-    severeMultiplier: 0
-    fractureMultiplier: 0
+    health: 100
+    damageMultiplier: 1
+    severeMultiplier: 2
+    fractureMultiplier: 2
     limbDamageList: 
     severed: 0
     beatStacks: 0
@@ -639,12 +639,12 @@ MonoBehaviour:
     limbDamageList: 
     severed: 0
     beatStacks: 0
-  - name: 
+  - name: RightHand
     limbHitbox: {fileID: 1114615367642088484}
-    health: 0
-    damageMultiplier: 0
-    severeMultiplier: 0
-    fractureMultiplier: 0
+    health: 100
+    damageMultiplier: 1
+    severeMultiplier: 2
+    fractureMultiplier: 2
     limbDamageList: 
     severed: 0
     beatStacks: 0
@@ -657,12 +657,12 @@ MonoBehaviour:
     limbDamageList: 
     severed: 0
     beatStacks: 0
-  - name: 
+  - name: Head
     limbHitbox: {fileID: 4937647042317844185}
-    health: 0
-    damageMultiplier: 0
-    severeMultiplier: 0
-    fractureMultiplier: 0
+    health: 50
+    damageMultiplier: 2
+    severeMultiplier: 2
+    fractureMultiplier: 1
     limbDamageList: 
     severed: 0
     beatStacks: 0
@@ -675,12 +675,12 @@ MonoBehaviour:
     limbDamageList: 
     severed: 0
     beatStacks: 0
-  - name: 
+  - name: LeftUpperHand
     limbHitbox: {fileID: 4928251776163790855}
-    health: 0
-    damageMultiplier: 0
-    severeMultiplier: 0
-    fractureMultiplier: 0
+    health: 90
+    damageMultiplier: 1
+    severeMultiplier: 2
+    fractureMultiplier: 1
     limbDamageList: 
     severed: 0
     beatStacks: 0
@@ -702,30 +702,21 @@ MonoBehaviour:
     limbDamageList: 
     severed: 0
     beatStacks: 0
-  - name: 
-    limbHitbox: {fileID: 4928251776163790855}
-    health: 0
-    damageMultiplier: 0
-    severeMultiplier: 0
-    fractureMultiplier: 0
-    limbDamageList: 
-    severed: 0
-    beatStacks: 0
-  - name: 
+  - name: Body
     limbHitbox: {fileID: 7045089240164825650}
-    health: 0
-    damageMultiplier: 0
-    severeMultiplier: 0
-    fractureMultiplier: 0
+    health: 130
+    damageMultiplier: 1
+    severeMultiplier: 2
+    fractureMultiplier: 1
     limbDamageList: 
     severed: 0
     beatStacks: 0
-  - name: 
+  - name: RightUpperHand
     limbHitbox: {fileID: 7530236658458509564}
-    health: 0
-    damageMultiplier: 0
-    severeMultiplier: 0
-    fractureMultiplier: 0
+    health: 90
+    damageMultiplier: 1
+    severeMultiplier: 2
+    fractureMultiplier: 1
     limbDamageList: 
     severed: 0
     beatStacks: 0
