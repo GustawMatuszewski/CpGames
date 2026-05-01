@@ -7,7 +7,8 @@ public partial class Rondo : VisualElement
 {
     [UxmlAttribute("inner-radius-ratio")]
     private float _innerRadiusRatio = 0.6f;
-
+    [UxmlAttribute("hover-color")]
+    private Color _hoverColor = new Color(0.8f, 0.8f, 1f, 1f);
     [UxmlAttribute("segment-border-width")]
     private float _segmentBorderWidth = 2f;
 
@@ -15,6 +16,11 @@ public partial class Rondo : VisualElement
     private Color _segmentBorderColor = Color.black;
 
     private int hoverIndex = -1;
+    public Color HoverColor 
+    { 
+        get => _hoverColor; 
+        set { _hoverColor = value; MarkDirtyRepaint(); } 
+    }
     // Wewnątrz klasy Rondo dodaj:
     private List<float> _segmentAnimationWeights = new List<float>();
     private const int AnimTimeMs = 200; // Czas trwania animacji w milisekundach

@@ -574,3 +574,12 @@
     background-color: rgba(0, 0, 0, 0);
     text-shadow: 5px 0 0 rgb(0, 0, 0);
 }
+
+Rondo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: 50% 50%;
+    aspect-ratio: 1;
+    width: 600px;
+}

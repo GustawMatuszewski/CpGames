@@ -7,6 +7,7 @@ public class Door : MonoBehaviour, IInteractable
 
     // ── Stan drzwi ──────────────────────────────────────────────
     public enum DoorState { Closed, Open, Locked }
+    public enum DoorActionType { Opening, Closing, Locking, Unlocking, OpeningForce }
     public DoorState state = DoorState.Closed;
 
     // ── Ustawienia obrotu ─────────────────────────────────────────
@@ -49,13 +50,15 @@ public class Door : MonoBehaviour, IInteractable
                 {
                     label = "Otwórz",
                     enabled = true,
-                    execute = DoorOpen
+                    execute = DoorOpen,
+                    type=DoorActionType.Opening
                 });
                 actions.Add(new DoorAction
                 {
                     label = "Zamknij na klucz",
                     enabled = true,
-                    execute = DoorLock
+                    execute = DoorLock,
+                    type=DoorActionType.Locking
                 });
                 break;
 
@@ -64,7 +67,8 @@ public class Door : MonoBehaviour, IInteractable
                 {
                     label = "Zamknij",
                     enabled = true,
-                    execute = DoorClose
+                    execute = DoorClose,
+                    type=DoorActionType.Closing
                 });
                 break;
 
@@ -73,14 +77,16 @@ public class Door : MonoBehaviour, IInteractable
                 {
                     label = "Odblokuj",
                     enabled = true,
-                    execute = DoorUnlock
+                    execute = DoorUnlock,
+                    type=DoorActionType.Unlocking
                 });
                 actions.Add(new DoorAction
                 {
                     label = "Otwórz (wyważ)",
                     enabled = true,
                     duration = 3f,
-                    execute = DoorOpen
+                    execute = DoorOpen,
+                    type=DoorActionType.OpeningForce
                 });
                 break;
         }
@@ -143,4 +149,5 @@ public class DoorAction
     public string disabledReason;
     public float duration;
     public System.Action execute;
+    public Door.DoorActionType type;
 }

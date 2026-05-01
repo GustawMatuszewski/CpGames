@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 public class PauseMenu : MonoBehaviour
 {
-    public UIDocument UI_doc;
+    private UIDocument UI_doc => GetComponent<UIDocument>();
     VisualElement  root;
     VisualElement  Settings;
     VisualElement  pauseMenu;
@@ -14,7 +14,7 @@ public class PauseMenu : MonoBehaviour
     void Awake()
     {
         root = UI_doc.rootVisualElement;
-        //root.Q<VisualElement>("OptionsMenu").style.display = DisplayStyle.Flex;
+        
         Settings= root.Q<VisualElement>("Settings");
         pauseMenu = root.Q<VisualElement>("PauseMenu");
         SettingsTabs = Settings.Q<TabView>("SettingsTabs");
