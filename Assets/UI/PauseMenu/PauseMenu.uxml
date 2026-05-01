@@ -1,0 +1,54 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="Audio" src="project://database/Assets/UI/Settings/Audio/Audio.uxml?fileID=9197481963319205126&amp;guid=b37ab664b64fd35ea81ca9bb17339351&amp;type=3#Audio"/>
+    <ui:Template name="Customization" src="project://database/Assets/UI/Settings/Customization/Customization.uxml?fileID=9197481963319205126&amp;guid=8e9652bc6eb7d838e80c00b341c60ae8&amp;type=3#Customization"/>
+    <ui:Template name="General" src="project://database/Assets/UI/Settings/General/General.uxml?fileID=9197481963319205126&amp;guid=368de15167aa69a5bb0e7c86a1c14d09&amp;type=3#General"/>
+    <ui:Template name="KeyBinds" src="project://database/Assets/UI/Settings/KeyBinds/KeyBinds.uxml?fileID=9197481963319205126&amp;guid=4af1acfb7e1d41ab19a735bb41a05b95&amp;type=3#KeyBinds"/>
+    <ui:Template name="Video" src="project://database/Assets/UI/Settings/Video/Video.uxml?fileID=9197481963319205126&amp;guid=e6ec10dc344bb1620836dbf6703c15e9&amp;type=3#Video"/>
+    <Style src="project://database/Assets/UI/PauseMenu/PauseMenu.uss?fileID=7433441132597879392&amp;guid=45cc324a7d4d7133c8cbaa549069b166&amp;type=3#PauseMenu"/>
+    <Style src="project://database/Assets/UI/Settings/Universal.uss?fileID=7433441132597879392&amp;guid=61163bb83260125189a86ec6c7ca18b4&amp;type=3#Universal"/>
+    <Style src="project://database/Assets/UI/PauseMenu/PauseMenuSettings.uss?fileID=7433441132597879392&amp;guid=c1580efad89494505b9e1e8378a7e6ed&amp;type=3#PauseMenuSettings"/>
+    <ui:VisualElement name="root" style="flex-grow: 1; filter: blur(0); display: none;">
+        <ui:VisualElement name="Blur" picking-mode="Ignore" style="flex-grow: 1;"/>
+        <ui:VisualElement name="PauseMenu">
+            <ui:VisualElement name="PauseLabelV">
+                <ui:Label text="Pause" name="PauseLabel"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="Buttons" style="flex-grow: 1;">
+                <ui:Button text="RESUME" name="Resume"/>
+                <ui:Button text="SETTINGS" name="Options"/>
+                <ui:Button text="BACK TO MENU" name="BackToMenu"/>
+                <ui:Button text="QUIT" name="Quit"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="Settings" style="visibility: visible; display: none;">
+            <ui:TabView name="SettingsTabs" style="top: 0; right: 0; bottom: 0; left: 0; flex-grow: 1; align-self: center; width: 100%; height: 100%; position: absolute;">
+                <ui:Tab label="GENERAL" name="General" enabled="true" class="settingsTab">
+                    <ui:VisualElement name="TabRoot" class="SettingWindow">
+                        <ui:Instance template="General" style="flex-grow: 1;"/>
+                    </ui:VisualElement>
+                </ui:Tab>
+                <ui:Tab label="GRAPHIC" name="Video" class="settingsTab">
+                    <ui:VisualElement name="TabRoot" class="SettingWindow" style="flex-grow: 1;">
+                        <ui:Instance template="Video" style="flex-grow: 1;"/>
+                    </ui:VisualElement>
+                </ui:Tab>
+                <ui:Tab label="AUDIO" name="Audio" class="settingsTab">
+                    <ui:VisualElement name="TabRoot" class="SettingWindow" style="flex-grow: 1;">
+                        <ui:Instance template="Audio" style="flex-grow: 1;"/>
+                    </ui:VisualElement>
+                </ui:Tab>
+                <ui:Tab label="CUSTOMIZATION" name="Customization" closeable="false" class="settingsTab">
+                    <ui:VisualElement name="TabRoot" class="SettingWindow" style="flex-grow: 1;">
+                        <ui:Instance template="Customization" style="flex-grow: 1;"/>
+                    </ui:VisualElement>
+                </ui:Tab>
+                <ui:Tab label="KEY BINDINGS" name="KeyBinds" closeable="false" class="settingsTab">
+                    <ui:VisualElement name="TabRoot" class="SettingWindow" style="flex-grow: 1;">
+                        <ui:Instance template="KeyBinds" style="flex-grow: 1;"/>
+                    </ui:VisualElement>
+                </ui:Tab>
+            </ui:TabView>
+            <ui:Button text="" name="closeSettings" style="background-image: url(&quot;project://database/Assets/UI/IMG/ICONS/X.png?fileID=2800000&amp;guid=7f9bbdbe50a3cc3e986f40a078b73636&amp;type=3#X&quot;);"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

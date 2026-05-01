@@ -3,8 +3,8 @@ using UnityEngine.UIElements;
 using System.Text.RegularExpressions;
 public class UI_CustomizationSettings : MonoBehaviour
 {
-
-    private UIDocument UI_doc => GetComponent<MenuScript>().UI_doc;
+    [SerializeField] private Material ghostMaterial;
+    private UIDocument UI_doc => GetComponent<UIDocument>();
     VisualElement BuildingGhostColor;
     void Awake()
     {
@@ -122,6 +122,14 @@ public class UI_CustomizationSettings : MonoBehaviour
         if (cleanHex.Length == 6 && ColorUtility.TryParseHtmlString(finalValue, out Color c))
         {
             Coloroutput.style.backgroundColor = c;
+            if (ghostMaterial != null)
+            {
+                //strzelam jak sie nazywa proprety
+                if (ghostMaterial.HasProperty("_BaseColor"))
+                    ghostMaterial.SetColor("_BaseColor", c);
+                else
+                    ghostMaterial.SetColor("_Color", c);
+            }
         }
     }
 }

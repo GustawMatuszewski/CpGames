@@ -2,6 +2,7 @@
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using Unity.Cinemachine;
+using UnityEngine.Rendering.HighDefinition;
 
 public interface IInteractable
 {
@@ -34,15 +35,12 @@ public class PlayerInteraction : MonoBehaviour
     CinemachineCamera internalCinemachine;
 
     // Menu kontekstowe
-    bool menuOpen = false;
+
     List<DoorAction> currentActions = new();
     Door currentDoor;
     Window currentWindow;
 
-    // Styl GUI
-    GUIStyle menuStyle;
-    GUIStyle menuButtonStyle;
-    GUIStyle disabledButtonStyle;
+ 
 
     string[] componentsToLock = {
         "CinemachineInputAxisController",
@@ -50,10 +48,62 @@ public class PlayerInteraction : MonoBehaviour
         "CinemachineOrbitalFollow",
         "CinemachineRotationHandler"
     };
+    private bool menuOpen=false;
 
     // ── Unity ─────────────────────────────────────────────────────
-    void OnEnable() { interactAction.Enable(); }
-    void OnDisable() { interactAction.Disable(); }
+    void OnEnable() 
+    { 
+        interactAction.Enable(); 
+        // Podpinamy się pod moment wykonania interakcji
+        interactAction.performed += OnInteractPerformed; 
+        interactAction.canceled += OnInteractCanceled;
+    }
+
+    void OnDisable() 
+    { 
+        interactAction.Disable(); 
+        interactAction.performed -= OnInteractPerformed; 
+        interactAction.canceled -= OnInteractCanceled;
+    }
+    private void OnInteractPerformed(InputAction.CallbackContext context)
+    {
+        // 1. Najpierw robimy Raycast, żeby wiedzieć na co patrzymy
+        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+        if (!Physics.Raycast(ray, out RaycastHit hit, interactionDistance)) return;
+
+        Door door = hit.collider.GetComponentInParent<Door>();
+        if (door == null) return;
+        var actions = door.GetDoorActions();
+        
+        // 2. Rozróżniamy Tap od Hold na podstawie ustawień z obrazka
+        if (context.interaction is UnityEngine.InputSystem.Interactions.TapInteraction)
+        {
+            // KLIKNIĘCIE: Wykonaj pierwszą akcję z listy (Default Action)
+            
+            if (actions.Count > 0 && actions[0].enabled) 
+            {
+                actions[0].execute?.Invoke();
+            }
+        }
+        else if (context.interaction is UnityEngine.InputSystem.Interactions.HoldInteraction)
+        {
+           
+            if (actions.Count == 1)
+            {
+                actions[0].execute?.Invoke();
+                
+            }
+            else
+            {
+                // TRZYMANIE: Otwórz menu UI Toolkit (Rondo)
+                
+                HandleSnapping(door, hit);
+                OpenMenu(actions); // Ta metoda wywoła Twoje nowe UI
+                menuOpen = true;
+            }
+
+        }
+    }
 
     void Start()
     {
@@ -67,74 +117,29 @@ public class PlayerInteraction : MonoBehaviour
 
     void Update()
     {
+        HandleSnapLock();//Kiedys to wypierdzziele Wieze w to --- Windforce
+    }
+
+    private void OnInteractCanceled(InputAction.CallbackContext context)
+    {
+
         if (menuOpen)
         {
-            Vector2 moveInput = player.input.PlayerInputMap.MoveInput.ReadValue<Vector2>();
-            if (moveInput.magnitude > 0.1f || Keyboard.current.escapeKey.wasPressedThisFrame)
+            // Pobieramy zaznaczoną akcję z Twojego UI
+            DoorAction selectedAction = UI_Interaction.Instance.SelectRondoAction(); //pobiera akcje i zmayka menu
+
+            if (selectedAction != null && selectedAction.enabled)
             {
-                CloseMenu();
+                // Wykonujemy zapisaną logikę (np. DoorOpen)
+                selectedAction.execute?.Invoke();
+                // Debug.Log($"[Hold Exit] Wykonano akcję: {selectedAction.label}");
             }
-            return;
-        }
 
-        LookForInteraction();
-        HandleSnapLock();
+            Cursor.lockState = CursorLockMode.Locked;
+            menuOpen = false;
+        }
     }
 
-    // ── Szukanie interakcji ───────────────────────────────────────
-    void LookForInteraction()
-    {
-        if (Keyboard.current.eKey.wasPressedThisFrame) 
-        {
-            Debug.Log("--- E KEY DETECTED BY KEYBOARD DIRECTLY ---");
-        }
-
-        if (!interactAction.WasPressedThisFrame()) return;
-        
-        Debug.Log("[Interact] Input Action Fired Successfully!");
-
-        if (!interactAction.WasPressedThisFrame()) return;
-        if (debugMode) Debug.Log("[Interact] Przycisk wciśnięty");
-
-        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        if (!Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
-        {
-            if (debugMode) Debug.Log("[Interact] Raycast nic nie trafił");
-            return;
-        }
-        if (debugMode) Debug.Log($"[Interact] Trafiono: {hit.collider.gameObject.name} (tag: {hit.collider.tag}, layer: {LayerMask.LayerToName(hit.collider.gameObject.layer)})");
-
-        // Sprawdź drzwi
-        Door door = hit.collider.GetComponentInParent<Door>();
-        if (door != null)
-        {
-            if (debugMode) Debug.Log("[Interact] Znaleziono Door — otwieram menu");
-            HandleSnapping(door, hit);
-            OpenMenu(door);
-            return;
-        }
-
-        // Sprawdź okno
-        Window window = hit.collider.GetComponentInParent<Window>();
-        if (window != null)
-        {
-            if (debugMode) Debug.Log("[Interact] Znaleziono Window — otwieram menu");
-            HandleSnapping(window, hit);
-            OpenMenu(window);
-            return;
-        }
-
-        // Inne IInteractable
-        IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
-        if (interactable == null)
-        {
-            if (debugMode) Debug.Log("[Interact] Brak IInteractable, Door ani Window na obiekcie");
-            return;
-        }
-
-        HandleSnapping(interactable, hit);
-        interactable.OnInteract();
-    }
 
     void HandleSnapping(IInteractable interactable, RaycastHit hit)
     {
@@ -165,12 +170,16 @@ public class PlayerInteraction : MonoBehaviour
     }
 
     // ── Menu kontekstowe ──────────────────────────────────────────
-    void OpenMenu(Door door)
+    public void OpenMenu(List<DoorAction> actions)
     {
-        currentDoor = door;
-        currentWindow = null;
-        currentActions = door.GetDoorActions();
-        menuOpen = true;
+        // Czyścimy starą listę i kopiujemy nową
+        currentActions = actions; 
+       
+
+        // Przekazujemy do Twojego UI Toolkit (Rondo)
+        // Musisz tam mieć metodę, która przyjmuje List<DoorAction>
+        UI_Interaction.Instance.SendRondoActions(actions); 
+
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
@@ -180,91 +189,16 @@ public class PlayerInteraction : MonoBehaviour
         currentWindow = window;
         currentDoor = null;
         currentActions = window.GetWindowActions();
-        menuOpen = true;
+   
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
-    void CloseMenu()
-    {
-        menuOpen = false;
-        currentDoor = null;
-        currentWindow = null;
-        currentActions.Clear();
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-    }
 
-    void ExecuteAction(DoorAction action)
-    {
-        if (!action.enabled) return;
-        if (action.duration > 0f)
-            Debug.Log($"[Menu] Rozpoczynam: {action.label} ({action.duration}s)");
-        action.execute?.Invoke();
-        CloseMenu();
-    }
 
-    // ── Rysowanie menu (IMGUI) ────────────────────────────────────
-    void OnGUI()
-    {
-        if (!menuOpen || currentActions == null || currentActions.Count == 0) return;
 
-        InitStyles();
 
-        float btnW = 220f;
-        float btnH = 36f;
-        float padding = 8f;
-        float totalH = currentActions.Count * (btnH + padding) + padding;
 
-        float x = Screen.width / 2f - btnW / 2f;
-        float y = Screen.height / 2f - totalH / 2f;
-
-        GUI.Box(new Rect(x - 10, y - 10, btnW + 20, totalH + 20), "", menuStyle);
-
-        for (int i = 0; i < currentActions.Count; i++)
-        {
-            var action = currentActions[i];
-            Rect btnRect = new Rect(x, y + i * (btnH + padding), btnW, btnH);
-
-            if (action.enabled)
-            {
-                if (GUI.Button(btnRect, action.label, menuButtonStyle))
-                    ExecuteAction(action);
-            }
-            else
-            {
-                GUI.Label(btnRect, new GUIContent(action.label, action.disabledReason), disabledButtonStyle);
-            }
-        }
-    }
-
-    void InitStyles()
-    {
-        if (menuStyle != null) return;
-
-        menuStyle = new GUIStyle(GUI.skin.box);
-        menuStyle.normal.background = MakeTex(2, 2, new Color(0.1f, 0.1f, 0.1f, 0.85f));
-
-        menuButtonStyle = new GUIStyle(GUI.skin.button);
-        menuButtonStyle.fontSize = 14;
-        menuButtonStyle.normal.textColor = Color.white;
-        menuButtonStyle.hover.textColor = Color.yellow;
-
-        disabledButtonStyle = new GUIStyle(GUI.skin.label);
-        disabledButtonStyle.fontSize = 14;
-        disabledButtonStyle.normal.textColor = new Color(0.5f, 0.5f, 0.5f);
-        disabledButtonStyle.alignment = TextAnchor.MiddleCenter;
-    }
-
-    Texture2D MakeTex(int w, int h, Color col)
-    {
-        var pix = new Color[w * h];
-        for (int i = 0; i < pix.Length; i++) pix[i] = col;
-        var tex = new Texture2D(w, h);
-        tex.SetPixels(pix);
-        tex.Apply();
-        return tex;
-    }
 
     // ── Snap exit ─────────────────────────────────────────────────
     void HandleSnapLock()
