@@ -18,6 +18,7 @@ public class PlayerInteraction : MonoBehaviour
     [Header("References")]
     public KCC player;
     public Camera playerCamera;
+    public Inventory playerInventory;
 
     [Header("Settings")]
     public float interactionDistance = 3f;
@@ -40,7 +41,8 @@ public class PlayerInteraction : MonoBehaviour
     Door currentDoor;
     Window currentWindow;
 
- 
+    Inventory currentOpenChest;
+    bool chestIsOpen = false;
 
     string[] componentsToLock = {
         "CinemachineInputAxisController",
@@ -54,7 +56,6 @@ public class PlayerInteraction : MonoBehaviour
     void OnEnable() 
     { 
         interactAction.Enable(); 
-        // Podpinamy się pod moment wykonania interakcji
         interactAction.performed += OnInteractPerformed; 
         interactAction.canceled += OnInteractCanceled;
     }
@@ -65,21 +66,30 @@ public class PlayerInteraction : MonoBehaviour
         interactAction.performed -= OnInteractPerformed; 
         interactAction.canceled -= OnInteractCanceled;
     }
+
     private void OnInteractPerformed(InputAction.CallbackContext context)
     {
-        // 1. Najpierw robimy Raycast, żeby wiedzieć na co patrzymy
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (!Physics.Raycast(ray, out RaycastHit hit, interactionDistance)) return;
+
+        Inventory hitInventory = hit.collider.GetComponentInParent<Inventory>();
+        if (hitInventory != null && hitInventory.type != InventoryType.Player)
+        {
+            if (chestIsOpen && currentOpenChest == hitInventory)
+            {
+                CloseChest();
+                return;
+            }
+            OpenChest(hitInventory);
+            return;
+        }
 
         Door door = hit.collider.GetComponentInParent<Door>();
         if (door == null) return;
         var actions = door.GetDoorActions();
         
-        // 2. Rozróżniamy Tap od Hold na podstawie ustawień z obrazka
         if (context.interaction is UnityEngine.InputSystem.Interactions.TapInteraction)
         {
-            // KLIKNIĘCIE: Wykonaj pierwszą akcję z listy (Default Action)
-            
             if (actions.Count > 0 && actions[0].enabled) 
             {
                 actions[0].execute?.Invoke();
@@ -87,21 +97,16 @@ public class PlayerInteraction : MonoBehaviour
         }
         else if (context.interaction is UnityEngine.InputSystem.Interactions.HoldInteraction)
         {
-           
             if (actions.Count == 1)
             {
                 actions[0].execute?.Invoke();
-                
             }
             else
             {
-                // TRZYMANIE: Otwórz menu UI Toolkit (Rondo)
-                
                 HandleSnapping(door, hit);
-                OpenMenu(actions); // Ta metoda wywoła Twoje nowe UI
+                OpenMenu(actions);
                 menuOpen = true;
             }
-
         }
     }
 
@@ -118,21 +123,18 @@ public class PlayerInteraction : MonoBehaviour
     void Update()
     {
         HandleSnapLock();//Kiedys to wypierdzziele Wieze w to --- Windforce
+        HandleChestAutoClose();
     }
 
     private void OnInteractCanceled(InputAction.CallbackContext context)
     {
-
         if (menuOpen)
         {
-            // Pobieramy zaznaczoną akcję z Twojego UI
-            DoorAction selectedAction = UI_Interaction.Instance.SelectRondoAction(); //pobiera akcje i zmayka menu
+            DoorAction selectedAction = UI_Interaction.Instance.SelectRondoAction();
 
             if (selectedAction != null && selectedAction.enabled)
             {
-                // Wykonujemy zapisaną logikę (np. DoorOpen)
                 selectedAction.execute?.Invoke();
-                // Debug.Log($"[Hold Exit] Wykonano akcję: {selectedAction.label}");
             }
 
             Cursor.lockState = CursorLockMode.Locked;
@@ -140,6 +142,46 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
+    void OpenChest(Inventory chest)
+    {
+        if (chestIsOpen)
+            CloseChest();
+
+        currentOpenChest = chest;
+        chestIsOpen = true;
+
+        if (playerInventory != null)
+            playerInventory.outsideInventory = chest;
+
+        UI_Script.Instance.SendItemsToChest(chest.inventory);
+        UI_Script.Instance.ShowChest();
+    }
+
+    void CloseChest()
+    {
+        if (!chestIsOpen) return;
+
+        UI_Script.Instance.HideInventory();
+        UI_Script.Instance.HideChest();
+
+        if (playerInventory != null)
+            playerInventory.outsideInventory = null;
+
+        chestIsOpen = false;
+        currentOpenChest = null;
+    }
+
+    void HandleChestAutoClose()
+    {
+        if (!chestIsOpen || currentOpenChest == null) return;
+
+        float dist = Vector3.Distance(
+            player.transform.position,
+            currentOpenChest.transform.position);
+
+        if (dist > interactionDistance * 1.5f)
+            CloseChest();
+    }
 
     void HandleSnapping(IInteractable interactable, RaycastHit hit)
     {
@@ -172,14 +214,8 @@ public class PlayerInteraction : MonoBehaviour
     // ── Menu kontekstowe ──────────────────────────────────────────
     public void OpenMenu(List<DoorAction> actions)
     {
-        // Czyścimy starą listę i kopiujemy nową
         currentActions = actions; 
-       
-
-        // Przekazujemy do Twojego UI Toolkit (Rondo)
-        // Musisz tam mieć metodę, która przyjmuje List<DoorAction>
         UI_Interaction.Instance.SendRondoActions(actions); 
-
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
@@ -189,16 +225,9 @@ public class PlayerInteraction : MonoBehaviour
         currentWindow = window;
         currentDoor = null;
         currentActions = window.GetWindowActions();
-   
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
-
-
-
-
-
-
 
     // ── Snap exit ─────────────────────────────────────────────────
     void HandleSnapLock()
