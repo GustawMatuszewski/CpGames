@@ -1,135 +1,100 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Text.RegularExpressions;
+
 public class UI_CustomizationSettings : MonoBehaviour
 {
     [SerializeField] private Material ghostMaterial;
+    [SerializeField] private Material ghostObstructedMaterial;
+    
     private UIDocument UI_doc => GetComponent<UIDocument>();
-    VisualElement BuildingGhostColor;
+    
+
+    private VisualElement buildingGhostColor;
+    private VisualElement buildingGhostObstructedColor;
+
     void Awake()
     {
+        VisualElement root = UI_doc.rootVisualElement.Q<VisualElement>("CustomizationSettings");
 
-        VisualElement root = UI_doc.rootVisualElement;
-        root= root.Q<VisualElement>("CustomizationSettings");//poprostu ogrania tylko i wylacznie video settings nic wiecej
-        BuildingGhostColor = root.Q<VisualElement>("BuildingGhostColor");
-        TextField UInputElement = BuildingGhostColor.Q<TextField>("ColorInput");
-        VisualElement Coloroutput = BuildingGhostColor.Q<VisualElement>("ColorPrev");
     
-        UInputElement.maxLength = 7;
-        UInputElement.value = "#000000";
-        UInputElement.RegisterValueChangedCallback(evt =>
-        {
-            UpdateColor(evt, UInputElement);//funkcja odpowiadajac za aktualizacje koloru i kontrole inputa
+        buildingGhostColor = root.Q<VisualElement>("BuildingGhostColor");
+        SetupColorInput(buildingGhostColor, ghostMaterial, "GhostColorKey");
 
-        });
-        if (ColorUtility.TryParseHtmlString(UInputElement.value, out Color c))
-        {
-            Coloroutput.style.backgroundColor = c;
-        }
 
+        buildingGhostObstructedColor = root.Q<VisualElement>("BuildingGhostObstructedColor");
+        SetupColorInput(buildingGhostObstructedColor, ghostObstructedMaterial, "GhostObstructedKey");
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    void UpdateColor(ChangeEvent<string> evt,TextField UInputElement)
-    {
 
- 
-        VisualElement Coloroutput = BuildingGhostColor.Q<VisualElement>("ColorPrev");
+  
+    private void SetupColorInput(VisualElement container, Material mat, string saveKey)
+    {
+        TextField input = container.Q<TextField>("ColorInput");
+        input.maxLength = 7;
+        input.RegisterValueChangedCallback(evt =>
+        {
+            UpdateColor(evt, input, mat);
+            if (input.value.Length == 7)
+            {
+                SaveColor(saveKey, input);
+            }
+        });
+    }
+
+    void Start()
+    {
+        // Ładowanie pierwszego materiału
+        TextField inputNormal = buildingGhostColor.Q<TextField>("ColorInput");
+        LoadColor("GhostColorKey", inputNormal, ghostMaterial, "#00FF00");
+
+        // Ładowanie drugiego materiału
+        TextField inputObstructed = buildingGhostObstructedColor.Q<TextField>("ColorInput");
+        LoadColor("GhostObstructedKey", inputObstructed, ghostObstructedMaterial, "#FF0000");
+    }
+
+
+
+    void UpdateColor(ChangeEvent<string> evt, TextField UInputElement, Material ColorMaterial)
+    {
+        VisualElement Coloroutput = UInputElement.parent.Q<VisualElement>("ColorPrev");
         string input = evt.newValue;
         string cleanHex = Regex.Replace(input, @"[^0-9a-fA-F]", "").ToUpper();
 
-        if (cleanHex.Length > 6)
-            cleanHex = cleanHex.Substring(0, 6);
+        if (cleanHex.Length > 6) cleanHex = cleanHex.Substring(0, 6);
         string finalValue = "#" + cleanHex;
+
         if (finalValue != input)
         {
             UInputElement.SetValueWithoutNotify(finalValue);
-            if (!input.StartsWith("#"))
-            {
-                UInputElement.schedule.Execute(() => UInputElement.SelectRange(1, 1));
-            }
-            else
-            {
-                UInputElement.schedule.Execute(() => UInputElement.SelectRange(finalValue.Length, finalValue.Length));
-            }
+            UInputElement.schedule.Execute(() => UInputElement.SelectRange(finalValue.Length, finalValue.Length));
         }
+
         if (cleanHex.Length == 6 && ColorUtility.TryParseHtmlString(finalValue, out Color c))
         {
+            c.a = 0.6f;
             Coloroutput.style.backgroundColor = c;
-            if (ghostMaterial != null)
+            if (ColorMaterial != null)
             {
-                //strzelam jak sie nazywa proprety
-                if (ghostMaterial.HasProperty("_BaseColor"))
-                    ghostMaterial.SetColor("_BaseColor", c);
-                else
-                    ghostMaterial.SetColor("_Color", c);
+                if (ColorMaterial.HasProperty("_UnlitColor")) ColorMaterial.SetColor("_UnlitColor", c);
+                else if (ColorMaterial.HasProperty("_BaseColor")) ColorMaterial.SetColor("_BaseColor", c);
+                else ColorMaterial.SetColor("_Color", c);
             }
         }
+    }
+
+    private void SaveColor(string key, TextField input)
+    {
+        PlayerPrefs.SetString(key, input.value);
+        PlayerPrefs.Save();
+    }
+
+    private void LoadColor(string key, TextField input, Material material, string defaultHex = "#FFFFFF")
+    {
+        string savedHex = PlayerPrefs.GetString(key, defaultHex);
+        input.value = savedHex;
+
+        ChangeEvent<string> evt = ChangeEvent<string>.GetPooled("", savedHex);
+        evt.target = input;
+        UpdateColor(evt, input, material);
     }
 }

@@ -7,8 +7,15 @@
                 <ui:Label text="Customization Settings" name="settingsTitleLabel"/>
             </ui:VisualElement>
             <ui:VisualElement name="settingsDiv" class="settingsDiv" style="align-self: flex-end;">
-                <ui:VisualElement name="BuildingGhostColor">
+                <ui:VisualElement name="BuildingGhostColor" class="Building-Color">
                     <ui:Label text="Ghost Building Color" data-source-type="UnityEngine.UIElements.AdvanceTextGeneratorDecoratorAttribute, UnityEngine.UIElementsModule"/>
+                    <ui:VisualElement name="Color" style="flex-grow: 0; flex-direction: row; flex-wrap: nowrap; justify-content: flex-end;">
+                        <ui:VisualElement name="ColorPrev" style="border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px;"/>
+                        <ui:TextField label="Text Field" placeholder-text="filler text" name="ColorInput"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="BuildingGhostObstructedColor" class="Building-Color">
+                    <ui:Label text="Ghost Obstructed  Building Color" data-source-type="UnityEngine.UIElements.AdvanceTextGeneratorDecoratorAttribute, UnityEngine.UIElementsModule"/>
                     <ui:VisualElement name="Color" style="flex-grow: 0; flex-direction: row; flex-wrap: nowrap; justify-content: flex-end;">
                         <ui:VisualElement name="ColorPrev" style="border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px;"/>
                         <ui:TextField label="Text Field" placeholder-text="filler text" name="ColorInput"/>

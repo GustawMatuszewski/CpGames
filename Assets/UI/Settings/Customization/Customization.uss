@@ -1,4 +1,4 @@
-#BuildingGhostColor {
+.Building-Color {
     flex-direction: row;
     justify-content: space-between;
     font-size: 14px;
@@ -8,14 +8,14 @@
     -unity-text-align: middle-left;
 }
 
-#BuildingGhostColor #ColorInput Label {
+.Building-Color #ColorInput Label {
     background-color: rgb(120, 141, 142);
     flex-direction: row;
     justify-content: space-between;
     display: none;
 }
 
-#BuildingGhostColor #ColorInput {
+.Building-Color #ColorInput {
     background-color: rgba(40, 40, 40, 0.59);
     flex-direction: row;
     justify-content: space-between;
@@ -33,7 +33,7 @@
     width: 170px;
 }
 
-#BuildingGhostColor #ColorInput #unity-text-input {
+.Building-Color #ColorInput #unity-text-input {
     background-color: rgba(40, 40, 40, 0.59);
     flex-direction: row;
     justify-content: space-between;
@@ -51,13 +51,13 @@
     width: auto;
 }
 
-#BuildingGhostColor #Color {
+.Building-Color #Color {
     flex-direction: row;
     align-self: auto;
     align-items: center;
 }
 
-#BuildingGhostColor #ColorPrev {
+.Building-Color #ColorPrev {
     flex-direction: row;
     border-top-left-radius: 50%;
     border-top-right-radius: 50%;
