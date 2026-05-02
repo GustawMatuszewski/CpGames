@@ -22969,7 +22969,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &709713306
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69978,7 +69978,7 @@ PrefabInstance:
     - target: {fileID: 7734288436056666085, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: m_TargetTexture
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 8400000, guid: 14f2a9f87962b3132aea3db839f1fae2, type: 2}
     - target: {fileID: 7734288436056666085, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: m_CullingMask.m_Bits
       value: 253
