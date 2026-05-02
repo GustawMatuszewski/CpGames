@@ -54650,10 +54650,10 @@ Terrain:
   serializedVersion: 6
   m_TerrainData: {fileID: 15600000, guid: 3a0024e4068667943837aefc84a7de14, type: 2}
   m_TreeDistance: 5000
-  m_TreeBillboardDistance: 50
-  m_TreeCrossFadeLength: 5
+  m_TreeBillboardDistance: 60
+  m_TreeCrossFadeLength: 14
   m_TreeMaximumFullLODCount: 50
-  m_DetailObjectDistance: 80
+  m_DetailObjectDistance: 287
   m_DetailObjectDensity: 1
   m_HeightmapPixelError: 128
   m_SplatMapDistance: 90
@@ -70117,7 +70117,7 @@ MonoBehaviour:
   walkStepRate: 0.5
   runStepRate: 0.3
   sprintStepRate: 0.2
-  volume: 1
+  volume: 0.114
   pitchVariance: 0.1
   minDistance: 1
   maxDistance: 20
