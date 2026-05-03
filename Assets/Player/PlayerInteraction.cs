@@ -16,6 +16,7 @@ public class PlayerInteraction : MonoBehaviour
     [Header("References")]
     public KCC    player;
     public Camera playerCamera;
+    public Inventory playerInventory;
 
     [Header("Settings")]
     public float interactionDistance = 3f;
@@ -36,6 +37,8 @@ public class PlayerInteraction : MonoBehaviour
     Door currentOpenable;   // replaces Door + Window fields
 
     bool menuOpen = false;
+    Inventory currentOpenChest;
+    bool chestIsOpen = false;
 
     string[] componentsToLock =
     {
@@ -71,7 +74,8 @@ public class PlayerInteraction : MonoBehaviour
 
     void Update()
     {
-        HandleSnapLock();
+        HandleSnapLock();//Kiedys to wypierdzziele Wieze w to --- Windforce
+        HandleChestAutoClose();
     }
 
     // ── Input callbacks ────────────────────────────────────────────
@@ -80,38 +84,35 @@ public class PlayerInteraction : MonoBehaviour
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (!Physics.Raycast(ray, out RaycastHit hit, interactionDistance)) return;
 
-        // Single component lookup — works for both doors and windows
+        // Chest
+        Inventory hitInventory = hit.collider.GetComponentInParent<Inventory>();
+        if (hitInventory != null && hitInventory.type != InventoryType.Player)
+        {
+            if (chestIsOpen && currentOpenChest == hitInventory) { CloseChest(); return; }
+            OpenChest(hitInventory);
+            return;
+        }
+
+        // Door/Window
         Door openable = hit.collider.GetComponentInParent<Door>();
         if (openable == null) return;
-
         var actions = openable.GetDoorActions();
 
         if (context.interaction is UnityEngine.InputSystem.Interactions.TapInteraction)
         {
-            // TAP → execute first (default) action immediately
-            if (actions.Count > 0 && actions[0].execute != null)
+            if (actions.Count > 0 && actions[0].enabled)
                 actions[0].execute?.Invoke();
         }
         else if (context.interaction is UnityEngine.InputSystem.Interactions.HoldInteraction)
         {
-            if (actions.Count == 1)
-            {
-                actions[0].execute?.Invoke();
-            }
-            else
-            {
-                // HOLD → open radial menu
-                HandleSnapping(openable, hit);
-                OpenMenu(openable, actions);
-                menuOpen = true;
-            }
+            if (actions.Count == 1) actions[0].execute?.Invoke();
+            else { HandleSnapping(openable, hit); OpenMenu(openable, actions); menuOpen = true; }
         }
     }
 
     void OnInteractCanceled(InputAction.CallbackContext context)
     {
         if (!menuOpen) return;
-
         DoorAction selected = UI_Interaction.Instance.SelectRondoAction();
         if (selected != null && selected.enabled)
             selected.execute?.Invoke();
@@ -119,6 +120,48 @@ public class PlayerInteraction : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         menuOpen = false;
     }
+    
+    void OpenChest(Inventory chest)
+    {
+        if (chestIsOpen)
+            CloseChest();
+
+        currentOpenChest = chest;
+        chestIsOpen = true;
+
+        if (playerInventory != null)
+            playerInventory.outsideInventory = chest;
+
+        UI_Script.Instance.SendItemsToChest(chest.inventory);
+        UI_Script.Instance.ShowChest();
+    }
+
+    void CloseChest()
+    {
+        if (!chestIsOpen) return;
+
+        UI_Script.Instance.HideInventory();
+        UI_Script.Instance.HideChest();
+
+        if (playerInventory != null)
+            playerInventory.outsideInventory = null;
+
+        chestIsOpen = false;
+        currentOpenChest = null;
+    }
+
+    void HandleChestAutoClose()
+    {
+        if (!chestIsOpen || currentOpenChest == null) return;
+
+        float dist = Vector3.Distance(
+            player.transform.position,
+            currentOpenChest.transform.position);
+
+        if (dist > interactionDistance * 1.5f)
+            CloseChest();
+    }
+
 
     // ── Menu ───────────────────────────────────────────────────────
     void OpenMenu(Door openable, List<DoorAction> actions)

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 public class Construction : MonoBehaviour, IInteractable
 {
+    public float placementOffset = 1.5f;
     [Header("Build")]
 public List<GameObject> connectors;
 public GameObject Model;

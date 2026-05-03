@@ -973,6 +973,7 @@ public void SendItemList(List<Item> items)
         slots.style.flexDirection = FlexDirection.RowReverse;
         inventoryIsOpen = false;
         HideOptionWindow();
+        HideChest();
     }
 
     public void ShowInventory()
@@ -1005,7 +1006,7 @@ public void SendItemList(List<Item> items)
     }
     public void HideChest()
     {
-        ShowInventory();
+        //ShowInventory();
         VisualElement OSInv = root.Q<VisualElement>("OSInventory");
         OSInv.style.display = DisplayStyle.None;
         ChestIsOpen = false;
