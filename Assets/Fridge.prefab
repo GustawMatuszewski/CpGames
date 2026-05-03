@@ -369,7 +369,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7679068179168250901}
-  m_Layer: 0
+  - component: {fileID: 2860882182903341802}
+  - component: {fileID: 2715875088416156566}
+  m_Layer: 3
   m_Name: Fridge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -399,6 +401,44 @@ Transform:
   - {fileID: 6233975851030863087}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &2860882182903341802
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4455045024843682517}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.1555595, y: 2.9550455, z: 1.2926831}
+  m_Center: {x: -2.6954799, y: 1.4750279, z: 0.14634186}
+--- !u!114 &2715875088416156566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4455045024843682517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2d91069d00ac79fd95fd081dc6628e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Inventory
+  debugMode: 1
+  type: 3
+  outsideInventory: {fileID: 0}
+  itemDatabase: {fileID: 11400000, guid: 8f36d94712b894c1db42db15f9bfba36, type: 2}
+  inventory: []
 --- !u!1 &4581575506193902921
 GameObject:
   m_ObjectHideFlags: 0
