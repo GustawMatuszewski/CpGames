@@ -53,7 +53,7 @@ public class EnemyManager : MonoBehaviour
     {
         for (int i = 0; i < allEnemies.Count; i++)
         {
-            if (allEnemies[i] == null) continue;
+            if (allEnemies[i] == null || allEnemies[i].isDead) continue;
             allEnemies[i].isGroupLeader = false;
             allEnemies[i].groupLeader   = null;
         }

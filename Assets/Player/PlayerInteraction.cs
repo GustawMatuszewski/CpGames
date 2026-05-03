@@ -90,7 +90,7 @@ public class PlayerInteraction : MonoBehaviour
         {
             if (chestIsOpen && currentOpenChest == hitInventory) { CloseChest(); return; }
             OpenChest(hitInventory);
-            return;
+            // return;
         }
 
         // Door/Window
@@ -120,7 +120,7 @@ public class PlayerInteraction : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         menuOpen = false;
     }
-    
+
     void OpenChest(Inventory chest)
     {
         if (chestIsOpen)

@@ -485,6 +485,8 @@ MonoBehaviour:
   investigateTime: 3
   aiUpdateInterval: 0.15
   enemyState: 7
+  windowTraversalSpeed: 2.5
+  windowVaultAnimation: WindowVault
   isGroupLeader: 0
   groupLeader: {fileID: 0}
   groupSharedTarget: {fileID: 0}

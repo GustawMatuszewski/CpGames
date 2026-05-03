@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections.Generic;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class EnemyEntity : BaseEntity
 {
@@ -96,6 +97,11 @@ public class EnemyEntity : BaseEntity
     // ── AI loop (coroutine, staggered) ────────────────────────────
     IEnumerator AIPerceptionLoop()
     {
+        if (isDead)
+        {
+            OnDeath();
+            yield break;
+        }
         yield return new WaitForSeconds(Random.Range(0f, aiUpdateInterval));
         while (true)
         {
@@ -111,6 +117,7 @@ public class EnemyEntity : BaseEntity
     // ── Update: per-frame work + link detection ───────────────────
     void Update()
     {
+        if (isDead) return;
         // ── Window link detection ──────────────────────────────────
         // agent.isOnOffMeshLink is true for BOTH old OffMeshLinks AND
         // NavMeshLink — that property name is kept for API compatibility.
@@ -485,6 +492,21 @@ public class EnemyEntity : BaseEntity
         }
 
         return loudest != null ? loudest.transform.position : (Vector3?)null;
+    }
+    void OnDeath()
+    {
+        agent.isStopped = true;
+        agent.enabled   = false;
+        enemyState      = EntityState.Patrol; // or a Dead state if you add one
+
+        // Play death animation
+        Animator anim = GetComponent<Animator>();
+        if (anim != null) anim.CrossFade("Death", 0.2f);
+
+        EnemyManager.Instance?.UnregisterEnemy(this);
+
+        // Optional: destroy after delay
+        Destroy(gameObject, 5f);
     }
 
     // ── Gizmos ────────────────────────────────────────────────────
