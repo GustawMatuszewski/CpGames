@@ -123,8 +123,7 @@ public class EnemyEntity : BaseEntity
             // linkData.offMeshLink is only populated for the legacy OffMeshLink.
             // For NavMeshLink, linkData.offMeshLink is NULL — we use the
             // nearest position to find our Window GO instead.
-            Window window = FindWindowAtLink(linkData);
-
+            Door window = FindWindowAtLink(linkData);
             if (window != null)
             {
                 StartCoroutine(TraverseWindow(linkData));
@@ -165,23 +164,21 @@ public class EnemyEntity : BaseEntity
     // Instead we do an OverlapSphere at the link's start position and look
     // for a GO that has a Window component anywhere in its hierarchy.
     // Radius 1.5f is tight enough to avoid false positives at normal door spacing.
-    Window FindWindowAtLink(OffMeshLinkData linkData)
+    Door FindWindowAtLink(OffMeshLinkData linkData)
     {
-        // Check start position of the link
         Collider[] nearby = Physics.OverlapSphere(linkData.startPos, 1.5f);
         foreach (Collider col in nearby)
         {
-            Window w = col.GetComponentInParent<Window>();
-            if (w != null && w.state == Window.WindowState.Broken)
+            Door w = col.GetComponentInParent<Door>();
+            if (w != null && w.isWindow && w.state == Door.OpenableState.Broken)
                 return w;
         }
 
-        // Also check end position (bidirectional: enemy may approach from inside)
         nearby = Physics.OverlapSphere(linkData.endPos, 1.5f);
         foreach (Collider col in nearby)
         {
-            Window w = col.GetComponentInParent<Window>();
-            if (w != null && w.state == Window.WindowState.Broken)
+            Door w = col.GetComponentInParent<Door>();
+            if (w != null && w.isWindow && w.state == Door.OpenableState.Broken)
                 return w;
         }
 

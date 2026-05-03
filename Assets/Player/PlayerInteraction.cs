@@ -2,7 +2,6 @@
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using Unity.Cinemachine;
-using UnityEngine.Rendering.HighDefinition;
 
 public interface IInteractable
 {
@@ -14,14 +13,13 @@ public interface IInteractable
 
 public class PlayerInteraction : MonoBehaviour
 {
-
     [Header("References")]
-    public KCC player;
+    public KCC    player;
     public Camera playerCamera;
 
     [Header("Settings")]
     public float interactionDistance = 3f;
-    public float snapExitDelay = 0.5f;
+    public float snapExitDelay       = 0.5f;
 
     [Header("Input")]
     public InputAction interactAction;
@@ -29,118 +27,112 @@ public class PlayerInteraction : MonoBehaviour
     [Header("Debug")]
     public bool debugMode = true;
 
-    // ── Stan wewnętrzny ───────────────────────────────────────────
-    Transform currentSnapPoint;
-    float snapExitTimer;
+    // ── Internal state ─────────────────────────────────────────────
+    Transform         currentSnapPoint;
+    float             snapExitTimer;
     CinemachineCamera internalCinemachine;
 
-    // Menu kontekstowe
-
     List<DoorAction> currentActions = new();
-    Door currentDoor;
-    Window currentWindow;
+    Door currentOpenable;   // replaces Door + Window fields
 
- 
+    bool menuOpen = false;
 
-    string[] componentsToLock = {
+    string[] componentsToLock =
+    {
         "CinemachineInputAxisController",
         "CinemachinePanTilt",
         "CinemachineOrbitalFollow",
         "CinemachineRotationHandler"
     };
-    private bool menuOpen=false;
 
-    // ── Unity ─────────────────────────────────────────────────────
-    void OnEnable() 
-    { 
-        interactAction.Enable(); 
-        // Podpinamy się pod moment wykonania interakcji
-        interactAction.performed += OnInteractPerformed; 
-        interactAction.canceled += OnInteractCanceled;
-    }
-
-    void OnDisable() 
-    { 
-        interactAction.Disable(); 
-        interactAction.performed -= OnInteractPerformed; 
-        interactAction.canceled -= OnInteractCanceled;
-    }
-    private void OnInteractPerformed(InputAction.CallbackContext context)
+    // ── Unity lifecycle ────────────────────────────────────────────
+    void OnEnable()
     {
-        // 1. Najpierw robimy Raycast, żeby wiedzieć na co patrzymy
-        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        if (!Physics.Raycast(ray, out RaycastHit hit, interactionDistance)) return;
+        interactAction.Enable();
+        interactAction.performed += OnInteractPerformed;
+        interactAction.canceled  += OnInteractCanceled;
+    }
 
-        Door door = hit.collider.GetComponentInParent<Door>();
-        if (door == null) return;
-        var actions = door.GetDoorActions();
-        
-        // 2. Rozróżniamy Tap od Hold na podstawie ustawień z obrazka
-        if (context.interaction is UnityEngine.InputSystem.Interactions.TapInteraction)
-        {
-            // KLIKNIĘCIE: Wykonaj pierwszą akcję z listy (Default Action)
-            
-            if (actions.Count > 0 && actions[0].enabled) 
-            {
-                actions[0].execute?.Invoke();
-            }
-        }
-        else if (context.interaction is UnityEngine.InputSystem.Interactions.HoldInteraction)
-        {
-           
-            if (actions.Count == 1)
-            {
-                actions[0].execute?.Invoke();
-                
-            }
-            else
-            {
-                // TRZYMANIE: Otwórz menu UI Toolkit (Rondo)
-                
-                HandleSnapping(door, hit);
-                OpenMenu(actions); // Ta metoda wywoła Twoje nowe UI
-                menuOpen = true;
-            }
-
-        }
+    void OnDisable()
+    {
+        interactAction.Disable();
+        interactAction.performed -= OnInteractPerformed;
+        interactAction.canceled  -= OnInteractCanceled;
     }
 
     void Start()
     {
         if (playerCamera != null)
         {
-            internalCinemachine = playerCamera.GetComponent<CinemachineCamera>();
-            if (internalCinemachine == null)
-                internalCinemachine = playerCamera.GetComponentInParent<CinemachineCamera>();
+            internalCinemachine = playerCamera.GetComponent<CinemachineCamera>()
+                               ?? playerCamera.GetComponentInParent<CinemachineCamera>();
         }
     }
 
     void Update()
     {
-        HandleSnapLock();//Kiedys to wypierdzziele Wieze w to --- Windforce
+        HandleSnapLock();
     }
 
-    private void OnInteractCanceled(InputAction.CallbackContext context)
+    // ── Input callbacks ────────────────────────────────────────────
+    void OnInteractPerformed(InputAction.CallbackContext context)
     {
+        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+        if (!Physics.Raycast(ray, out RaycastHit hit, interactionDistance)) return;
 
-        if (menuOpen)
+        // Single component lookup — works for both doors and windows
+        Door openable = hit.collider.GetComponentInParent<Door>();
+        if (openable == null) return;
+
+        var actions = openable.GetDoorActions();
+
+        if (context.interaction is UnityEngine.InputSystem.Interactions.TapInteraction)
         {
-            // Pobieramy zaznaczoną akcję z Twojego UI
-            DoorAction selectedAction = UI_Interaction.Instance.SelectRondoAction(); //pobiera akcje i zmayka menu
-
-            if (selectedAction != null && selectedAction.enabled)
+            // TAP → execute first (default) action immediately
+            if (actions.Count > 0 && actions[0].execute != null)
+                actions[0].execute?.Invoke();
+        }
+        else if (context.interaction is UnityEngine.InputSystem.Interactions.HoldInteraction)
+        {
+            if (actions.Count == 1)
             {
-                // Wykonujemy zapisaną logikę (np. DoorOpen)
-                selectedAction.execute?.Invoke();
-                // Debug.Log($"[Hold Exit] Wykonano akcję: {selectedAction.label}");
+                actions[0].execute?.Invoke();
             }
-
-            Cursor.lockState = CursorLockMode.Locked;
-            menuOpen = false;
+            else
+            {
+                // HOLD → open radial menu
+                HandleSnapping(openable, hit);
+                OpenMenu(openable, actions);
+                menuOpen = true;
+            }
         }
     }
 
+    void OnInteractCanceled(InputAction.CallbackContext context)
+    {
+        if (!menuOpen) return;
 
+        DoorAction selected = UI_Interaction.Instance.SelectRondoAction();
+        if (selected != null && selected.enabled)
+            selected.execute?.Invoke();
+
+        Cursor.lockState = CursorLockMode.Locked;
+        menuOpen = false;
+    }
+
+    // ── Menu ───────────────────────────────────────────────────────
+    void OpenMenu(Door openable, List<DoorAction> actions)
+    {
+        currentOpenable = openable;
+        currentActions  = actions;
+
+        UI_Interaction.Instance.SendRondoActions(actions);
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible   = true;
+    }
+
+    // ── Snapping ───────────────────────────────────────────────────
     void HandleSnapping(IInteractable interactable, RaycastHit hit)
     {
         if (!interactable.UseSnapping || interactable.InteractionPositions == null) return;
@@ -151,16 +143,16 @@ public class PlayerInteraction : MonoBehaviour
 
         player.transform.position = currentSnapPoint.position;
         player.transform.rotation = currentSnapPoint.rotation;
-        snapExitTimer = 0;
-        player.enableMovement = false;
-        player.enableClimbing = false;
+        snapExitTimer             = 0;
+        player.enableMovement     = false;
+        player.enableClimbing     = false;
 
         if (internalCinemachine != null)
         {
-            Transform targetToLookAt = interactable.LookAtTarget ?? hit.transform;
-            internalCinemachine.LookAt = targetToLookAt;
-            if (targetToLookAt != null)
-                playerCamera.transform.LookAt(targetToLookAt);
+            Transform target = interactable.LookAtTarget ?? hit.transform;
+            internalCinemachine.LookAt = target;
+            if (target != null) playerCamera.transform.LookAt(target);
+
             foreach (string name in componentsToLock)
             {
                 var comp = internalCinemachine.GetComponent(name) as Behaviour;
@@ -169,46 +161,14 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
-    // ── Menu kontekstowe ──────────────────────────────────────────
-    public void OpenMenu(List<DoorAction> actions)
-    {
-        // Czyścimy starą listę i kopiujemy nową
-        currentActions = actions; 
-       
-
-        // Przekazujemy do Twojego UI Toolkit (Rondo)
-        // Musisz tam mieć metodę, która przyjmuje List<DoorAction>
-        UI_Interaction.Instance.SendRondoActions(actions); 
-
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-    }
-
-    void OpenMenu(Window window)
-    {
-        currentWindow = window;
-        currentDoor = null;
-        currentActions = window.GetWindowActions();
-   
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-    }
-
-
-
-
-
-
-
-    // ── Snap exit ─────────────────────────────────────────────────
     void HandleSnapLock()
     {
         if (currentSnapPoint == null) return;
 
         Vector2 moveInput = player.input.PlayerInputMap.MoveInput.ReadValue<Vector2>();
-        bool jumpInput = player.input.PlayerInputMap.JumpInput.triggered;
+        bool    jump      = player.input.PlayerInputMap.JumpInput.triggered;
 
-        if (moveInput.magnitude > 0.1f || jumpInput)
+        if (moveInput.magnitude > 0.1f || jump)
         {
             snapExitTimer += Time.deltaTime;
             if (snapExitTimer >= snapExitDelay) ReleaseSnap();
@@ -221,8 +181,8 @@ public class PlayerInteraction : MonoBehaviour
 
     void ReleaseSnap()
     {
-        currentSnapPoint = null;
-        snapExitTimer = 0;
+        currentSnapPoint      = null;
+        snapExitTimer         = 0;
         player.enableMovement = true;
         player.enableClimbing = true;
 
@@ -240,12 +200,12 @@ public class PlayerInteraction : MonoBehaviour
     Transform GetClosestSnapPoint(List<Transform> points, Vector3 hitPoint)
     {
         Transform closest = null;
-        float minDist = Mathf.Infinity;
+        float     minDist = Mathf.Infinity;
         foreach (Transform t in points)
         {
             if (t == null) continue;
-            float dist = Vector3.Distance(hitPoint, t.position);
-            if (dist < minDist) { minDist = dist; closest = t; }
+            float d = Vector3.Distance(hitPoint, t.position);
+            if (d < minDist) { minDist = d; closest = t; }
         }
         return closest;
     }
