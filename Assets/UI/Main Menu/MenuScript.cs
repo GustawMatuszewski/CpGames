@@ -24,8 +24,11 @@ public class MenuScript : MonoBehaviour
         };
         Button ButtonOptionsMenu = root.Q<Button>("OptionsMenu");
         ButtonOptionsMenu.clickable.clicked += () => toggleOptionsMenu();
-        Button ButtonSettingsQuit = root.Q<Button>("closeSettings");
-        ButtonSettingsQuit.clickable.clicked += () => { Settings.style.display = DisplayStyle.None; };
+
+        root.Query<Button>(className: "closeSettings").ForEach(btn => 
+        {
+            btn.clicked += () => { Settings.style.display = DisplayStyle.None; };
+        });
         SettingsTabs.activeTabChanged += (Tab old, Tab newTab)=>UpdateTabs(old,newTab);
     }
     bool OptionsMenuOpen = false;

@@ -20,10 +20,10 @@ public class PauseMenu : MonoBehaviour
         SettingsTabs = Settings.Q<TabView>("SettingsTabs");
         Button SettingsBtn = pauseMenu.Q<Button>("Options");
         SettingsBtn.clickable.clicked += () => ShowOptionWindow();
-        Button CloseSettingsBtn = Settings.Q<Button>("closeSettings");
-        UI_Logs.Log(CloseSettingsBtn);
-        CloseSettingsBtn.clickable.clicked += () => HideOptionWindow();
-        CloseSettingsBtn.clickable.clicked += () => { UI_Logs.Log("Zamykam Ustawienia");};
+        root.Query<Button>(className: "closeSettings").ForEach(btn => 
+        {
+            btn.clicked += () => { Settings.style.display = DisplayStyle.None; };
+        });
         Button ButtonBack = pauseMenu.Q<Button>("BackToMenu");
         ButtonBack.clickable.clicked += () =>
         {

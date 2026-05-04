@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 1784096280}
   - component: {fileID: 1784096283}
   - component: {fileID: 1784096284}
+  - component: {fileID: 1784096285}
   - component: {fileID: 1784096279}
   m_Layer: 5
   m_Name: Main
@@ -229,7 +230,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24224aabfe4ca20778052691bfa2ab8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuScript
-  UI_doc: {fileID: 1784096276}
 --- !u!114 &1784096283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -242,6 +242,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3a9508e692a3739aad14d64852f4345, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_AudioSettings
+  audio: 0
 --- !u!114 &1784096284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255,6 +256,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_CustomizationSettings
   ghostMaterial: {fileID: 2100000, guid: ccbe4d29aa6b51c79a42dbdfba3e77d8, type: 2}
+  ghostObstructedMaterial: {fileID: 0}
+--- !u!114 &1784096285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1784096275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b23d573c9f5673513b4424a9a508f632, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI_KeyBindsSettings
+  inputActions: {fileID: -944628639613478452, guid: 970b5ac171d503140b7b641b0945b4fe, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

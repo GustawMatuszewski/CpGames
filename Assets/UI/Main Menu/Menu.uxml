@@ -11,34 +11,38 @@
             <ui:Button text="Options" name="OptionsMenu" class="AButton"/>
         </ui:VisualElement>
     </ui:VisualElement>
-    <ui:VisualElement name="Settings" style="flex-grow: 1; align-items: auto;">
+    <ui:VisualElement name="Settings" style="flex-grow: 1; align-items: center; display: flex; justify-content: center;">
         <ui:TabView name="SettingsTabs">
             <ui:Tab label="GENERAL" name="General" enabled="true" class="settingsTab">
                 <ui:VisualElement name="TabRoot" class="SettingWindow" style="flex-grow: 1;">
                     <ui:Instance template="General" style="flex-grow: 1;"/>
                 </ui:VisualElement>
+                <ui:Button text="" name="closeSettings" class="closeSettings" style="background-image: url(&quot;project://database/Assets/UI/IMG/ICONS/X.png?fileID=2800000&amp;guid=7f9bbdbe50a3cc3e986f40a078b73636&amp;type=3#X&quot;); position: absolute;"/>
             </ui:Tab>
             <ui:Tab label="GRAPHIC" name="Video" class="settingsTab">
                 <ui:VisualElement name="TabRoot" class="SettingWindow" style="flex-grow: 1;">
                     <ui:Instance template="Video" style="flex-grow: 1;"/>
                 </ui:VisualElement>
+                <ui:Button text="" name="closeSettings" class="closeSettings" style="background-image: url(&quot;project://database/Assets/UI/IMG/ICONS/X.png?fileID=2800000&amp;guid=7f9bbdbe50a3cc3e986f40a078b73636&amp;type=3#X&quot;); position: absolute;"/>
             </ui:Tab>
             <ui:Tab label="AUDIO" name="Audio" class="settingsTab">
                 <ui:VisualElement name="TabRoot" class="SettingWindow" style="flex-grow: 1;">
                     <ui:Instance template="Audio" style="flex-grow: 1;"/>
                 </ui:VisualElement>
+                <ui:Button text="" name="closeSettings" class="closeSettings" style="background-image: url(&quot;project://database/Assets/UI/IMG/ICONS/X.png?fileID=2800000&amp;guid=7f9bbdbe50a3cc3e986f40a078b73636&amp;type=3#X&quot;); position: absolute;"/>
             </ui:Tab>
             <ui:Tab label="CUSTOMIZATION" name="Customization" closeable="false" class="settingsTab">
                 <ui:VisualElement name="TabRoot" class="SettingWindow" style="flex-grow: 1;">
                     <ui:Instance template="Customization" style="flex-grow: 1;"/>
                 </ui:VisualElement>
+                <ui:Button text="" name="closeSettings" class="closeSettings" style="background-image: url(&quot;project://database/Assets/UI/IMG/ICONS/X.png?fileID=2800000&amp;guid=7f9bbdbe50a3cc3e986f40a078b73636&amp;type=3#X&quot;); position: absolute;"/>
             </ui:Tab>
             <ui:Tab label="KEY BINDINGS" name="KeyBinds" closeable="false" class="settingsTab">
                 <ui:VisualElement name="TabRoot" class="SettingWindow" style="flex-grow: 1;">
                     <ui:Instance template="KeyBinds" style="flex-grow: 1;"/>
                 </ui:VisualElement>
+                <ui:Button text="" name="closeSettings" class="closeSettings" style="background-image: url(&quot;project://database/Assets/UI/IMG/ICONS/X.png?fileID=2800000&amp;guid=7f9bbdbe50a3cc3e986f40a078b73636&amp;type=3#X&quot;); position: absolute;"/>
             </ui:Tab>
         </ui:TabView>
-        <ui:Button text="" name="closeSettings" style="background-image: url(&quot;project://database/Assets/UI/IMG/ICONS/X.png?fileID=2800000&amp;guid=7f9bbdbe50a3cc3e986f40a078b73636&amp;type=3#X&quot;);"/>
     </ui:VisualElement>
 </ui:UXML>
