@@ -1814,7 +1814,7 @@ public void SendItemList(List<Item> items)
         }
         else 
         {
-           
+            DisplayItem3D.Instance.DisplayItem(null, DisplayItem3D.Hand.left);
             ClearSlot(LHand);
         }
 
@@ -1839,10 +1839,12 @@ public void SendItemList(List<Item> items)
                 originalItem = leftHandItem
             };
             SetSlotData(RHand, leftHandData);
+            DisplayItem3D.Instance.DisplayItem(leftHandData.originalItem, DisplayItem3D.Hand.right);
         }
         else
         {
             // Jeśli ręka była pusta, wyczyść slot
+            DisplayItem3D.Instance.DisplayItem(null, DisplayItem3D.Hand.right);
             ClearSlot(RHand);
         }
 
@@ -1858,10 +1860,12 @@ public void SendItemList(List<Item> items)
                 originalItem = rightHandItem
             };
             SetSlotData(LHand, rightHandData);
+            DisplayItem3D.Instance.DisplayItem(rightHandData.originalItem, DisplayItem3D.Hand.left);
         }
         else
         {
             // Jeśli slot był pusty, wyczyść rękę
+            DisplayItem3D.Instance.DisplayItem(null, DisplayItem3D.Hand.left);
             ClearSlot(LHand);
         }
     }
