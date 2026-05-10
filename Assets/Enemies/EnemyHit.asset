@@ -15,9 +15,10 @@ MonoBehaviour:
   damage: 1
   attackSpeed: 1
   timeToAttack: 1
-  HittingAnimation: Blind_Hitting
+  HittingAnimation: BL_Punch
   attackPrefab: {fileID: 0}
   cooldown: 1.5
   range: 0.5
+  animationName: 
   attackType: 1
   attackEffects: 00000000

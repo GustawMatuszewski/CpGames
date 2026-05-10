@@ -15,6 +15,7 @@ public class BaseEntity : MonoBehaviour
     protected GameObject currentTarget;
 
     public EntityStatus status;
+    public bool isDead => status != null && status.isDead;
 
     // -----------------------------------------------------------------------
     // OPTIMIZATION: Cache last destination. TrySetDestination skips
