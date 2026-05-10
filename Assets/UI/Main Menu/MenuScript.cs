@@ -21,6 +21,7 @@ public class MenuScript : MonoBehaviour
         ButtonPlay.clickable.clicked += () =>
         {
             SceneManager.LoadScene("GrayBoxedMap");
+            Time.timeScale = 1; 
         };
         Button ButtonOptionsMenu = root.Q<Button>("OptionsMenu");
         ButtonOptionsMenu.clickable.clicked += () => toggleOptionsMenu();
