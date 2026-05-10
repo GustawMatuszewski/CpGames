@@ -12,7 +12,7 @@ public class DisplayItem3D : MonoBehaviour
     public enum Hand {
         right, left
     }
-        public void DisplayItem(Item item, Hand hand)
+    public void DisplayItem(Item item, Hand hand)
     {
         Transform targetBone = hand == Hand.right ? rightHandBone : leftHandBone;
 

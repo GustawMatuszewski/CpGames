@@ -1810,6 +1810,7 @@ public void SendItemList(List<Item> items)
                 originalItem = slotItem
             };
             SetSlotData(LHand, slotData);
+            DisplayItem3D.Instance.DisplayItem(slotData.originalItem, DisplayItem3D.Hand.left);
         }
         else 
         {
