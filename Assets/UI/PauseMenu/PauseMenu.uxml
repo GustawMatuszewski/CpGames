@@ -48,7 +48,7 @@
                     </ui:VisualElement>
                 </ui:Tab>
             </ui:TabView>
-            <ui:Button text="" name="closeSettings" style="background-image: url(&quot;project://database/Assets/UI/IMG/ICONS/X.png?fileID=2800000&amp;guid=7f9bbdbe50a3cc3e986f40a078b73636&amp;type=3#X&quot;);"/>
+            <ui:Button text="" name="closeSettings" class="closeSettings" style="background-image: url(&quot;project://database/Assets/UI/IMG/ICONS/X.png?fileID=2800000&amp;guid=7f9bbdbe50a3cc3e986f40a078b73636&amp;type=3#X&quot;); right: 0.5%; top: 1%;"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

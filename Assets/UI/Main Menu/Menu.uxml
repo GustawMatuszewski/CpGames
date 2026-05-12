@@ -11,7 +11,7 @@
             <ui:Button text="Options" name="OptionsMenu" class="AButton"/>
         </ui:VisualElement>
     </ui:VisualElement>
-    <ui:VisualElement name="Settings" style="flex-grow: 1; align-items: center; display: flex; justify-content: center;">
+    <ui:VisualElement name="Settings" style="flex-grow: 1; align-items: center; display: none; justify-content: center;">
         <ui:TabView name="SettingsTabs">
             <ui:Tab label="GENERAL" name="General" enabled="true" class="settingsTab">
                 <ui:VisualElement name="TabRoot" class="SettingWindow" style="flex-grow: 1;">

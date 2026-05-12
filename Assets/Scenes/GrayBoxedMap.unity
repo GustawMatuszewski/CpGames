@@ -28289,6 +28289,7 @@ GameObject:
   - component: {fileID: 792691826}
   - component: {fileID: 792691825}
   - component: {fileID: 792691824}
+  - component: {fileID: 792691830}
   m_Layer: 0
   m_Name: PauseMenu
   m_TagString: Untagged
@@ -28335,7 +28336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b23d573c9f5673513b4424a9a508f632, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_KeyBindsSettings
-  ghostMaterial: {fileID: 0}
+  inputActions: {fileID: 0}
 --- !u!114 &792691826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28360,7 +28361,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ece294c62aca9e0428867089d93668b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_CustomizationSettings
-  ghostMaterial: {fileID: 0}
+  ghostMaterial: {fileID: 2100000, guid: ccbe4d29aa6b51c79a42dbdfba3e77d8, type: 2}
+  ghostObstructedMaterial: {fileID: 2100000, guid: 44431b2131a5d2d599e2ae838bfa44c5, type: 2}
 --- !u!114 &792691828
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28397,6 +28399,18 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &792691830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792691821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d21678d4c92bba0e894972d95337316, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PauseMenu
 --- !u!1 &793060675
 GameObject:
   m_ObjectHideFlags: 0

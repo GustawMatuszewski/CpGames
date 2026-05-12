@@ -18,6 +18,7 @@ public class PauseMenu : MonoBehaviour
     void Awake()
     {
         root = UI_doc.rootVisualElement.Q<VisualElement>("root");
+        root.style.display = DisplayStyle.None;
         inputActions = new UI_actions();
         Settings= root.Q<VisualElement>("Settings");
         pauseMenu = root.Q<VisualElement>("PauseMenu");
@@ -37,8 +38,9 @@ public class PauseMenu : MonoBehaviour
         Resume.clickable.clicked += () => 
         { 
             UI_doc.sortingOrder = -999;
-            root.style.display = DisplayStyle.None;
+            ToggleMenu(new InputAction.CallbackContext());
             
+
         };
     }
 
