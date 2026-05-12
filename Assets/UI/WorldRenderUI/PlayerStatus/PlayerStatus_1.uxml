@@ -1,6 +1,4 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/WorldRenderUI/PlayerStatus/Universal_PlayerStatus.uss?fileID=7433441132597879392&amp;guid=d52cc6d17fd8cdbe18b31b15b0c58670&amp;type=3#Universal_PlayerStatus"/>
-    <ui:VisualElement name="root" style="background-color: rgb(216, 207, 178); flex-grow: 1;">
-        <ui:VisualElement/>
-    </ui:VisualElement>
+    <ui:VisualElement name="root" style="background-color: rgb(216, 207, 178); flex-grow: 1;"/>
 </ui:UXML>
