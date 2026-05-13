@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponItem
   itemID: 56
   itemName: Machete
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 06025355794168bbf98f1fbfd10f1274, type: 3}
   description: Broad-bladed clearing blade. Cuts through brush and bone alike.
   useScript: {fileID: 0}
   craftingRecipe: {fileID: 0}
@@ -24,6 +24,7 @@ MonoBehaviour:
   burnCalories: 3
   itemType: 4
   materialType: 4
+  itemModel: {fileID: 0}
   weaponType: 2
   useType: 1
   damage: 35

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponItem
   itemID: 69
   itemName: NailBoard
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 9beebebbff7724038a641044da7f8ec0, type: 3}
   description: A plank with rusty nails hammered through it. Crude but effective
     in a pinch.
   useScript: {fileID: 0}
@@ -25,6 +25,7 @@ MonoBehaviour:
   burnCalories: 7.5
   itemType: 4
   materialType: 1
+  itemModel: {fileID: 0}
   weaponType: 2
   useType: 2
   damage: 25

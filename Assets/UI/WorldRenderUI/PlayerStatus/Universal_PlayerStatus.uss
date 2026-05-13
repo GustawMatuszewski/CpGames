@@ -1,1 +1,13 @@
+#root {
+    background-image: url("project://database/Assets/UI/WorldRenderUI/PlayerStatus/BG_new.png?fileID=2800000&guid=64c98790b75106e02b65d58c15bc7808&type=3#BG_new");
+}
+
+#Bars {
+    position: absolute;
+    bottom: 0;
+    height: 33%;
+    width: 100%;
+    flex-direction: row;
+}
+
 

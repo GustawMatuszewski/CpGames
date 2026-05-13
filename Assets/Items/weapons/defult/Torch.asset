@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponItem
   itemID: 94
   itemName: Torch
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 7e5b7345e6ab35c35a8ba62193a3adfe, type: 3}
   description: 
   useScript: {fileID: 0}
   craftingRecipe: {fileID: 11400000, guid: a9bb18884bf95a74d99c16d54b2bf747, type: 2}
@@ -24,6 +24,7 @@ MonoBehaviour:
   burnCalories: 40000
   itemType: 4
   materialType: 1
+  itemModel: {fileID: 0}
   weaponType: 2
   useType: 1
   damage: 30
