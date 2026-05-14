@@ -11,15 +11,14 @@ public class PauseMenu : MonoBehaviour
     VisualElement  Settings;
     VisualElement  pauseMenu;
     TabView  SettingsTabs;
-    private UI_actions inputActions;
-   
+    public InputActionAsset inputActions;
     
     
     void Awake()
     {
         root = UI_doc.rootVisualElement.Q<VisualElement>("root");
         root.style.display = DisplayStyle.None;
-        inputActions = new UI_actions();
+       
         Settings= root.Q<VisualElement>("Settings");
         pauseMenu = root.Q<VisualElement>("PauseMenu");
         SettingsTabs = Settings.Q<TabView>("SettingsTabs");
@@ -40,6 +39,14 @@ public class PauseMenu : MonoBehaviour
             UI_doc.sortingOrder = -999;
             ToggleMenu(new InputAction.CallbackContext());
             
+
+        };
+        Button Quit = root.Q<Button>("Quit");
+        Quit.clickable.clicked += () => 
+        { 
+            UI_doc.sortingOrder = -999;
+            ToggleMenu(new InputAction.CallbackContext());
+            UI_GameOver.Instance.GameOver();
 
         };
     }
@@ -73,6 +80,9 @@ public class PauseMenu : MonoBehaviour
             root.style.display = DisplayStyle.Flex;
             Time.timeScale = 0; // Pauza gry
             Cursor.lockState = CursorLockMode.None; // Pokazuje myszkę
+            Cursor.visible = true;
+            inputActions.FindActionMap("UI").Disable();
+            inputActions.FindActionMap("UI").FindAction("PauseMenu").Enable();
         }
         else
         {
@@ -80,18 +90,27 @@ public class PauseMenu : MonoBehaviour
             root.style.display = DisplayStyle.None;
             Time.timeScale = 1; // Wznowienie gry
             Cursor.lockState = CursorLockMode.Locked; // Chowa myszkę
+            Cursor.visible = false;
+            inputActions.FindActionMap("UI").Enable();
         }
     }
     void OnEnable()
     {
-        inputActions.UI.PauseMenu.performed += ToggleMenu;
+        var action = inputActions.FindActionMap("UI").FindAction("PauseMenu");
+        if (action != null)
+        {
+            action.performed += ToggleMenu; // Używamy minusa, żeby przestać słuchać
+        }
         inputActions.Enable();
     }
 
     void OnDisable()
     {
-        // Odpinasz dokładnie to samo, co przypiąłeś
-        inputActions.UI.PauseMenu.performed -= ToggleMenu;
+        var action = inputActions.FindActionMap("UI").FindAction("PauseMenu");
+        if (action != null)
+        {
+            action.performed -= ToggleMenu; // Używamy minusa, żeby przestać słuchać
+        }
         inputActions.Disable();
     }
  

@@ -1,0 +1,61 @@
+#root {
+    background-color: rgba(0, 0, 0, 0.59);
+}
+
+#GameOver {
+    height: 40%;
+    padding-top: 40px;
+    padding-right: 40px;
+    padding-bottom: 40px;
+    padding-left: 40px;
+}
+
+#GameOverButtons {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+#Buttons {
+    width: 30%;
+    flex-grow: 1;
+    justify-content: center;
+}
+
+Button {
+    margin-top: 10px;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    -unity-font-style: bold;
+    font-size: 40px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: rgb(142, 142, 142);
+}
+
+Button:hover {
+    margin-top: 10px;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    -unity-font-style: bold;
+    font-size: 40px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    background-color: rgba(0, 0, 0, 0.35);
+    color: rgb(219, 219, 219);
+}
+
+#GameOver Label {
+    flex-grow: 1;
+    -unity-text-align: middle-center;
+    -unity-text-auto-size: best-fit 10px 300px;
+    -unity-text-generator: advanced;
+    color: rgb(220, 49, 50);
+}

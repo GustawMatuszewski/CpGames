@@ -597,6 +597,7 @@ public class EntityStatus : MonoBehaviour
         {
             isDead       = true;
             entityHealth = 0f;
+            UI_GameOver.Instance.GameOver();
             if (debugMode) Debug.Log("[EntityStatus] " + gameObject.name + " died.");
         }
     }

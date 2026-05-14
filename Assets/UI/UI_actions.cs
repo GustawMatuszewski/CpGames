@@ -118,13 +118,22 @@ public partial class @UI_actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""swapHands"",
+                    ""type"": ""Button"",
+                    ""id"": ""76f22aa0-abab-4b06-8fad-c309c3bb9b31"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
                 {
                     ""name"": """",
                     ""id"": ""41115c7b-6693-4403-bbe3-1fd1b2114ac6"",
-                    ""path"": ""<Keyboard>/e"",
+                    ""path"": ""<Keyboard>/tab"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -241,6 +250,17 @@ public partial class @UI_actions: IInputActionCollection2, IDisposable
                     ""action"": ""PauseMenu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ef6b03bb-e363-44f7-b760-630b9e4305be"",
+                    ""path"": ""<Keyboard>/backquote"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""swapHands"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -252,6 +272,7 @@ public partial class @UI_actions: IInputActionCollection2, IDisposable
         m_UI_TogleCrafting = m_UI.FindAction("TogleCrafting", throwIfNotFound: true);
         m_UI_swapItems = m_UI.FindAction("swapItems", throwIfNotFound: true);
         m_UI_PauseMenu = m_UI.FindAction("PauseMenu", throwIfNotFound: true);
+        m_UI_swapHands = m_UI.FindAction("swapHands", throwIfNotFound: true);
     }
 
     ~@UI_actions()
@@ -335,6 +356,7 @@ public partial class @UI_actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_TogleCrafting;
     private readonly InputAction m_UI_swapItems;
     private readonly InputAction m_UI_PauseMenu;
+    private readonly InputAction m_UI_swapHands;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -358,6 +380,10 @@ public partial class @UI_actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/PauseMenu".
         /// </summary>
         public InputAction @PauseMenu => m_Wrapper.m_UI_PauseMenu;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/swapHands".
+        /// </summary>
+        public InputAction @swapHands => m_Wrapper.m_UI_swapHands;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -393,6 +419,9 @@ public partial class @UI_actions: IInputActionCollection2, IDisposable
             @PauseMenu.started += instance.OnPauseMenu;
             @PauseMenu.performed += instance.OnPauseMenu;
             @PauseMenu.canceled += instance.OnPauseMenu;
+            @swapHands.started += instance.OnSwapHands;
+            @swapHands.performed += instance.OnSwapHands;
+            @swapHands.canceled += instance.OnSwapHands;
         }
 
         /// <summary>
@@ -413,6 +442,9 @@ public partial class @UI_actions: IInputActionCollection2, IDisposable
             @PauseMenu.started -= instance.OnPauseMenu;
             @PauseMenu.performed -= instance.OnPauseMenu;
             @PauseMenu.canceled -= instance.OnPauseMenu;
+            @swapHands.started -= instance.OnSwapHands;
+            @swapHands.performed -= instance.OnSwapHands;
+            @swapHands.canceled -= instance.OnSwapHands;
         }
 
         /// <summary>
@@ -474,5 +506,12 @@ public partial class @UI_actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPauseMenu(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "swapHands" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSwapHands(InputAction.CallbackContext context);
     }
 }

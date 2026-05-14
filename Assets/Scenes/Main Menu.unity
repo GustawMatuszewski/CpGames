@@ -206,6 +206,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4eb0983046bb548b4b734829ec8e0ee8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_VideoSettings
+  rawImage: {fileID: 0}
+  ditherTexture: {fileID: 0}
 --- !u!114 &1784096281
 MonoBehaviour:
   m_ObjectHideFlags: 0
