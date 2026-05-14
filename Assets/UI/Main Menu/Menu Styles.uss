@@ -1,44 +1,57 @@
 #MainMenu {
-    background-color: rgb(0, 0, 0);
+    background-color: rgba(54, 58, 67, 0.45);
     width: 30%;
     height: 60%;
     bottom: auto;
-    top: 200px;
-    position: absolute;
+    top: auto;
+    position: relative;
     margin-left: 60px;
     align-items: center;
-    left: 0;
+    left: auto;
+    border-top-left-radius: 50px;
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    border-bottom-left-radius: 50px;
+    padding-top: 40px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    margin-top: 40px;
 }
 
 .AButton {
-    background-color: rgba(0, 172, 0, 0);
+    background-color: rgba(0, 0, 0, 0.36);
     border-top-width: 0;
     border-right-width: 0;
     border-bottom-width: 0;
     border-left-width: 0;
     cursor: initial;
-    color: rgb(255, 250, 0);
+    color: rgb(178, 178, 178);
     font-size: 40px;
-    -unity-text-align: upper-left;
-    width: auto;
+    -unity-text-align: middle-center;
+    width: 100%;
+    -unity-font-style: bold;
+    padding-top: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    -unity-font-definition: url("project://database/Assets/UI/fonts/Geist_Mono/static/GeistMono-SemiBold.ttf?fileID=12800000&guid=ae4391db741d57045bc53352d5289259&type=3#GeistMono-SemiBold");
 }
 
 .AButton:hover {
-    background-color: rgba(0, 172, 0, 0);
     border-top-width: 0;
     border-right-width: 0;
     border-bottom-width: 0;
     border-left-width: 0;
     cursor: initial;
-    color: rgb(255, 250, 0);
-    font-size: 50px;
-    -unity-text-align: upper-left;
-    scale: 1.05 1;
     transition-duration: 0.1s;
     transition-timing-function: ease-in-out;
     -unity-paragraph-spacing: 0;
-    -unity-font-style: normal;
-    -unity-font-definition: url("project://database/Assets/UI/fonts/Geist_Mono/static/GeistMono-Black.ttf?fileID=12800000&guid=840a5e5d588404c4f9d2e5b3989c474c&type=3#GeistMono-Black");
+    color: rgb(255, 255, 255);
 }
 
 #Settings {

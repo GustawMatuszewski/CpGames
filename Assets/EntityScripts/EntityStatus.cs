@@ -200,7 +200,11 @@ public class EntityStatus : MonoBehaviour
     void FixedUpdate()
     {
         if (isDead) return;
-
+        
+        if (entityType == EntityType.Player)
+            UI_Script.Instance.UpdatePlayerHP(entityHealth, entityMaxHealth);
+        
+        
         // Odliczaj cooldown hit reaction
         if (hitReactionTimer > 0f)
             hitReactionTimer -= Time.fixedDeltaTime;
@@ -597,8 +601,12 @@ public class EntityStatus : MonoBehaviour
         {
             isDead       = true;
             entityHealth = 0f;
-            UI_GameOver.Instance.GameOver();
+           
             if (debugMode) Debug.Log("[EntityStatus] " + gameObject.name + " died.");
+            if (entityType==EntityType.Player)
+            {
+                UI_GameOver.Instance.GameOver();
+            }
         }
     }
 

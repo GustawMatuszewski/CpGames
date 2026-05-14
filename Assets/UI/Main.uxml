@@ -1,6 +1,9 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/style.uss?fileID=7433441132597879392&amp;guid=8c21fb4e74536904eb71a5f3447dc263&amp;type=3#style"/>
     <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: column; flex-wrap: wrap-reverse;">
+        <ui:VisualElement name="HP" picking-mode="Ignore" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0;">
+            <ui:Image picking-mode="Ignore" source="project://database/Assets/UI/straving%20effect.png?fileID=21300000&amp;guid=844ce3b3cf3b39f449a9b3f453d5e24a&amp;type=3#straving effect" scale-mode="StretchToFill" style="flex-grow: 1;"/>
+        </ui:VisualElement>
         <ui:VisualElement name="Crafting" style="position: absolute; background-color: rgba(159, 159, 159, 0); display: flex; visibility: visible; overflow: visible;">
             <ui:VisualElement name="CrafTitle">
                 <ui:Label text="CRAFTING" name="CrafTitleText" style="-unity-font-style: normal; font-size: 20px; flex-grow: 1; padding-top: 3px; padding-right: 3px; padding-bottom: 3px; padding-left: 3px; -unity-text-auto-size: best-fit 10px 100px; -unity-text-generator: advanced;"/>

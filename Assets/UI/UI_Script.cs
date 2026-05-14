@@ -1972,4 +1972,15 @@ public void SendItemList(List<Item> items)
         RemoveItem(itemName, quantity);
         playerInventory.RemoveFromInventory(inv.inventory, item, quantity);
     }
+
+    public void UpdatePlayerHP(float hp, float maxHp)
+    {
+        VisualElement Overlay = root.Q<VisualElement>("HP");
+        if (Overlay == null) return;
+        float hpPercent = Mathf.Clamp01(hp / maxHp);
+        float targetOpacity = 1f - hpPercent;
+        float rawOpacity = 1f - hpPercent;
+        Overlay.style.opacity = Mathf.Lerp(0f, 1f, (rawOpacity - 0.7f) * 2f);
+        
+    }
 }
