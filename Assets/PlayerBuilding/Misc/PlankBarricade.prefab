@@ -64,9 +64,11 @@ GameObject:
   - component: {fileID: 2832167520565782791}
   - component: {fileID: 6612603227374951970}
   - component: {fileID: 5414134376522058442}
+  - component: {fileID: 1228973018759208444}
+  - component: {fileID: 540144084664672735}
   m_Layer: 0
   m_Name: PlankBarricade
-  m_TagString: Untagged
+  m_TagString: Hitbox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -100,11 +102,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c73721743438181d0a6271d076d2759c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  placementOffset: 1.5
   connectors:
   - {fileID: 6325650423615736565}
   Model: {fileID: 7949215221835033751}
   itemsList:
-  - {fileID: 11400000, guid: cff599b46748c4b958028e81a3fc1a24, type: 2}
+  - {fileID: 0}
   - {fileID: 11400000, guid: 3ca364af341c1c8c7a24eec961e359ce, type: 2}
   timeToBuild: 10
   canBeBurnt: 1
@@ -133,6 +136,144 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.8, y: 1.5073171, z: 0.1}
   m_Center: {x: 0, y: -0.4716785, z: 0}
+--- !u!114 &1228973018759208444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7949215221835033751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3fa99c57f739c43e8ef5c3edee6904c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EntityStatus
+  debugMode: 0
+  test: 0
+  currentItem: {fileID: 0}
+  combat: {fileID: 540144084664672735}
+  environmentManager: {fileID: 0}
+  hitReactionAnim: 
+  hitReactionCooldown: 0.3
+  entityType: 1
+  entityMaxHealth: 100
+  entityMaxHunger: 100
+  entityMaxThirst: 100
+  entityMaxSanity: 100
+  entityMaxTiredness: 100
+  entityMaxStamina: 100
+  useDecay: 0
+  useStamina: 0
+  useMoods: 0
+  usePsyche: 0
+  useEnemyDetection: 0
+  useDayNight: 0
+  useLimbTracker: 1
+  useEffects: 0
+  daysToEmptyHunger: 2
+  daysToEmptyThirst: 1
+  daysToFullTiredness: 1.5
+  daysToEmptyProtein: 3
+  daysToEmptyFats: 4
+  daysToEmptyCarbs: 2.5
+  nightTirednessMultiplier: 2.5
+  nightSleepyForceThreshold: 60
+  staminaDrainSprint: 12
+  staminaDrainRun: 5
+  staminaRegenRate: 8
+  staminaRegenDelay: 1.5
+  staminaSprintUnlockThreshold: 20
+  hungryThreshold: 30
+  thirstyThreshold: 30
+  tiredThreshold: 70
+  sleepyThreshold: 90
+  depressedSanity: 25
+  mentalHealth: 100
+  baseRecoveryRate: 0.1
+  maxTemperature: 30
+  minTemperature: 0
+  maxHumidity: 80
+  temperatureDrainRate: 0.5
+  humidityDrainRate: 0.3
+  psycheHungerDrainRate: 1.5
+  psycheThirstDrainRate: 0.8
+  psycheStaminaDrainRate: 0.6
+  psycheStaminaThreshold: 20
+  injuryDrainRate: 0.5
+  healthThreshold: 50
+  enemyDrainRate: 1
+  detectionRange: 15
+  fieldOfView: 90
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
+  fovCheckInterval: 0.3
+  depressionThreshold: 34
+  deepDepressionThreshold: 24
+  suicidalThreshold: 5
+  depressionDelay: 900
+  deepDepressionExitTime: 1800
+  currentDepressionState: 0
+  hasAntidepressants: 0
+  antidepressantUsesThisWeek: 0
+  entityHealth: 0
+  entityHunger: 0
+  entityThirst: 0
+  entitySanity: 0
+  entityTiredness: 0
+  entityStamina: 0
+  entityBodyTemp: 0
+  protein: 0
+  fats: 0
+  carbs: 0
+  calories: 0
+  nauseaTime: 0
+  poisonTime: 0
+  illTime: 0
+  diareahTime: 0
+  drunkTime: 0
+  effects: 
+  moods: 
+--- !u!114 &540144084664672735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7949215221835033751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2701a4885403c5a390bf1af237eaffd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Combat
+  debugMode: 0
+  animator: {fileID: 0}
+  ownerHitboxes:
+  - name: MainCollider
+    limbHitbox: {fileID: 5414134376522058442}
+    health: 50
+    damageMultiplier: 1
+    severeMultiplier: 1
+    fractureMultiplier: 1
+    limbDamageList: 
+    severed: 0
+    beatStacks: 0
+  damageHitboxNameList:
+  - AttackHitbox
+  hitboxTag: 
+  attackTemplates: []
+  combatActive: 0
+  canAttack: 0
+  singleShot: 0
+  attackInput: {fileID: 0}
+  currentAttack: {fileID: 0}
+  currentCollision: {fileID: 0}
+  onDamageReceived:
+    m_PersistentCalls:
+      m_Calls: []
+  lodDistance: 5
+  lodCapsule: {fileID: 0}
+  attackInProgress: 0
 --- !u!1001 &9198800443249959301
 PrefabInstance:
   m_ObjectHideFlags: 0
