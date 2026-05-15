@@ -170,6 +170,24 @@ public class Combat : MonoBehaviour {
             case AttackTemplate.AttackType.Normal: NormalAttackDamageCalc(attackToApply, hitLimb); break;
             case AttackTemplate.AttackType.Heavy:  HeavyAttackDamageCalc(attackToApply, hitLimb);  break;
         }
+        //this calculates it again so if changed multipliers u need to do it here too
+        float damage = attackToApply.attackType switch {
+            AttackTemplate.AttackType.Fast   => attackToApply.damage * hitLimb.damageMultiplier * 0.8f,
+            AttackTemplate.AttackType.Normal => attackToApply.damage * hitLimb.damageMultiplier,
+            AttackTemplate.AttackType.Heavy  => attackToApply.damage * hitLimb.damageMultiplier * 1.3f,
+            _ => attackToApply.damage * hitLimb.damageMultiplier
+        };
+
+        EntityStatus targetStatus = targetCombat.GetComponentInParent<EntityStatus>();
+
+        if (debugMode)
+    Debug.Log("[HEALTH CHECK] targetStatus found: " + (targetStatus != null) + 
+              " | on: " + (targetStatus != null ? targetStatus.gameObject.name : "NULL") +
+              " | health before: " + (targetStatus != null ? targetStatus.entityHealth : -1));
+              
+        if (targetStatus != null)
+            targetStatus.entityHealth = Mathf.Clamp(
+                targetStatus.entityHealth - damage, 0f, targetStatus.entityMaxHealth);
 
         if (debugMode)
             Debug.Log("[DAMAGE RECEIVED] " + targetCombat.transform.root.name +
@@ -177,6 +195,7 @@ public class Combat : MonoBehaviour {
 
         targetCombat.onDamageReceived.Invoke();
         currentCollision = null;
+        
     }
 
     void AddBeat(Limb limb, int amount) {
