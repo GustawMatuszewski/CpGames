@@ -46,6 +46,7 @@ public class EnemyEntity : BaseEntity
     private float   attackRange;
     private float   attackRotateSpeed = 5f;
     private bool    _traversingWindow = false;
+    private EntityStatus _status;
 
     // ── Group AI ──────────────────────────────────────────────────
     [Header("Group AI (set by EnemyManager)")]
@@ -60,6 +61,7 @@ public class EnemyEntity : BaseEntity
     // ─────────────────────────────────────────────────────────────
     void Start()
     {
+        _status = GetComponent<EntityStatus>();
         agent  = GetComponent<NavMeshAgent>();
         player = FindAnyObjectByType<KCC>();
         combat = GetComponent<Combat>();
@@ -97,14 +99,15 @@ public class EnemyEntity : BaseEntity
     // ── AI loop (coroutine, staggered) ────────────────────────────
     IEnumerator AIPerceptionLoop()
     {
-        if (isDead)
-        {
-            OnDeath();
-            yield break;
-        }
+        
         yield return new WaitForSeconds(Random.Range(0f, aiUpdateInterval));
         while (true)
         {
+            if (_status != null && _status.entityHealth <= 0f)
+            {
+                OnDeath();
+                yield break;
+            }
             if (!_traversingWindow)
             {
                 RunPerception();
@@ -117,7 +120,7 @@ public class EnemyEntity : BaseEntity
     // ── Update: per-frame work + link detection ───────────────────
     void Update()
     {
-        if (isDead) return;
+        if (_status != null && _status.entityHealth <= 0f) return;
         // ── Window link detection ──────────────────────────────────
         // agent.isOnOffMeshLink is true for BOTH old OffMeshLinks AND
         // NavMeshLink — that property name is kept for API compatibility.
@@ -496,17 +499,13 @@ public class EnemyEntity : BaseEntity
     void OnDeath()
     {
         agent.isStopped = true;
-        agent.enabled   = false;
-        enemyState      = EntityState.Patrol; // or a Dead state if you add one
-
-        // Play death animation
+        if (combat != null) combat.combatActive = false;
+        
         Animator anim = GetComponent<Animator>();
         if (anim != null) anim.CrossFade("Death", 0.2f);
 
         EnemyManager.Instance?.UnregisterEnemy(this);
-
-        // Optional: destroy after delay
-        Destroy(gameObject, 5f);
+        Destroy(gameObject, 3f);
     }
 
     // ── Gizmos ────────────────────────────────────────────────────
