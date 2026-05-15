@@ -1,11 +1,12 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class EntityStatus : MonoBehaviour
 {
     public enum EntityType { None, Player, Enemy, Neutral }
-
+    public static event Action<PlayerStats> UIUpdateStats;
     public enum Mood
     {
         None, Happy, Excited, Calm, Relaxed, Bored, Focused, Curious,
@@ -224,6 +225,7 @@ public class EntityStatus : MonoBehaviour
         if (useMoods)    UpdateMoods();
         if (useLimbTracker) LimbTracker();
         CheckDeath();
+        SendStatsToUI();
     }
 
     public void ReportState(KCC.State state)
@@ -620,7 +622,7 @@ public class EntityStatus : MonoBehaviour
 
         if (environmentManager == null)
         {
-            environmentManager = Object.FindAnyObjectByType<EnvironmentManager>();
+            environmentManager = UnityEngine.Object.FindAnyObjectByType<EnvironmentManager>();
             if (environmentManager == null && debugMode) Debug.LogWarning("no env manager");
         }
 
@@ -680,5 +682,25 @@ public class EntityStatus : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawRay(transform.position, Quaternion.Euler(0, -fieldOfView / 2f, 0) * transform.forward * detectionRange);
         Gizmos.DrawRay(transform.position, Quaternion.Euler(0,  fieldOfView / 2f, 0) * transform.forward * detectionRange);
+    }
+
+    private void SendStatsToUI()
+    {
+        if (entityType == EntityType.Player && UIUpdateStats != null)
+        {
+            PlayerStats currentStats = new PlayerStats
+            {
+                stamina = entityStamina,
+                thirst = entityThirst,
+                fats = fats,
+                protein = protein,
+                carbs = carbs,
+                calories = calories,
+                hunger = entityHunger,
+                tiredness = entityTiredness,
+                psyche = (int)mentalHealth 
+            };
+            UIUpdateStats.Invoke(currentStats);
+        }
     }
 }

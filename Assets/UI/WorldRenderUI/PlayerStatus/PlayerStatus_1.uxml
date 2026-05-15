@@ -1,8 +1,64 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/WorldRenderUI/PlayerStatus/Universal_PlayerStatus.uss?fileID=7433441132597879392&amp;guid=d52cc6d17fd8cdbe18b31b15b0c58670&amp;type=3#Universal_PlayerStatus"/>
-    <ui:VisualElement name="root" style="flex-grow: 1;"/>
-    <ui:VisualElement name="Bars" style="bottom: 0;">
-        <ui:VisualElement name="Left" style="flex-grow: 1;"/>
-        <ui:VisualElement name="Right" style="flex-grow: 1;"/>
+    <ui:VisualElement name="HealthAbsPos" picking-mode="Ignore">
+        <ui:Label text="Label" name="RightShoulder" style="top: 472px; left: 188px;"/>
+        <ui:Label text="Label" name="RightArm" style="top: 608px; left: 198px;"/>
+        <ui:Label text="Label" name="RightHand" style="top: 710px; left: 14px;"/>
+        <ui:Label text="Label" name="RightThigh" style="top: 899px; left: 23px;"/>
+        <ui:Label text="Label" name="RightTibia" style="top: 986px; left: 247px;"/>
+        <ui:Label text="Label" name="RightFoot" style="top: 1201px; left: 196px;"/>
+        <ui:Label text="Label" name="LeftFoot" style="top: 1201px; left: 688px;"/>
+        <ui:Label text="Label" name="LeftTibia" style="top: 1023px; left: 700px;"/>
+        <ui:Label text="Label" name="LeftThigh" style="top: 892px; left: 942px;"/>
+        <ui:Label text="Label" name="LeftHand" style="top: 749px; left: 875px;"/>
+        <ui:Label text="Label" name="LeftArm" style="top: 626px; left: 744px;"/>
+        <ui:Label text="Label" name="LeftShoulder" style="top: 538px; left: 672px;"/>
+        <ui:Label text="Label" name="Head" style="top: 366px; left: 588px;"/>
+        <ui:Label text="Label" name="Chest" style="top: 391px; left: 357px;"/>
+        <ui:Label text="Label" name="Temp" style="top: 141px; left: 771px;"/>
+    </ui:VisualElement>
+    <ui:VisualElement name="root" style="flex-grow: 1;">
+        <ui:VisualElement name="Bars" style="bottom: 0;">
+            <ui:VisualElement name="Left" style="flex-grow: 1;">
+                <ui:VisualElement name="thirst" class="Bar" style="margin-top: 0;">
+                    <ui:Image/>
+                    <ui:ProgressBar value="100" title="my-progress"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="hunger" class="Bar" style="margin-top: 50px;">
+                    <ui:Image/>
+                    <ui:ProgressBar value="22" title="my-progress"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="protein" class="Bar" style="margin-top: 130px;">
+                    <ui:Image/>
+                    <ui:ProgressBar value="22" title="my-progress"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="fats" class="Bar">
+                    <ui:Image/>
+                    <ui:ProgressBar value="22" title="my-progress"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="carbs" class="Bar">
+                    <ui:Image/>
+                    <ui:ProgressBar value="22" title="my-progress"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="calories" class="Bar">
+                    <ui:Image/>
+                    <ui:ProgressBar value="22" title="my-progress"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="Right" style="flex-grow: 1; display: flex; visibility: visible;">
+                <ui:VisualElement name="stamina" class="Bar" style="margin-top: 0;">
+                    <ui:Image/>
+                    <ui:ProgressBar value="22" title="my-progress"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="tiredness" class="Bar">
+                    <ui:Image/>
+                    <ui:ProgressBar value="22" title="my-progress"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="psyche" class="Bar" style="margin-top: 130px;">
+                    <ui:Image/>
+                    <ui:ProgressBar value="22" title="my-progress"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
