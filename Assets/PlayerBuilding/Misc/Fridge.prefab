@@ -371,6 +371,7 @@ GameObject:
   - component: {fileID: 7679068179168250901}
   - component: {fileID: 2860882182903341802}
   - component: {fileID: 2715875088416156566}
+  - component: {fileID: -5875503803759230674}
   m_Layer: 3
   m_Name: Fridge
   m_TagString: Untagged
@@ -439,6 +440,28 @@ MonoBehaviour:
   outsideInventory: {fileID: 0}
   itemDatabase: {fileID: 11400000, guid: 8f36d94712b894c1db42db15f9bfba36, type: 2}
   inventory: []
+--- !u!114 &-5875503803759230674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4455045024843682517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c73721743438181d0a6271d076d2759c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Construction
+  placementOffset: 1.5
+  connectors: []
+  Model: {fileID: 0}
+  itemsList: []
+  timeToBuild: 0
+  canBeBurnt: 0
+  tempHealth: 0
+  ghostMaterial: {fileID: 0}
+  snapPoints: []
+  lookAtPoint: {fileID: 0}
 --- !u!1 &4581575506193902921
 GameObject:
   m_ObjectHideFlags: 0
