@@ -31,7 +31,18 @@ public class PauseMenu : MonoBehaviour
         Button ButtonBack = pauseMenu.Q<Button>("BackToMenu");
         ButtonBack.clickable.clicked += () =>
         {
-            SceneManager.LoadScene("Main Menu");
+            //SceneManager.LoadScene("Main Menu");
+            if (LoadingScene.Instance != null)
+            {
+ 
+                LoadingScene.Instance.PrepareAndLoad("Main Menu");
+            }
+            else
+            {
+                // Fail-safe: jeśli zapomniałeś wrzucić Loadera na scenę Menu
+                Debug.LogWarning("LoadingScene Instance nie znaleziona! Ładowanie domyślne.");
+                SceneManager.LoadScene("Main Menu");
+            }
         };
         Button Resume = root.Q<Button>("Resume");
         Resume.clickable.clicked += () => 

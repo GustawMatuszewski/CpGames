@@ -1,0 +1,10 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Loading/LoadingScene.uss?fileID=7433441132597879392&amp;guid=312c020fd1ac01b52ac30ea986707fda&amp;type=3#LoadingScene"/>
+    <ui:VisualElement name="root">
+        <ui:VisualElement name="SkullBackground" style="width: auto; height: 70%; aspect-ratio: 1;">
+            <ui:VisualElement name="SkullContainer" style="position: absolute; bottom: 0; width: 100%; overflow: hidden; height: auto;">
+                <ui:VisualElement name="SkullFilled" style="position: absolute; background-image: url(&quot;project://database/Assets/UI/Loading/logo_skull.png?fileID=2800000&amp;guid=c93d8606b5001459cb6a738bc9aacaa0&amp;type=3#logo_skull&quot;);"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

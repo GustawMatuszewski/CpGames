@@ -20,7 +20,20 @@ public class MenuScript : MonoBehaviour
         
         ButtonPlay.clickable.clicked += () =>
         {
-            SceneManager.LoadScene("GrayBoxedMap");
+            // Sprawdzamy, czy Loader już istnieje (powinien być na scenie Menu)
+            if (LoadingScene.Instance != null)
+            {
+                // 1. Ustawiamy nazwę mapy w loaderze
+                // 2. Metoda PrepareAndLoad sama wywoła SceneManager.LoadScene("Loading")
+                LoadingScene.Instance.PrepareAndLoad("GrayBoxedMap");
+            }
+            else
+            {
+                // Fail-safe: jeśli zapomniałeś wrzucić Loadera na scenę Menu
+                Debug.LogWarning("LoadingScene Instance nie znaleziona! Ładowanie domyślne.");
+                SceneManager.LoadScene("Loading");
+            }
+
             Time.timeScale = 1; 
         };
         Button ButtonOptionsMenu = root.Q<Button>("OptionsMenu");
@@ -53,5 +66,6 @@ public class MenuScript : MonoBehaviour
         //newTab.Q<Label>("settingsTitleLabel").text = newTab.label;
 
     }
+
 
 }
