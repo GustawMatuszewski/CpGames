@@ -48,6 +48,18 @@ public class LoadingScene : MonoBehaviour
                 skullBackground = root.Q<VisualElement>("SkullBackground");
                 skullFilled = root.Q<VisualElement>("SkullFilled");
             }
+            if (skullContainer != null)
+            {
+                // 1. Upewnij się, że kontener pozycjonuje się względem dołu rodzica
+                skullContainer.style.alignSelf = Align.FlexEnd; 
+        
+                // 2. Jeśli skullContainer jest wewnątrz innego elementu, 
+                // upewnij się, że rodzic wyrównuje do dołu:
+                if (skullContainer.parent != null)
+                {
+                    skullContainer.parent.style.justifyContent = Justify.FlexEnd;
+                }
+            }
         }
     }
 
@@ -86,8 +98,14 @@ public class LoadingScene : MonoBehaviour
             if (float.IsNaN(width) || width <= 0) width = skullBackground.resolvedStyle.width;
             if (float.IsNaN(height) || height <= 0) height = skullBackground.resolvedStyle.height;
 
+            // Ustawiamy stały rozmiar obrazka wypełnienia
             skullFilled.style.width = width;
             skullFilled.style.height = height;
+
+            // BARDZO WAŻNE: Obrazek w środku musi być przyklejony do DOLNEJ krawędzi maski,
+            // aby przy zmianie wysokości maski nie zmieniał swojej pozycji na ekranie.
+            skullFilled.style.position = Position.Absolute;
+            skullFilled.style.bottom = 0; 
         }
     }
 
