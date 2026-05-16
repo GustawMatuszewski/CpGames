@@ -66,6 +66,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 73f810af3ca67174392d1b9c6aa4ebb8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5944557177646101598}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 73f810af3ca67174392d1b9c6aa4ebb8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8008510913270766596}
   m_SourcePrefab: {fileID: 100100000, guid: 73f810af3ca67174392d1b9c6aa4ebb8, type: 3}
 --- !u!1 &4680610242618585502 stripped
 GameObject:
@@ -110,3 +113,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.7981715, y: 1.4539516, z: 0.27760568}
   m_Center: {x: 3.799536, y: 0.7201171, z: -0.20375822}
+--- !u!114 &8008510913270766596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4680610242618585502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c73721743438181d0a6271d076d2759c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Construction
+  placementOffset: 1.5
+  connectors: []
+  Model: {fileID: 0}
+  itemsList: []
+  timeToBuild: 0
+  canBeBurnt: 0
+  tempHealth: 0
+  ghostMaterial: {fileID: 0}
+  snapPoints: []
+  lookAtPoint: {fileID: 0}
