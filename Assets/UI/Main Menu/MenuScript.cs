@@ -17,7 +17,15 @@ public class MenuScript : MonoBehaviour
         Settings= root.Q<VisualElement>("Settings");
         SettingsTabs = Settings.Q<TabView>("SettingsTabs");
         Button ButtonPlay = root.Q<Button>("PlayButton");
-        
+        Button Quit = root.Q<Button>("Quit");
+
+        Quit.clickable.clicked += () =>
+        {
+            Application.Quit();
+            #if UNITY_EDITOR
+                        UnityEditor.EditorApplication.isPlaying = false;
+            #endif
+        };
         ButtonPlay.clickable.clicked += () =>
         {
             // Sprawdzamy, czy Loader już istnieje (powinien być na scenie Menu)

@@ -7,7 +7,7 @@
     <Style src="project://database/Assets/UI/Main%20Menu/Menu%20Styles.uss?fileID=7433441132597879392&amp;guid=076dfdd9946cb62469c6a751007fcfa8&amp;type=3#Menu Styles"/>
     <ui:VisualElement name="root" style="flex-grow: 1; background-color: rgb(108, 102, 102); align-items: center; justify-content: flex-start;">
         <ui:VisualElement name="Logo" style="width: 100%; height: 300px;">
-            <ui:Label text="Super Fajna Gra 12345678" style="flex-grow: 1; font-size: 100px; -unity-font-definition: url(&quot;project://database/Assets/UI/fonts/Geist_Mono/static/GeistMono-SemiBold.ttf?fileID=12800000&amp;guid=ae4391db741d57045bc53352d5289259&amp;type=3#GeistMono-SemiBold&quot;); -unity-font-style: bold; text-shadow: 5px 5px 10px rgb(168, 168, 168); letter-spacing: 10px; word-spacing: 20px; -unity-text-align: middle-center;"/>
+            <ui:Label text="Echoes of Pohnpei" style="flex-grow: 1; font-size: 100px; -unity-font-definition: url(&quot;project://database/Assets/UI/fonts/Geist_Mono/static/GeistMono-SemiBold.ttf?fileID=12800000&amp;guid=ae4391db741d57045bc53352d5289259&amp;type=3#GeistMono-SemiBold&quot;); -unity-font-style: bold; text-shadow: 5px 5px 10px rgb(168, 80, 80); letter-spacing: 10px; word-spacing: 20px; -unity-text-align: middle-center;"/>
         </ui:VisualElement>
         <ui:VisualElement name="MainMenu" style="margin-left: 0;">
             <ui:Button text="Play" name="PlayButton" class="AButton"/>
