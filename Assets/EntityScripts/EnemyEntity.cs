@@ -29,14 +29,16 @@ public class EnemyEntity : BaseEntity
     [Header("State")]
     public EntityState enemyState = EntityState.Patrol;
 
-    // ── Window traversal ──────────────────────────────────────────
     [Header("Window Traversal")]
     [Tooltip("Speed the enemy moves while vaulting through a window.")]
     public float windowTraversalSpeed = 2.5f;
     [Tooltip("Animator state name to play during the vault. Empty = skip.")]
     public string windowVaultAnimation = "WindowVault";
 
-    // ── Private ───────────────────────────────────────────────────
+    [Header("Death Settings")]
+    public float disappearDelay = 30f;
+    public float fadeDuration = 2f;
+
     private Vector3 patrolPoint;
     private float   patrolTimer;
     private Vector3 lastKnownTargetPos;
@@ -47,8 +49,8 @@ public class EnemyEntity : BaseEntity
     private float   attackRotateSpeed = 5f;
     private bool    _traversingWindow = false;
     private EntityStatus _status;
+    private bool    _isDead = false;
 
-    // ── Group AI ──────────────────────────────────────────────────
     [Header("Group AI (set by EnemyManager)")]
     public bool        isGroupLeader = false;
     public EnemyEntity groupLeader;
@@ -58,7 +60,6 @@ public class EnemyEntity : BaseEntity
 
     private GameObject cachedVisibleTarget;
 
-    // ─────────────────────────────────────────────────────────────
     void Start()
     {
         _status = GetComponent<EntityStatus>();
@@ -82,9 +83,6 @@ public class EnemyEntity : BaseEntity
             Debug.LogError("[EnemyEntity] No AttackTemplates found on " + name);
         }
 
-        // IMPORTANT: disable auto-traversal so we can run our own coroutine
-        // for window vaulting. Without this, Unity just glides the agent
-        // across the link with no animation or speed control.
         agent.autoTraverseOffMeshLink = false;
 
         EnemyManager.Instance?.RegisterEnemy(this);
@@ -96,10 +94,8 @@ public class EnemyEntity : BaseEntity
         EnemyManager.Instance?.UnregisterEnemy(this);
     }
 
-    // ── AI loop (coroutine, staggered) ────────────────────────────
     IEnumerator AIPerceptionLoop()
     {
-        
         yield return new WaitForSeconds(Random.Range(0f, aiUpdateInterval));
         while (true)
         {
@@ -117,36 +113,23 @@ public class EnemyEntity : BaseEntity
         }
     }
 
-    // ── Update: per-frame work + link detection ───────────────────
     void Update()
     {
+        if (_isDead) return;
         if (_status != null && _status.entityHealth <= 0f) return;
-        // ── Window link detection ──────────────────────────────────
-        // agent.isOnOffMeshLink is true for BOTH old OffMeshLinks AND
-        // NavMeshLink — that property name is kept for API compatibility.
-        // We identify it as a window by checking for a Window component
-        // in the parent hierarchy of the link's GameObject.
+
         if (!_traversingWindow && agent != null && agent.isOnOffMeshLink)
         {
             OffMeshLinkData linkData = agent.currentOffMeshLinkData;
-
-            // linkData.offMeshLink is only populated for the legacy OffMeshLink.
-            // For NavMeshLink, linkData.offMeshLink is NULL — we use the
-            // nearest position to find our Window GO instead.
             Door window = FindWindowAtLink(linkData);
             if (window != null)
             {
                 StartCoroutine(TraverseWindow(linkData));
                 return;
             }
-
-            // Not a window link — let the agent handle it normally.
-            // (autoTraverseOffMeshLink = false means we must complete it manually
-            //  for non-window links too, otherwise the agent gets stuck.)
             agent.CompleteOffMeshLink();
         }
 
-        // ── Normal per-frame ───────────────────────────────────────
         if (enemyState == EntityState.Attack && currentTarget != null)
             RotateTowardsTarget(currentTarget.transform.position);
 
@@ -169,11 +152,6 @@ public class EnemyEntity : BaseEntity
         }
     }
 
-    // ── Window link identification ────────────────────────────────
-    // NavMeshLink does not expose itself through OffMeshLinkData.offMeshLink.
-    // Instead we do an OverlapSphere at the link's start position and look
-    // for a GO that has a Window component anywhere in its hierarchy.
-    // Radius 1.5f is tight enough to avoid false positives at normal door spacing.
     Door FindWindowAtLink(OffMeshLinkData linkData)
     {
         Collider[] nearby = Physics.OverlapSphere(linkData.startPos, 1.5f);
@@ -195,21 +173,18 @@ public class EnemyEntity : BaseEntity
         return null;
     }
 
-    // ── Window vault coroutine ────────────────────────────────────
     IEnumerator TraverseWindow(OffMeshLinkData linkData)
     {
         _traversingWindow = true;
-        agent.isStopped   = true;       // we drive movement, not the agent
+        agent.isStopped   = true;
 
         Vector3 startPos = agent.transform.position;
         Vector3 endPos   = linkData.endPos + Vector3.up * agent.baseOffset;
 
-        // Play vault animation if configured
         Animator anim = GetComponent<Animator>();
         if (anim != null && !string.IsNullOrEmpty(windowVaultAnimation))
             anim.CrossFade(windowVaultAnimation, 0.1f);
 
-        // Smooth lerp across the opening
         float distance = Vector3.Distance(startPos, endPos);
         float duration = Mathf.Max(distance / Mathf.Max(windowTraversalSpeed, 0.1f), 0.15f);
         float elapsed  = 0f;
@@ -231,20 +206,15 @@ public class EnemyEntity : BaseEntity
         }
 
         agent.transform.position = endPos;
-
-        // Hand control back to the NavMeshAgent on the far side
         agent.CompleteOffMeshLink();
         agent.isStopped   = false;
         _traversingWindow = false;
 
-        // Old path was computed from outside — invalidate so next
-        // TrySetDestination does a clean CalculatePath from inside.
         InvalidateDestinationCache();
 
         if (debugMode) Debug.Log("[EnemyEntity] Window traversal complete → " + endPos);
     }
 
-    // ── Perception ────────────────────────────────────────────────
     void RunPerception()
     {
         if (!isGroupLeader && groupLeader != null)
@@ -273,7 +243,6 @@ public class EnemyEntity : BaseEntity
                 return;
             }
 
-            // Independent vision follower: cheap FOV dot-product only
             if (player != null)
             {
                 Vector3 toPlayer = player.transform.position - transform.position;
@@ -292,7 +261,6 @@ public class EnemyEntity : BaseEntity
             return;
         }
 
-        // ── Leader / solo full perception ─────────────────────────
         DetectEntitiesInSphere(transform.position, viewDistance, entityMask, groundMask, entities);
 
         GameObject visible = CheckForVisibleTarget();
@@ -323,7 +291,6 @@ public class EnemyEntity : BaseEntity
         }
     }
 
-    // ── State machine ─────────────────────────────────────────────
     void RunStateMachine()
     {
         switch (enemyState)
@@ -373,9 +340,9 @@ public class EnemyEntity : BaseEntity
         else
         {
             agent.isStopped = false;
-            bool isMoving             = agent.velocity.sqrMagnitude > 0.1f;
-            bool targetMovedSignif    = Vector3.Distance(agent.destination, targetPos) > 2.5f
-                                     || Mathf.Abs(agent.destination.y - targetPos.y) > 1.0f;
+            bool isMoving          = agent.velocity.sqrMagnitude > 0.1f;
+            bool targetMovedSignif = Vector3.Distance(agent.destination, targetPos) > 2.5f
+                                  || Mathf.Abs(agent.destination.y - targetPos.y) > 1.0f;
             if (!isMoving || targetMovedSignif)
                 TrySetDestination(targetPos);
         }
@@ -448,7 +415,6 @@ public class EnemyEntity : BaseEntity
                 Quaternion.LookRotation(direction), Time.deltaTime * attackRotateSpeed);
     }
 
-    // ── Perception helpers ────────────────────────────────────────
     GameObject CheckForVisibleTarget()
     {
         foreach (GameObject entity in entities)
@@ -496,16 +462,106 @@ public class EnemyEntity : BaseEntity
 
         return loudest != null ? loudest.transform.position : (Vector3?)null;
     }
+
+    // ── Death ─────────────────────────────────────────────────────
     void OnDeath()
     {
-        agent.isStopped = true;
-        if (combat != null) combat.combatActive = false;
-        
-        Animator anim = GetComponent<Animator>();
-        if (anim != null) anim.CrossFade("Death", 0.2f);
+        if (_isDead) return;
+        _isDead = true;
 
+        if (combat != null) combat.combatActive = false;
         EnemyManager.Instance?.UnregisterEnemy(this);
-        Destroy(gameObject, 3f);
+
+        EnableRagdoll();
+        StartCoroutine(DisappearAfterDelay(disappearDelay));
+    }
+
+    void EnableRagdoll()
+    {
+        // Freeze animator in last pose instead of disabling it globally
+        Animator anim = GetComponent<Animator>();
+        if (anim != null) anim.speed = 0f;
+
+        // Stop and disable the nav agent
+        agent.isStopped = true;
+        agent.velocity  = Vector3.zero;
+        agent.enabled   = false;
+
+        // Make sure the root collider is active and NOT a trigger
+        // so the rigidbody lands on the floor properly
+        Collider col = GetComponent<Collider>();
+        if (col != null)
+        {
+            col.enabled   = true;
+            col.isTrigger = false;
+        }
+
+        // Add rigidbody if not already present
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
+
+        rb.isKinematic            = false;
+        rb.interpolation          = RigidbodyInterpolation.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+
+        // Higher drag makes it feel heavier and less like a bouncy box
+        rb.linearDamping  = 2f;
+        rb.angularDamping = 4f;
+
+        // Freeze Y rotation so it doesn't spin like a top,
+        // only tips forward/sideways like a real body would
+        rb.constraints = RigidbodyConstraints.FreezeRotationY;
+
+        // Tip it in the direction it was facing with slight randomness
+        Vector3 fallDir = (-transform.forward + Vector3.up * 0.2f).normalized;
+        fallDir += new Vector3(Random.Range(-0.3f, 0.3f), 0f, Random.Range(-0.3f, 0.3f));
+        rb.AddForce(fallDir * 1.5f, ForceMode.Impulse);
+
+        // Torque only on X and Z so it pitches/rolls, not spins
+        Vector3 torque = new Vector3(
+            Random.Range(1f, 3f),
+            0f,
+            Random.Range(-1f, 1f)
+        );
+        rb.AddTorque(torque, ForceMode.Impulse);
+    }
+
+    IEnumerator DisappearAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        List<Renderer> renderers = new List<Renderer>(GetComponentsInChildren<Renderer>());
+
+        // Switch all materials to transparent mode for fading
+        foreach (Renderer r in renderers)
+        {
+            foreach (Material mat in r.materials)
+            {
+                mat.SetFloat("_Mode", 2);
+                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                mat.SetInt("_ZWrite", 0);
+                mat.DisableKeyword("_ALPHATEST_ON");
+                mat.EnableKeyword("_ALPHABLEND_ON");
+                mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                mat.renderQueue = 3000;
+            }
+        }
+
+        // Fade out
+        float elapsed = 0f;
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
+            foreach (Renderer r in renderers)
+                foreach (Material mat in r.materials)
+                    mat.color = new Color(mat.color.r, mat.color.g, mat.color.b, alpha);
+
+            yield return null;
+        }
+
+        Destroy(gameObject);
     }
 
     // ── Gizmos ────────────────────────────────────────────────────
