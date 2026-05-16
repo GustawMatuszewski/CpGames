@@ -55,9 +55,10 @@ public class PauseMenu : MonoBehaviour
         Button Quit = root.Q<Button>("Quit");
         Quit.clickable.clicked += () => 
         { 
-            UI_doc.sortingOrder = -999;
-            ToggleMenu(new InputAction.CallbackContext());
-            UI_GameOver.Instance.GameOver();
+            Application.Quit();
+            #if UNITY_EDITOR
+                        UnityEditor.EditorApplication.isPlaying = false;
+            #endif
 
         };
     }

@@ -591,8 +591,8 @@ public class UI_Script : MonoBehaviour
     {
         if (crafintgIsOpen == false)
         {
-            LHand.AddToClassList("Hand-Active");
-            RHand.AddToClassList("Hand-Active");
+           // LHand.AddToClassList("Hand-Active");
+           // RHand.AddToClassList("Hand-Active");
         }
         dragIcon = new VisualElement();
         dragIcon.style.width = 64;
@@ -983,8 +983,8 @@ public void SendItemList(List<Item> items)
         var QSlots = root.Q<VisualElement>("QSlots");
         UnityEngine.Cursor.visible = true;
         UnityEngine.Cursor.lockState = CursorLockMode.None;
-        LHand.style.display = DisplayStyle.Flex;
-        RHand.style.display = DisplayStyle.Flex;
+        //LHand.style.display = DisplayStyle.Flex;
+       // RHand.style.display = DisplayStyle.Flex;
         BSlots.style.display = DisplayStyle.Flex;
         Title.style.display = DisplayStyle.Flex;
         List<Label> slot = root.Query<Label>(className: "QSlot").ToList();

@@ -168,7 +168,7 @@
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="LHand" class="Hand" style="flex-grow: 1; position: absolute; top: 75%; left: 5%;">
+        <ui:VisualElement name="LHand" class="Hand" style="flex-grow: 1; position: absolute; top: 75%; left: 5%; visibility: visible;">
             <ui:Image source="project://database/Assets/3rdParty/Scalable%20Grid%20Prototype%20Materials/Textures/1x1_checkerboard.png?fileID=2800000&amp;guid=bce43503518074f40aaca9d808ac14a3&amp;type=3#1x1_checkerboard" scale-mode="StretchToFill" name="Item_Icon" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; height: 100%; width: 100%;"/>
         </ui:VisualElement>
         <ui:VisualElement name="RHand" class="Hand" style="flex-grow: 1; top: 75%; left: 30%; position: absolute;">

@@ -2,7 +2,7 @@
     <Style src="project://database/Assets/UI/GameOver/GameOver.uss?fileID=7433441132597879392&amp;guid=53e6f1ad1349cf4f78d1df1b217d0a37&amp;type=3#GameOver"/>
     <ui:VisualElement name="root" style="flex-grow: 1; display: flex;">
         <ui:VisualElement name="GameOver">
-            <ui:Label text="Game Over" name="Label"/>
+            <ui:Label text="YOU ARE DEAD" name="Label"/>
         </ui:VisualElement>
         <ui:VisualElement name="GameOverButtons">
             <ui:VisualElement name="Buttons">
