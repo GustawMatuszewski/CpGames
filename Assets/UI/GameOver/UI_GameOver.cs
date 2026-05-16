@@ -43,7 +43,18 @@ public class UI_GameOver : MonoBehaviour
 
         menuButton.clicked += () => {
             Time.timeScale = 1f;
-            SceneManager.LoadScene("Main Menu");
+
+            if (LoadingScene.Instance != null)
+            {
+ 
+                LoadingScene.Instance.PrepareAndLoad("Main Menu");
+            }
+            else
+            {
+                // Fail-safe: jeśli zapomniałeś wrzucić Loadera na scenę Menu
+                Debug.LogWarning("LoadingScene Instance nie znaleziona! Ładowanie domyślne.");
+                SceneManager.LoadScene("Main Menu");
+            }
         };
         
         quitButton.clicked += () => {
