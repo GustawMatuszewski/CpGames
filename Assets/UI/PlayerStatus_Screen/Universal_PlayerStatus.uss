@@ -1,0 +1,78 @@
+#root {
+    background-image: url("project://database/Assets/UI/WorldRenderUI/PlayerStatus/BG_new.png?fileID=2800000&guid=64c98790b75106e02b65d58c15bc7808&type=3#BG_new");
+}
+
+#Bars {
+    position: absolute;
+    bottom: 0;
+    height: 33%;
+    width: 100%;
+    flex-direction: row;
+    padding-top: 40px;
+    padding-right: 40px;
+    padding-bottom: 40px;
+    padding-left: 40px;
+}
+
+.Bar {
+    flex-direction: row;
+    margin-top: 30px;
+}
+
+.Bar ProgressBar {
+    width: 70%;
+}
+
+.Bar ProgressBar .unity-progress-bar__container {
+    min-height: 50px;
+    background-color: rgb(217, 207, 178);
+}
+
+.Bar Image {
+    width: 10%;
+    margin-left: 12%;
+}
+
+#Right .Bar {
+    flex-direction: row-reverse;
+}
+
+#Right .Bar Image {
+    width: 17%;
+}
+
+.Bar ProgressBar Label {
+    display: none;
+}
+
+.Bar ProgressBar .unity-progress-bar__background {
+    background-color: rgb(164, 152, 120);
+    background-image: none;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(103, 103, 103);
+    border-right-color: rgb(103, 103, 103);
+    border-top-color: rgb(103, 103, 103);
+    border-bottom-color: rgb(103, 103, 103);
+}
+
+.Bar ProgressBar .unity-progress-bar__progress {
+    background-color: rgba(219, 65, 42, 0);
+    background-image: url("project://database/Assets/UI/WorldRenderUI/PlayerStatus/BarBg.png?fileID=2800000&guid=b20515d29e1f62044b42e2cdf333f721&type=3#BarBg");
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+#HealthAbsPos {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+#HealthAbsPos Label {
+    position: absolute;
+    width: 100px;
+}

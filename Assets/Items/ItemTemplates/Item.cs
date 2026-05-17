@@ -35,4 +35,5 @@ public class Item : ScriptableObject
     {
         Debug.Log($"[Item] {itemName} has no Use() defined.");
     }
+    public GameObject itemModel;
 }

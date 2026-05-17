@@ -5,37 +5,60 @@ public class DisplayItem3D : MonoBehaviour
 {
     public Transform rightHandBone;
     public Transform leftHandBone; 
-
-     private GameObject currentRightItem;
+    private Item equippedRightItem;
+    private Item equippedLeftItem;
+    private GameObject currentRightItem;
     private GameObject currentLeftItem;
     public static DisplayItem3D Instance;
     public enum Hand {
         right, left
     }
+
     public void DisplayItem(Item item, Hand hand)
     {
         Transform targetBone = hand == Hand.right ? rightHandBone : leftHandBone;
 
-        // Usuń poprzedni item z tej ręki
-        ref GameObject current = ref (hand == Hand.right ? ref currentRightItem : ref currentLeftItem);
-        if (current != null)
-            Destroy(current);
-
-        if (item is WeaponItem weapon)
+        ref GameObject currentModel = ref (hand == Hand.right ? ref currentRightItem : ref currentLeftItem);
+        if (currentModel != null)
         {
-            
-            if (weapon == null || weapon.itemModel == null)
-                return;
+            Destroy(currentModel);
+            currentModel = null;
+        }
 
-            current = Instantiate(weapon.itemModel, targetBone);
-            current.transform.localPosition = Vector3.zero;
-            current.transform.localRotation = Quaternion.identity;
-        }   
+        if (hand == Hand.right) equippedRightItem = item;
+        else equippedLeftItem = item;
+        PlayerStatusTogle(hand);
+        if (item == null || item.itemModel == null)
+        {
+            return;
+        }
+
+        currentModel = Instantiate(item.itemModel, targetBone);
+        currentModel.transform.localPosition = Vector3.zero;
+        currentModel.transform.localRotation = item.itemModel.transform.rotation;
     }
 
-        void Awake()
+    void Awake()
     {
         Instance = this;
     }
+    private void PlayerStatusTogle(Hand currentHand)
+    {
+   
+        bool isNotebookInRight = equippedRightItem != null && equippedRightItem.itemName=="Notebook";
+        bool isNotebookInLeft = equippedLeftItem != null && equippedLeftItem.itemName == "Notebook";
 
+        if (isNotebookInRight || isNotebookInLeft)
+        {
+       
+            Hand handWithNotebook = isNotebookInRight ? Hand.right : Hand.left;
+
+            UI_Logs.Log("wywoluje platyerstatusonscreen dla reki:"+handWithNotebook.ToString());
+            PlayerStatus_screen.instance.DisplayPlayerStatusOnScreen(handWithNotebook, true);
+        }
+        else
+        {
+            PlayerStatus_screen.instance.DisplayPlayerStatusOnScreen(currentHand, false);
+        }
+    }
 }
