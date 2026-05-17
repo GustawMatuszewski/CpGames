@@ -6,24 +6,51 @@ using UnityEngine.Rendering;
 using Unity.VisualScripting;
 using UnityEngine.VFX;
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  EnvironmentManager
+//
+//  Singleton zarządzający:
+//   • Czasem gry (godziny + dni)
+//   • Systemem pogodowym
+//   • Globalnym zasilaniem (isGlobalPowerOn)
+//
+//  SYSTEM ELEKTRYKI:
+//   • Na starcie losowany jest dzień odcięcia prądu (między minPowerCutDay
+//     a maxPowerCutDay).
+//   • Po przekroczeniu tego dnia prąd zostaje permanentnie wyłączony.
+//   • Odpalany jest event OnPowerCut, na który subskrybują się LightSwitch'e.
+// ─────────────────────────────────────────────────────────────────────────────
 public class EnvironmentManager : MonoBehaviour
 {
-    [Header("Weather System")]
-    public List<WeatherPreset> availablePresets; // Add this so you can drag in multiple presets
-    public WeatherPreset activePreset;
-    private WeatherPreset targetPreset;          // Add this to store where we are transitioning to
-    
-    [Header("Weather Change Settings")]
-    public float minTimeBetweenWeatherChange = 120f;
-    public float maxTimeBetweenWeatherChange = 300f;
-    public float weatherTransitionDuration = 20f; // How long it takes to blend presets
-    
-    private float nextWeatherChangeTime;
-    private float transitionProgress = 0f;
-    private bool isTransitioning = false;
- 
+    // ── Singleton ─────────────────────────────────────────────────
+    public static EnvironmentManager Instance { get; private set; }
 
-    
+    // ─────────────────────────────────────────────────────────────
+    //  POWER SYSTEM
+    // ─────────────────────────────────────────────────────────────
+    [Header("Power System")]
+    [Tooltip("Czy sieć elektryczna jest aktualnie aktywna?")]
+    public bool isGlobalPowerOn = true;
+
+    [Tooltip("Minimalny dzień, w którym może nastąpić odcięcie prądu.")]
+    public int minPowerCutDay = 3;
+
+    [Tooltip("Maksymalny dzień, w którym może nastąpić odcięcie prądu.")]
+    public int maxPowerCutDay = 10;
+
+    // Wylosowany dzień odcięcia (Read-only w Inspectorze)
+    [SerializeField, HideInInspector]
+    private int _powerCutDay;
+
+    /// <summary>
+    /// Event odpalany jednorazowo w momencie trwałego odcięcia prądu.
+    /// LightSwitch subskrybuje się na niego w OnEnable i wypisuje w OnDisable.
+    /// </summary>
+    public static event System.Action OnPowerCut;
+
+    // ─────────────────────────────────────────────────────────────
+    //  TIME SYSTEM
+    // ─────────────────────────────────────────────────────────────
     [Header("Time settings")]
     [Range(0, 24)]
     public float currentTime;
@@ -32,15 +59,38 @@ public class EnvironmentManager : MonoBehaviour
     [Header("Current Time")]
     public string currentTimeString;
 
+    /// <summary>Aktualny dzień gry (zaczyna się od 1).</summary>
+    public int currentDay { get; private set; } = 1;
+
+    // ─────────────────────────────────────────────────────────────
+    //  WEATHER SYSTEM
+    // ─────────────────────────────────────────────────────────────
+    [Header("Weather System")]
+    public List<WeatherPreset> availablePresets;
+    public WeatherPreset activePreset;
+    private WeatherPreset _targetPreset;
+
+    [Header("Weather Change Settings")]
+    public float minTimeBetweenWeatherChange = 120f;
+    public float maxTimeBetweenWeatherChange = 300f;
+    public float weatherTransitionDuration   = 20f;
+
+    private float _nextWeatherChangeTime;
+    private float _transitionProgress = 0f;
+    private bool  _isTransitioning    = false;
+
+    // ─────────────────────────────────────────────────────────────
+    //  SUN / MOON
+    // ─────────────────────────────────────────────────────────────
     [Header("Sun settings")]
     public Light sunLight;
-    public float sunPosition = 1f;
+    public float sunPosition  = 1f;
     public float sunIntensity = 1f;
     public AnimationCurve sunIntensityMultiplier;
     public AnimationCurve sunTemperatureCurve;
 
-    public bool isDay =true;
-    public bool sunActive = true;
+    public bool isDay    = true;
+    public bool sunActive  = true;
     public bool moonActive = true;
 
     [Header("Moon settings")]
@@ -49,128 +99,213 @@ public class EnvironmentManager : MonoBehaviour
     public AnimationCurve moonIntensityMultiplier;
     public AnimationCurve moonTemperatureCurve;
 
+    // ─────────────────────────────────────────────────────────────
+    //  CLOUDS / FOG
+    // ─────────────────────────────────────────────────────────────
     [Header("Cloud settings")]
     public Volume globalVolume;
-    private VolumetricClouds volumetricClouds;
+    private VolumetricClouds _volumetricClouds;
 
     [Header("Weather parameters (Read-only)")]
     public float currentTemperature;
-    [Range(0,100)] public float currentHumidity;
+    [Range(0, 100)] public float currentHumidity;
     public float windSpeed;
 
+    // ─────────────────────────────────────────────────────────────
+    //  RAIN VFX
+    // ─────────────────────────────────────────────────────────────
     [Header("Rain VFX")]
     public VisualEffect rainVFX;
 
     [Header("VFX Parameter Names")]
     public string rainSpawnRateName = "SpawnRate";
-    
-    [Tooltip("Max particles/s at rainIntensity =1")]
+
+    [Tooltip("Max particles/s at rainIntensity = 1")]
     public float rainMaxSpawnRate = 200f;
 
     [Tooltip("Rain won't play at all below this threshold")]
     [Range(0f, 0.1f)]
     public float rainMinIntensityThreshold = 0.02f;
 
+    // ─────────────────────────────────────────────────────────────
+    //  WIND
+    // ─────────────────────────────────────────────────────────────
     [Header("Wind settings")]
-    public Vector2 windDirection = new Vector2(1f, 0f); 
-    [Tooltip("The temperature perveived with the wind, can be used for things like making the player feel colder when the wind is strong")]
-    public float perceivedWindTemperature; // for player status stuff
-    public float windChillFactor = 0.5f; // how much the wind affects the perceived temperature
-    [Tooltip("Wind zone is used for plants and other things that react to wind")]
-    public WindZone windZone; // for plants and other things that react to wind
+    public Vector2 windDirection       = new Vector2(1f, 0f);
+    public float   perceivedWindTemperature;
+    public float   windChillFactor = 0.5f;
+    public WindZone windZone;
 
+    // ─────────────────────────────────────────────────────────────
+    //  FOG
+    // ─────────────────────────────────────────────────────────────
     [Header("Fog settings")]
-    private Fog volumetricFog;
+    private Fog _volumetricFog;
     public Color baseFogColor = Color.white;
 
+    // ─────────────────────────────────────────────────────────────
+    //  Internals
+    // ─────────────────────────────────────────────────────────────
+    private VisualEnvironment _visualEnv;
 
-    private VisualEnvironment visualEnv;
-    // private WeatherPreset nextPreset;
-    // Add anywhere inside EnvironmentManager class
-    public bool IsTransitioning => isTransitioning;
-    public WeatherPreset TargetPreset => targetPreset;
-    public float TransitionProgress => transitionProgress;
+    // ── Public accessors (kompatybilność z poprzednim kodem) ──────
+    public bool          IsTransitioning  => _isTransitioning;
+    public WeatherPreset TargetPreset     => _targetPreset;
+    public float         TransitionProgress => _transitionProgress;
 
-    
+    // ═════════════════════════════════════════════════════════════
+    //  LIFECYCLE
+    // ═════════════════════════════════════════════════════════════
+    void Awake()
+    {
+        // Singleton — jeden manager na całą scenę
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning("[EnvironmentManager] Duplikat Singletona — niszczę nadmiarowy obiekt.");
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
+        // Losujemy dzień odcięcia prądu już w Awake, zanim cokolwiek się odpyta
+        _powerCutDay = Random.Range(minPowerCutDay, maxPowerCutDay + 1);
+        Debug.Log($"[EnvironmentManager] Prąd zostanie odcięty w dniu: {_powerCutDay}");
+    }
+
     void Start()
     {
+        // Clouds
+        if (globalVolume.profile.TryGet<VolumetricClouds>(out _volumetricClouds))
+        {
+            _volumetricClouds.densityMultiplier.overrideState = true;
+            _volumetricClouds.bottomAltitude.overrideState    = true;
+            _volumetricClouds.shapeFactor.overrideState       = true;
+            _volumetricClouds.erosionFactor.overrideState     = true;
+            _volumetricClouds.altitudeRange.overrideState     = true;
+        }
 
-    if (globalVolume.profile.TryGet<VolumetricClouds>(out volumetricClouds))
-    {
-        volumetricClouds.densityMultiplier.overrideState = true;
-        volumetricClouds.bottomAltitude.overrideState = true;
-        volumetricClouds.shapeFactor.overrideState = true;
-        volumetricClouds.erosionFactor.overrideState = true;
-        volumetricClouds.altitudeRange.overrideState = true;
-    }
+        // Fog
+        if (globalVolume.profile.TryGet<Fog>(out _volumetricFog))
+        {
+            _volumetricFog.meanFreePath.overrideState = true;
+            _volumetricFog.albedo.overrideState       = true;
+        }
 
-    if (globalVolume.profile.TryGet<Fog>(out volumetricFog))
-    {
-        volumetricFog.meanFreePath.overrideState = true; // fog density
-        volumetricFog.albedo.overrideState = true; // fog color
-    }
-
-    if (globalVolume.profile.TryGet<VisualEnvironment>(out visualEnv))
-    {
-        visualEnv.windSpeed.overrideState = true;
-        visualEnv.windOrientation.overrideState = true;
-    }
+        // Wind (visual shader)
+        if (globalVolume.profile.TryGet<VisualEnvironment>(out _visualEnv))
+        {
+            _visualEnv.windSpeed.overrideState      = true;
+            _visualEnv.windOrientation.overrideState = true;
+        }
 
         UpdateTimeText();
         CheckShadowStatus();
     }
+
     void Update()
     {
-        currentTime += Time.deltaTime * timeSpeed;
-
-        if(currentTime >= 24f)
-        {
-            currentTime = 0f;
-        }
-
+        AdvanceTime();
         UpdateTimeText();
-
         CalculateWeatherLogic();
         HandleWeatherTransitionTimer();
-
         ApplyVisuals();
     }
-    private void OnValidate()
+
+    void OnValidate()
     {
-        if(sunLight==null || moonLight == null) return;
+        if (sunLight == null || moonLight == null) return;
         UpdateLight();
         CheckShadowStatus();
         if (activePreset != null) ApplyCloudsAndFog();
     }
+
+    // ═════════════════════════════════════════════════════════════
+    //  TIME & DAY
+    // ═════════════════════════════════════════════════════════════
+
+    void AdvanceTime()
+    {
+        currentTime += Time.deltaTime * timeSpeed;
+
+        if (currentTime >= 24f)
+        {
+            currentTime -= 24f;
+            currentDay++;
+            OnNewDayStarted();
+        }
+    }
+
+    /// <summary>Wywoływana raz na początku każdego nowego dnia.</summary>
+    void OnNewDayStarted()
+    {
+        Debug.Log($"[EnvironmentManager] Nowy dzień: {currentDay}");
+
+        // Sprawdzamy czy właśnie nadszedł dzień odcięcia prądu
+        if (isGlobalPowerOn && currentDay >= _powerCutDay)
+        {
+            CutPower();
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  POWER
+    // ─────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Trwale odcina prąd na mapie i powiadamia wszystkie włączniki.
+    /// Może być wywołana z zewnątrz (cutscenka, skrypt fabularny itp.).
+    /// </summary>
+    public void CutPower()
+    {
+        if (!isGlobalPowerOn) return; // już odcięty, nie odpala eventu drugi raz
+
+        isGlobalPowerOn = false;
+        Debug.Log($"[EnvironmentManager] PRĄD ODCIĘTY w dniu {currentDay}!");
+
+        // Powiadamiamy wszystkich subskrybentów (LightSwitch)
+        OnPowerCut?.Invoke();
+    }
+
     void UpdateTimeText()
     {
-        currentTimeString = Mathf.Floor(currentTime).ToString("00") + ":" + ((currentTime%1)*60).ToString("00");
+        currentTimeString =
+            Mathf.Floor(currentTime).ToString("00") + ":" +
+            ((currentTime % 1) * 60f).ToString("00");
     }
+
+    // ═════════════════════════════════════════════════════════════
+    //  WEATHER
+    // ═════════════════════════════════════════════════════════════
+
     void CalculateWeatherLogic()
     {
-        float normalizedTime = currentTime/24f;
+        float t = currentTime / 24f;
 
-        currentTemperature = activePreset.temperatureCurve.Evaluate(normalizedTime);
-        currentHumidity = activePreset.humidityCurve.Evaluate(normalizedTime);
-        windSpeed = activePreset.windSpeedCurve.Evaluate(normalizedTime);
-
-        if (isTransitioning && targetPreset != null)
+        if (_isTransitioning && _targetPreset != null)
         {
-            currentTemperature = Mathf.Lerp(activePreset.temperatureCurve.Evaluate(normalizedTime), targetPreset.temperatureCurve.Evaluate(normalizedTime), transitionProgress);
-            currentHumidity = Mathf.Lerp(activePreset.humidityCurve.Evaluate(normalizedTime), targetPreset.humidityCurve.Evaluate(normalizedTime), transitionProgress);
-            windSpeed = Mathf.Lerp(activePreset.windSpeedCurve.Evaluate(normalizedTime), targetPreset.windSpeedCurve.Evaluate(normalizedTime), transitionProgress);
+            currentTemperature = Mathf.Lerp(
+                activePreset.temperatureCurve.Evaluate(t),
+                _targetPreset.temperatureCurve.Evaluate(t),
+                _transitionProgress);
+
+            currentHumidity = Mathf.Lerp(
+                activePreset.humidityCurve.Evaluate(t),
+                _targetPreset.humidityCurve.Evaluate(t),
+                _transitionProgress);
+
+            windSpeed = Mathf.Lerp(
+                activePreset.windSpeedCurve.Evaluate(t),
+                _targetPreset.windSpeedCurve.Evaluate(t),
+                _transitionProgress);
         }
         else
         {
-            currentTemperature = activePreset.temperatureCurve.Evaluate(normalizedTime);
-            currentHumidity = activePreset.humidityCurve.Evaluate(normalizedTime);
-            windSpeed = activePreset.windSpeedCurve.Evaluate(normalizedTime);
+            currentTemperature = activePreset.temperatureCurve.Evaluate(t);
+            currentHumidity    = activePreset.humidityCurve.Evaluate(t);
+            windSpeed          = activePreset.windSpeedCurve.Evaluate(t);
         }
-        
-        perceivedWindTemperature = currentTemperature - (windSpeed*windChillFactor);
 
-        
-        
+        perceivedWindTemperature = currentTemperature - (windSpeed * windChillFactor);
     }
 
     void ApplyVisuals()
@@ -184,30 +319,31 @@ public class EnvironmentManager : MonoBehaviour
 
     void UpdateLight()
     {
-        float sunRotation = (currentTime / 24f) * 360f;
-        sunLight.transform.rotation = Quaternion.Euler(sunRotation - 90f, sunPosition, 0f);
+        float sunRotation  = (currentTime / 24f) * 360f;
+        sunLight.transform.rotation  = Quaternion.Euler(sunRotation - 90f, sunPosition, 0f);
         moonLight.transform.rotation = Quaternion.Euler(sunRotation + 90f, sunPosition, 0f);
 
-        float normalizedTime = currentTime / 24f;
-        
-        Light sunLightData = sunLight.GetComponent<Light>();
-        Light moonLightData = moonLight.GetComponent<Light>();
+        float t = currentTime / 24f;
 
-        if(sunLightData != null)
+        Light sunData  = sunLight.GetComponent<Light>();
+        Light moonData = moonLight.GetComponent<Light>();
+
+        if (sunData != null)
         {
-            sunLightData.intensity = sunIntensity * sunIntensityMultiplier.Evaluate(normalizedTime);
-            sunLightData.colorTemperature = sunTemperatureCurve.Evaluate(normalizedTime) * 10000f;
+            sunData.intensity        = sunIntensity * sunIntensityMultiplier.Evaluate(t);
+            sunData.colorTemperature = sunTemperatureCurve.Evaluate(t) * 10000f;
         }
-        
-        if(moonLightData != null)
+
+        if (moonData != null)
         {
-            moonLightData.intensity = moonIntensity * moonIntensityMultiplier.Evaluate(normalizedTime);
-            moonLightData.colorTemperature = moonTemperatureCurve.Evaluate(normalizedTime) * 10000f;
+            moonData.intensity        = moonIntensity * moonIntensityMultiplier.Evaluate(t);
+            moonData.colorTemperature = moonTemperatureCurve.Evaluate(t) * 10000f;
         }
     }
+
     void CheckShadowStatus()
     {
-        HDAdditionalLightData sunLightData = sunLight.GetComponent<HDAdditionalLightData>();
+        HDAdditionalLightData sunLightData  = sunLight.GetComponent<HDAdditionalLightData>();
         HDAdditionalLightData moonLightData = moonLight.GetComponent<HDAdditionalLightData>();
 
         bool isDayTime = currentTime >= 6f && currentTime <= 18f;
@@ -216,127 +352,126 @@ public class EnvironmentManager : MonoBehaviour
         sunLightData.EnableShadows(isDayTime);
         moonLightData.EnableShadows(!isDayTime);
 
-        sunActive = currentTime >= 5.7f && currentTime <= 18.3f;
+        sunActive  = currentTime >= 5.7f && currentTime <= 18.3f;
         sunLight.gameObject.SetActive(sunActive);
 
         moonActive = !(currentTime >= 6.3f && currentTime <= 17.7f);
         moonLight.gameObject.SetActive(moonActive);
     }
+
     void ApplyCloudsAndFog()
-{
-    if (activePreset == null) return;
-    float normalizedTime = currentTime / 24f;
-
-    float density      = activePreset.cloudsDensityCurve.Evaluate(normalizedTime);
-    float altitude     = activePreset.cloudsBottomAltitudeCurve.Evaluate(normalizedTime);
-    float fogDensity   = activePreset.fogDensityCurve.Evaluate(normalizedTime);
-    float shapeFactor  = activePreset.shapeFactor;
-    float erosionFactor = activePreset.erosionFactor;
-    float altRange     = activePreset.AltitudeRange;
-    float rainIntensity = activePreset.rainIntensity;
-    Color rainFogColor  = activePreset.rainFogColor;
-
-    if (isTransitioning && targetPreset != null)
     {
-        density       = Mathf.Lerp(density, targetPreset.cloudsDensityCurve.Evaluate(normalizedTime), transitionProgress);
-        altitude      = Mathf.Lerp(altitude, targetPreset.cloudsBottomAltitudeCurve.Evaluate(normalizedTime), transitionProgress);
-        fogDensity    = Mathf.Lerp(fogDensity, targetPreset.fogDensityCurve.Evaluate(normalizedTime), transitionProgress);
-        shapeFactor   = Mathf.Lerp(shapeFactor, targetPreset.shapeFactor, transitionProgress);
-        erosionFactor = Mathf.Lerp(erosionFactor, targetPreset.erosionFactor, transitionProgress);
-        altRange      = Mathf.Lerp(altRange, targetPreset.AltitudeRange, transitionProgress);
-        rainIntensity = Mathf.Lerp(rainIntensity, targetPreset.rainIntensity, transitionProgress);
-        rainFogColor  = Color.Lerp(rainFogColor, targetPreset.rainFogColor, transitionProgress);
+        if (activePreset == null) return;
+        float t = currentTime / 24f;
+
+        float density       = activePreset.cloudsDensityCurve.Evaluate(t);
+        float altitude      = activePreset.cloudsBottomAltitudeCurve.Evaluate(t);
+        float fogDensity    = activePreset.fogDensityCurve.Evaluate(t);
+        float shapeFactor   = activePreset.shapeFactor;
+        float erosionFactor = activePreset.erosionFactor;
+        float altRange      = activePreset.AltitudeRange;
+        float rainIntensity = activePreset.rainIntensity;
+        Color rainFogColor  = activePreset.rainFogColor;
+
+        if (_isTransitioning && _targetPreset != null)
+        {
+            density       = Mathf.Lerp(density,       _targetPreset.cloudsDensityCurve.Evaluate(t),       _transitionProgress);
+            altitude      = Mathf.Lerp(altitude,      _targetPreset.cloudsBottomAltitudeCurve.Evaluate(t), _transitionProgress);
+            fogDensity    = Mathf.Lerp(fogDensity,    _targetPreset.fogDensityCurve.Evaluate(t),           _transitionProgress);
+            shapeFactor   = Mathf.Lerp(shapeFactor,   _targetPreset.shapeFactor,                           _transitionProgress);
+            erosionFactor = Mathf.Lerp(erosionFactor, _targetPreset.erosionFactor,                         _transitionProgress);
+            altRange      = Mathf.Lerp(altRange,      _targetPreset.AltitudeRange,                         _transitionProgress);
+            rainIntensity = Mathf.Lerp(rainIntensity, _targetPreset.rainIntensity,                         _transitionProgress);
+            rainFogColor  = Color.Lerp(rainFogColor,  _targetPreset.rainFogColor,                          _transitionProgress);
+        }
+
+        if (_volumetricClouds != null)
+        {
+            _volumetricClouds.densityMultiplier.value = density;
+            _volumetricClouds.bottomAltitude.value    = altitude;
+            _volumetricClouds.shapeFactor.value       = shapeFactor;
+            _volumetricClouds.erosionFactor.value     = erosionFactor;
+            _volumetricClouds.altitudeRange.value     = altRange;
+        }
+
+        if (_volumetricFog != null)
+        {
+            _volumetricFog.meanFreePath.value = fogDensity;
+            _volumetricFog.albedo.value       = Color.Lerp(baseFogColor, rainFogColor, rainIntensity);
+        }
     }
 
-    if (volumetricClouds != null)
-    {
-        volumetricClouds.densityMultiplier.value = density;
-        volumetricClouds.bottomAltitude.value    = altitude;
-        volumetricClouds.shapeFactor.value       = shapeFactor;
-        volumetricClouds.erosionFactor.value     = erosionFactor;
-        volumetricClouds.altitudeRange.value     = altRange;
-    }
-
-    if (volumetricFog != null)
-    {
-        volumetricFog.meanFreePath.value = fogDensity;
-        volumetricFog.albedo.value = Color.Lerp(baseFogColor, rainFogColor, rainIntensity);
-    }
-}
     void ApplyWind()
     {
-        if(windZone != null)
+        if (windZone != null)
         {
             windZone.windMain = windSpeed;
-            Vector3 windDir3D = new Vector3(windDirection.x,0f,windDirection.y);
-            if(windDir3D != Vector3.zero)
-            {
+            Vector3 windDir3D = new Vector3(windDirection.x, 0f, windDirection.y);
+            if (windDir3D != Vector3.zero)
                 windZone.transform.rotation = Quaternion.LookRotation(windDir3D);
-            }
         }
-        
-        if(visualEnv != null)
+
+        if (_visualEnv != null)
         {
-            visualEnv.windSpeed.value = windSpeed * 20f;
-            //converting the 2D wind direction to an angle for the shader, where (1,0) is 0 degrees, (0,1) is 90 degrees, (-1,0) is 180 degrees and (0,-1) is 270 degrees
-            // float windAngle = Mathf.Atan2(windDirection.y, windDirection.x) * Mathf.Rad2Deg;
-            // visualEnv.windOrientation.value = windAngle;
-            visualEnv.windOrientation.value = windZone.transform.eulerAngles.y;
+            _visualEnv.windSpeed.value      = windSpeed * 20f;
+            _visualEnv.windOrientation.value = windZone != null
+                ? windZone.transform.eulerAngles.y
+                : 0f;
         }
     }
 
-    void ApplyRainVFX(){
+    void ApplyRainVFX()
+    {
         if (rainVFX == null || activePreset == null) return;
 
         float intensity = activePreset.rainIntensity;
-
-        if (isTransitioning && targetPreset != null)
-            intensity = Mathf.Lerp(intensity, targetPreset.rainIntensity, transitionProgress);
+        if (_isTransitioning && _targetPreset != null)
+            intensity = Mathf.Lerp(intensity, _targetPreset.rainIntensity, _transitionProgress);
 
         bool shouldPlay = intensity >= rainMinIntensityThreshold;
 
         if (shouldPlay != rainVFX.gameObject.activeSelf)
             rainVFX.gameObject.SetActive(shouldPlay);
 
-        if (shouldPlay) rainVFX.SetFloat(rainSpawnRateName, intensity * rainMaxSpawnRate);
+        if (shouldPlay)
+            rainVFX.SetFloat(rainSpawnRateName, intensity * rainMaxSpawnRate);
     }
+
     void HandleWeatherTransitionTimer()
     {
-        if(!isTransitioning && Time.time >= nextWeatherChangeTime && availablePresets.Count > 1)
-        {
+        if (!_isTransitioning && Time.time >= _nextWeatherChangeTime && availablePresets.Count > 1)
             ChangeWeatherPreset();
-        }
 
-        if(isTransitioning)
+        if (_isTransitioning)
         {
-            transitionProgress += Time.deltaTime /weatherTransitionDuration;
+            _transitionProgress += Time.deltaTime / weatherTransitionDuration;
 
-            if(transitionProgress>=1f)
+            if (_transitionProgress >= 1f)
             {
-                transitionProgress = 1f;
-                isTransitioning = false;
-                activePreset = targetPreset;
+                _transitionProgress = 1f;
+                _isTransitioning    = false;
+                activePreset        = _targetPreset;
                 SetNextWeatherChangeTimer();
             }
         }
     }
+
     void SetNextWeatherChangeTimer()
     {
-        nextWeatherChangeTime = Time.time + Random.Range(minTimeBetweenWeatherChange, maxTimeBetweenWeatherChange);
+        _nextWeatherChangeTime = Time.time +
+            Random.Range(minTimeBetweenWeatherChange, maxTimeBetweenWeatherChange);
     }
+
     void ChangeWeatherPreset()
     {
         if (availablePresets.Count <= 1) return;
 
-        // Pick a random preset that is different from the current one
-        WeatherPreset nextPreset = availablePresets[Random.Range(0, availablePresets.Count)];
-        while (nextPreset == activePreset)
-        {
-            nextPreset = availablePresets[Random.Range(0, availablePresets.Count)];
-        }
+        WeatherPreset next = activePreset;
+        while (next == activePreset)
+            next = availablePresets[Random.Range(0, availablePresets.Count)];
 
-        targetPreset = nextPreset;
-        transitionProgress = 0f;
-        isTransitioning = true;
+        _targetPreset       = next;
+        _transitionProgress = 0f;
+        _isTransitioning    = true;
     }
 }
