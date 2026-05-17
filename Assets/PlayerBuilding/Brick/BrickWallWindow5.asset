@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 773518987f83ce650876c2337be76d44, type: 3}
-  m_Name: BrickWallFrame
+  m_Name: BrickWallWindow5
   m_EditorClassIdentifier: 
   itemID: 2137
-  itemName: BrickWallFrame
+  itemName: BrickWallWindow5
   icon: {fileID: 0}
-  description: BrickWallFrame
+  description: BrickWallWindow5
   useScript: {fileID: 0}
   craftingRecipe: {fileID: 0}
   weight: 0
@@ -23,5 +23,5 @@ MonoBehaviour:
   usesLeft: 0
   burnCalories: 0
   itemType: 5
-  materialType: 3
-  constructionPrefab: {fileID: 6612603227374951970, guid: fbeab414f94c3d26db87f66f8c7758d5, type: 3}
+  materialType: 1
+  constructionPrefab: {fileID: 6612603227374951970, guid: 11e7cc57cf7629888ad1d39aae3a6423, type: 3}
