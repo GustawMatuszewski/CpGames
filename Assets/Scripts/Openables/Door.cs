@@ -7,19 +7,15 @@ using System.Collections.Generic;
 // ─────────────────────────────────────────────────────────────────────────────
 //  Door  —  unified Door / Window script
 //
-//  PREFAB SETUP (window)
-//  ┌─ Window GameObject  [Door script] [NavMeshObstacle] [NavMeshLink]
-//  ├── GlassMesh          → assign to 'breakableMesh'
-//  └── Frame              → static, never touched
+//  PREFAB SETUP
+//  ┌─ Door  [this script]  (+NavMeshObstacle only if isWindow = true)
+//  ├── GlassMesh / DoorMesh      → assign to 'breakableMesh' (optional)
+//  ├── Frame                     → static, never touched
+//  ├── LinkStart                 → assign only for windows
+//  └── LinkEnd                   → assign only for windows
 //
-//  NavMeshLink konfiguruj bezpośrednio w prefabie (Start/End Point lub
-//  Start/End Transform na poziomie podłogi). Skrypt tylko przełącza
-//  activated i nie dotyka żadnych innych pól linku.
-//
-//  NAVMESH LOGIC (windows):
-//    Closed  → Obstacle ON,  Link OFF
-//    Open    → Obstacle OFF, Link ON
-//    Broken  → Obstacle OFF, Link ON
+//  DOOR prefab  : isWindow = false  — NavMeshObstacle NOT required
+//  WINDOW prefab: isWindow = true   — add NavMeshObstacle component manually
 // ─────────────────────────────────────────────────────────────────────────────
 public class Door : MonoBehaviour, IInteractable
 {
@@ -29,6 +25,8 @@ public class Door : MonoBehaviour, IInteractable
     public bool isWindow = false;
 
     // ── State machine ─────────────────────────────────────────────
+    //   Doors:   Closed ↔ Open ↔ Locked
+    //   Windows: Closed ↔ Open → Broken  (one-way break)
     public enum OpenableState  { Closed, Open, Locked, Broken }
     public enum DoorActionType { Opening, Closing, Locking, Unlocking, OpeningForce, Breaking, Climbing }
 
@@ -47,8 +45,12 @@ public class Door : MonoBehaviour, IInteractable
     public GameObject breakFX;
 
     // ── NavMesh (Window only) ─────────────────────────────────────
-    [Header("NavMesh (Window only)")]
-    [Tooltip("Enemies within this radius are alerted when glass breaks.")]
+    [Header("NavMesh Link (Window only)")]
+    [Tooltip("Empty Transform on the outside face of the sill.")]
+    public Transform linkStart;
+    [Tooltip("Empty Transform on the inside face of the sill.")]
+    public Transform linkEnd;
+    [Tooltip("Enemies within this radius repath when glass breaks.")]
     public float enemyAlertRadius = 20f;
 
     // ── Interaction snapping ──────────────────────────────────────
@@ -63,6 +65,7 @@ public class Door : MonoBehaviour, IInteractable
     // ── NavMesh internals ─────────────────────────────────────────
     NavMeshObstacle _obstacle;
     NavMeshLink     _link;
+    GameObject      _linkGO;
 
     // ── Rotation internals ────────────────────────────────────────
     Quaternion _closedRot;
@@ -77,32 +80,27 @@ public class Door : MonoBehaviour, IInteractable
         _obstacle = GetComponent<NavMeshObstacle>();
         if (_obstacle != null)
         {
-            _obstacle.carving             = true;
+            _obstacle.carving              = true;
             _obstacle.carveOnlyStationary = false;
-            _obstacle.enabled             = true;   // starts blocking
+            _obstacle.enabled             = true;
         }
 
-        // Pobieramy NavMeshLink z prefaba — nie tworzymy nowego.
-        // Skonfiguruj Start/End Point (lub Transform) bezposrednio w Inspectorze.
-        _link = GetComponent<NavMeshLink>();
-        if (_link != null)
-        {
-            _link.activated = false;                // starts disabled
-        }
-        else
-        {
-            Debug.LogWarning("[Door] '" + name + "' isWindow=true, ale brak komponentu NavMeshLink na tym GameObject. Dodaj go w prefabie.", this);
-        }
+        _linkGO = new GameObject("DoorNavMeshLink");
+        _linkGO.transform.SetParent(transform, worldPositionStays: false);
+
+        _link                = _linkGO.AddComponent<NavMeshLink>();
+        _link.startTransform = linkStart;
+        _link.endTransform   = linkEnd;
+        _link.bidirectional  = true;
+        _link.activated      = false;
+        _link.autoUpdate     = true;
+        _link.width          = 1.2f;
     }
 
     void Start()
     {
         _closedRot = transform.localRotation;
         _openRot   = _closedRot * Quaternion.Euler(0f, openAngle, 0f);
-
-        // Sync NavMesh do stanu startowego
-        if (isWindow)
-            UpdateWindowNavMesh(passable: state == OpenableState.Open || state == OpenableState.Broken);
     }
 
     // ── IInteractable ─────────────────────────────────────────────
@@ -120,7 +118,7 @@ public class Door : MonoBehaviour, IInteractable
         switch (state)
         {
             case OpenableState.Closed:
-                actions.Add(new DoorAction { label = "Otworz",           enabled = true, execute = ActionOpen,      type = DoorActionType.Opening      });
+                actions.Add(new DoorAction { label = "Otwórz",           enabled = true, execute = ActionOpen,      type = DoorActionType.Opening      });
                 actions.Add(new DoorAction { label = "Zamknij na klucz", enabled = true, execute = ActionLock,      type = DoorActionType.Locking      });
                 break;
             case OpenableState.Open:
@@ -128,7 +126,7 @@ public class Door : MonoBehaviour, IInteractable
                 break;
             case OpenableState.Locked:
                 actions.Add(new DoorAction { label = "Odblokuj",         enabled = true, execute = ActionUnlock,    type = DoorActionType.Unlocking    });
-                actions.Add(new DoorAction { label = "Otworz (wywaz)",   enabled = true, execute = ActionBreakOpen, type = DoorActionType.OpeningForce, duration = 3f });
+                actions.Add(new DoorAction { label = "Otwórz (wyważ)",   enabled = true, execute = ActionBreakOpen, type = DoorActionType.OpeningForce, duration = 3f });
                 break;
         }
         return actions;
@@ -140,15 +138,15 @@ public class Door : MonoBehaviour, IInteractable
         switch (state)
         {
             case OpenableState.Closed:
-                actions.Add(new DoorAction { label = "Otworz okno",       enabled = true, execute = ActionOpen,  type = DoorActionType.Opening  });
-                actions.Add(new DoorAction { label = "Wybij szybe",        enabled = true, execute = ActionBreak, type = DoorActionType.Breaking });
+                actions.Add(new DoorAction { label = "Otwórz okno",       enabled = true, execute = ActionOpen,  type = DoorActionType.Opening  });
+                actions.Add(new DoorAction { label = "Wybij szybę",        enabled = true, execute = ActionBreak, type = DoorActionType.Breaking });
                 break;
             case OpenableState.Open:
                 actions.Add(new DoorAction { label = "Zamknij okno",       enabled = true, execute = ActionClose, type = DoorActionType.Closing  });
-                actions.Add(new DoorAction { label = "Wybij szybe",        enabled = true, execute = ActionBreak, type = DoorActionType.Breaking });
+                actions.Add(new DoorAction { label = "Wybij szybę",        enabled = true, execute = ActionBreak, type = DoorActionType.Breaking });
                 break;
             case OpenableState.Broken:
-                actions.Add(new DoorAction { label = "Przlez przez okno",  enabled = true, execute = ActionClimb, type = DoorActionType.Climbing });
+                actions.Add(new DoorAction { label = "Przeleź przez okno", enabled = true, execute = ActionClimb, type = DoorActionType.Climbing });
                 break;
         }
         return actions;
@@ -159,7 +157,6 @@ public class Door : MonoBehaviour, IInteractable
     {
         if (_isAnimating) return;
         state = OpenableState.Open;
-        if (isWindow) UpdateWindowNavMesh(passable: true);
         StartCoroutine(RotateTo(_openRot));
     }
 
@@ -167,7 +164,6 @@ public class Door : MonoBehaviour, IInteractable
     {
         if (_isAnimating) return;
         state = OpenableState.Closed;
-        if (isWindow) UpdateWindowNavMesh(passable: false);
         StartCoroutine(RotateTo(_closedRot));
     }
 
@@ -186,6 +182,7 @@ public class Door : MonoBehaviour, IInteractable
     void ActionBreakOpen()
     {
         if (_isAnimating) return;
+        // DisableBreakableMesh(); well this is for breaking
         state = OpenableState.Open;
         StartCoroutine(RotateTo(_openRot));
     }
@@ -202,22 +199,16 @@ public class Door : MonoBehaviour, IInteractable
 
         if (isWindow)
         {
-            UpdateWindowNavMesh(passable: true);
-            // TODO: NotifyNearbyEnemies();
+            if (_obstacle != null) _obstacle.enabled = false;
+            if (_link     != null) _link.activated   = true;
+            // TODO: enemy — NotifyNearbyEnemies();
         }
     }
 
     void ActionClimb()
     {
-        Debug.Log("[Door] Player climbing through " + gameObject.name);
-    }
-
-    // ── NavMesh helper ────────────────────────────────────────────
-    void UpdateWindowNavMesh(bool passable)
-    {
-        if (!isWindow) return;
-        if (_obstacle != null) _obstacle.enabled = !passable;
-        if (_link     != null) _link.activated   =  passable;
+        // TODO: hook player vault / climb animation here
+        Debug.Log($"[Door] Player climbing through {gameObject.name}");
     }
 
     // ── Helpers ───────────────────────────────────────────────────
@@ -231,6 +222,7 @@ public class Door : MonoBehaviour, IInteractable
 
         foreach (Transform child in transform)
         {
+            if (_linkGO != null && child.gameObject == _linkGO) continue;
             var rend = child.GetComponent<Renderer>();
             var col  = child.GetComponent<Collider>();
             if (rend != null) rend.enabled = false;
@@ -238,7 +230,9 @@ public class Door : MonoBehaviour, IInteractable
         }
     }
 
-    public bool IsPassableByAI => isWindow && (state == OpenableState.Open || state == OpenableState.Broken);
+    // EnemyEntity: GetComponentInParent<Door>() != null → vault traversal
+    // TODO: enemy — wire EnemyEntity to use Door instead of Window
+    public GameObject LinkGameObject => _linkGO;
 
     // ── Rotation coroutine ────────────────────────────────────────
     IEnumerator RotateTo(Quaternion target)
@@ -260,6 +254,9 @@ public class Door : MonoBehaviour, IInteractable
     }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  DoorAction — unchanged, UI branch compiles as-is
+// ─────────────────────────────────────────────────────────────────────────────
 public class DoorAction
 {
     public string              label;

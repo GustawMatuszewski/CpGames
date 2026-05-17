@@ -92,13 +92,6 @@ public class PlayerInteraction : MonoBehaviour
             OpenChest(hitInventory);
             // return;
         }
-        // LightSwitch (prosty IInteractable — tylko tap, brak menu)
-        LightSwitch lightSwitch = hit.collider.GetComponentInParent<LightSwitch>();
-        if (lightSwitch != null)
-        {
-            lightSwitch.OnInteract();
-            return;
-        }
 
         // Door/Window
         Door openable = hit.collider.GetComponentInParent<Door>();

@@ -154,13 +154,11 @@ public class EnemyEntity : BaseEntity
 
     Door FindWindowAtLink(OffMeshLinkData linkData)
     {
-        // Check both link endpoints — whichever is closer to a passable window wins.
-        // IsPassableByAI covers both Open and Broken states.
         Collider[] nearby = Physics.OverlapSphere(linkData.startPos, 1.5f);
         foreach (Collider col in nearby)
         {
             Door w = col.GetComponentInParent<Door>();
-            if (w != null && w.IsPassableByAI)
+            if (w != null && w.isWindow && w.state == Door.OpenableState.Broken)
                 return w;
         }
 
@@ -168,7 +166,7 @@ public class EnemyEntity : BaseEntity
         foreach (Collider col in nearby)
         {
             Door w = col.GetComponentInParent<Door>();
-            if (w != null && w.IsPassableByAI)
+            if (w != null && w.isWindow && w.state == Door.OpenableState.Broken)
                 return w;
         }
 
