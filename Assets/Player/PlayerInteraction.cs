@@ -100,6 +100,14 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
+        // Bed
+        Bed bed = hit.collider.GetComponentInParent<Bed>();
+        if (bed != null)
+        {
+            bed.OnInteract();
+            return;
+        }
+
         // Door/Window
         Door openable = hit.collider.GetComponentInParent<Door>();
         if (openable == null) return;
