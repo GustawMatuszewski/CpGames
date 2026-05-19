@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 773518987f83ce650876c2337be76d44, type: 3}
-  m_Name: BrownWallHole
-  m_EditorClassIdentifier: 
+  m_Name: ConcreteFloor
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingItem
   itemID: 2137
-  itemName: ConcreteWallHole
+  itemName: ConcreteFloor
   icon: {fileID: 0}
-  description: Wall :3 w/ a hole
+  description: 
   useScript: {fileID: 0}
   craftingRecipe: {fileID: 0}
   weight: 0
@@ -23,5 +23,5 @@ MonoBehaviour:
   usesLeft: 0
   burnCalories: 0
   itemType: 5
-  materialType: 1
-  constructionPrefab: {fileID: 6612603227374951970, guid: 691363d0443119285b74e7b81f135b1f, type: 3}
+  materialType: 3
+  constructionPrefab: {fileID: 6612603227374951970, guid: e202db08bab1d694c83796782fe9411d, type: 3}
