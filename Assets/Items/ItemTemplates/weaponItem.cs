@@ -27,7 +27,6 @@ public class WeaponItem : Item
     }
 
     [Header("Weapon Configuration")]
-    public GameObject itemModel;
     public WeaponType weaponType = WeaponType.none;
     public UseType useType = UseType.none;
     public float damage;

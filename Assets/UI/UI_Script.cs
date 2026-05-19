@@ -1773,22 +1773,22 @@ public void SendItemList(List<Item> items)
 
     void swapQSlots(int index)
     {
-        UI_Logs.Log("Swapuję na slot: " + index);
+        //UI_Logs.Log("Swapuję na slot: " + index);
         
     
         Item slotItem = GetOriginalItemFromSlot(index);
-        Item leftHandItem = GetItemLeftHand();
+        Item rightHandItem = GetItemRightHand();
 
         // 2. Przygotuj dane dla slotu (idzie tam to, co było w ręce)
-        if (leftHandItem != null)
+        if (rightHandItem != null)
         {
             ItemData handData = new ItemData
             {
-                name = leftHandItem.itemName,
-                category = leftHandItem.itemType.ToString(),
-                weight = leftHandItem.weight,
-                icon = leftHandItem.icon != null ? leftHandItem.icon : defaultPlaceholderIcon,
-                originalItem = leftHandItem
+                name = rightHandItem.itemName,
+                category = rightHandItem.itemType.ToString(),
+                weight = rightHandItem.weight,
+                icon = rightHandItem.icon != null ? rightHandItem.icon : defaultPlaceholderIcon,
+                originalItem = rightHandItem
             };
             SetSlotData(qSlotsList[index], handData);
         }
@@ -1798,7 +1798,6 @@ public void SendItemList(List<Item> items)
             ClearSlot(qSlotsList[index]);
         }
 
-        // 3. Przygotuj dane dla ręki (idzie tam to, co było w slocie)
         if (slotItem != null)
         {
             ItemData slotData = new ItemData
@@ -1809,13 +1808,13 @@ public void SendItemList(List<Item> items)
                 icon = slotItem.icon != null ? slotItem.icon : defaultPlaceholderIcon,
                 originalItem = slotItem
             };
-            SetSlotData(LHand, slotData);
-            DisplayItem3D.Instance.DisplayItem(slotData.originalItem, DisplayItem3D.Hand.left);
+            SetSlotData(RHand, slotData);
+            DisplayItem3D.Instance.DisplayItem(slotData.originalItem, DisplayItem3D.Hand.right);
         }
         else 
         {
-            DisplayItem3D.Instance.DisplayItem(null, DisplayItem3D.Hand.left);
-            ClearSlot(LHand);
+            DisplayItem3D.Instance.DisplayItem(null, DisplayItem3D.Hand.right);
+            ClearSlot(RHand);
         }
 
         weightRefresh();

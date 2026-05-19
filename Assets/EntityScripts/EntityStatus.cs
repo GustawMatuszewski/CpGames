@@ -583,6 +583,58 @@ public class EntityStatus : MonoBehaviour
         EffectEffects();
     }
 
+    /// <summary>
+    /// Regeneruje statystyki po śnie. Wywoływana przez SleepManager
+    /// już na czarnym ekranie.
+    /// </summary>
+    /// <param name="hoursSlept">Liczba godzin snu przekazana z Bed.</param>
+    public void RegenerateStatsFromSleep(int hoursSlept)
+    {
+        // ── Zmęczenie: pełny reset ────────────────────────────────────
+        entityTiredness = 0f;
+    
+        // ── Głód i pragnienie: upływ czasu podczas snu ────────────────
+        // NAPRAWA MATEMATYKI:
+        // W EnvironmentManager: currentTime += Time.deltaTime * timeSpeed;
+        // Więc 'hoursSlept' godzin w grze to (hoursSlept / timeSpeed) sekund w realu.
+        float timeSpeedSafe = (environmentManager != null && environmentManager.timeSpeed > 0f)
+            ? environmentManager.timeSpeed
+            : 1f;
+    
+        float realSecondsSlept = hoursSlept / timeSpeedSafe;
+    
+        // MNOŻNIK METABOLIZMU W TRAKCIE SNU:
+        // 0.3f oznacza, że podczas snu głód i pragnienie spadają na 30% normalnego tempa.
+        // Jeśli nadal będzie spadać za mocno/za słabo, po prostu zmień tę wartość na np. 0.1f.
+        float sleepMetabolismMultiplier = 0.3f;
+    
+        float hungerLost = hungerDecayRate * realSecondsSlept * sleepMetabolismMultiplier;
+        float thirstLost = thirstDecayRate * realSecondsSlept * sleepMetabolismMultiplier * 1.5f; // pragnienie spada szybciej (oddychanie, pocenie)
+    
+        entityHunger = Mathf.Clamp(entityHunger - hungerLost, 0f, entityMaxHunger);
+        entityThirst = Mathf.Clamp(entityThirst - thirstLost, 0f, entityMaxThirst);
+    
+        // ── Stamina: pełna regeneracja ────────────────────────────────
+        entityStamina = entityMaxStamina;
+
+        // ── Psychika (Mental Health / Sanity) ─────────────────────────
+        // Sen odnawia psychikę. Np. 5 punktów za każdą przespaną godzinę.
+        float sanityBonus = hoursSlept * 5f;
+        mentalHealth = Mathf.Clamp(mentalHealth + sanityBonus, 0f, 100f);
+        entitySanity = mentalHealth; // Synchronizacja zmiennej (masz dwie odpowiadające za to samo w kodzie)
+    
+        // ── Health: mały bonus regeneracyjny (np. 2 HP/godz. snu) ─────
+        float healthBonus = hoursSlept * 2f;
+        entityHealth = Mathf.Clamp(entityHealth + healthBonus, 0f, entityMaxHealth);
+    
+        // ── Wyślij aktualne statystyki do UI ─────────────────────────
+        SendStatsToUI();
+    
+        Debug.Log($"[EntityStatus] Sen ({hoursSlept}h): tiredness=0, " +
+                  $"hunger-={hungerLost:F1}, thirst-={thirstLost:F1}, " +
+                  $"sanity+{sanityBonus:F1}, health+{healthBonus:F1}");
+    }
+
     public void LimbTracker()
     {
         for (int i = 0; i < limbs.Count; i++)
