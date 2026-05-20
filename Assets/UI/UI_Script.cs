@@ -369,16 +369,17 @@ public class UI_Script : MonoBehaviour
         if (data == null || data.originalItem == null) return;
         if (data.originalItem is FoodItem food)
         {
-            Debug.Log($"Kliknięto jedzenie: {food.itemName}. Stan: {food.foodState}");
+            UI_Logs.Warning($"Kliknięto jedzenie: {food.itemName}. Stan: {food.foodState}");
             food.Use(data.originalItem, playerInventory);
-            RemoveItem(data.name);
+            DropItem(data.originalItem,playerInventory);
+           
            
             return;
 
         }
         if (playerInventory == null)
-        {
-            Debug.LogWarning("[UI] playerInventory not assigned on UI_Script!");
+        { 
+            UI_Logs.Warning("[UI] playerInventory not assigned on UI_Script!");
             return;
         }
 
@@ -388,9 +389,13 @@ public class UI_Script : MonoBehaviour
             Debug.LogWarning($"[UI] Could not find {data.originalItem.itemName} in inventory.");
             return;
         }
-        RemoveItem(data.name);
-        HideInventory();
-        data.originalItem.Use(instance, playerInventory);
+
+        if (data.originalItem is BuildingItem item)
+        {
+            RemoveItem(data.originalItem.itemName);
+            HideInventory();
+            data.originalItem.Use(instance, playerInventory);
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -1950,8 +1955,31 @@ public void SendItemList(List<Item> items)
         VisualElement optionWindow = root.Q<VisualElement>("OptionWindow");
         Label nameLabel = optionWindow.Q<Label>("nameLabel");
         Button Drop = optionWindow.Q<Button>("Drop");
- 
+        Button buildButton = optionWindow.Q<Button>("Build");
+      
+    
         ItemData data = RightClicked.userData as ItemData;
+        if(data.originalItem.itemName=="Notebook")
+            return;
+        if (data.originalItem is BuildingItem or FoodItem)
+        {
+            
+            buildButton.style.display = DisplayStyle.Flex;
+            if (data.originalItem is FoodItem foodItem)
+            {
+                buildButton.text = "Eat";
+            }
+
+            if (data.originalItem is BuildingItem buildingItem)
+            {
+                buildButton.text = "Build";
+            }
+        }
+        else
+        {
+            buildButton.style.display = DisplayStyle.None;
+        }
+        
         Drop.clickable = new Clickable(() => {
             ItemData data = RightClicked.userData as ItemData;
             DropItem(data.originalItem, playerInventory, 1);
