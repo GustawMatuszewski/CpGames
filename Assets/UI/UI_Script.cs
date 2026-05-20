@@ -1927,6 +1927,26 @@ public void SendItemList(List<Item> items)
         buildButton.style.height = 40;
         buildButton.style.backgroundColor = (UnityColor)new Color32(35, 32, 29, 255);
         optionWindow.Add(buildButton);
+        
+        Button ToHandButton = new Button();
+        ToHandButton.text = "Take to Hand";
+        ToHandButton.name = "TaketoHand";
+        ToHandButton.clickable.clicked += () =>
+        {
+            Item currentItem = GetItemRightHand();
+            ItemData clicked = RightClicked.userData as ItemData;
+            RemoveItem(clicked.originalItem.itemName);
+            SetSlotData(RHand, clicked);
+            if(currentItem != null)
+                addItem(currentItem.itemName, currentItem.itemType.ToString(),1,currentItem.weight,currentItem.icon,currentItem);
+            optionWindow.style.display = DisplayStyle.None;
+
+        };
+       
+        ToHandButton.style.width = Length.Percent(100);
+        ToHandButton.style.height = 40;
+        ToHandButton.style.backgroundColor = (UnityColor)new Color32(30, 32, 29, 255);
+        optionWindow.Add(ToHandButton);
         Button dropButton = new Button();
         dropButton.text = "Drop";
         dropButton.name = "Drop";
@@ -1970,7 +1990,7 @@ public void SendItemList(List<Item> items)
                 buildButton.text = "Eat";
             }
 
-            if (data.originalItem is BuildingItem buildingItem)
+            else if (data.originalItem is BuildingItem buildingItem)
             {
                 buildButton.text = "Build";
             }
