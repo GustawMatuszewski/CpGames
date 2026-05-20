@@ -23,6 +23,7 @@ public class Build : MonoBehaviour {
     [Header("Placement")]
     public bool canBuild = true;
     public float placeDistance = 5f;
+    public float placeDistanceLerpSpeed = 8f;
     public LayerMask buildMask;
     public LayerMask groundMask;
     [Header("Snapping")]
@@ -41,6 +42,7 @@ public class Build : MonoBehaviour {
     bool isGrounded;
     GameObject currentSnappedObject;
     Quaternion targetRotation;
+    float currentPlaceDistance;
     void Awake() => SpawnGhost();
     void Update() {
         MoveGhost();
@@ -100,27 +102,29 @@ public class Build : MonoBehaviour {
     void MoveGhost() {
         if (ghost == null || ghostConstruction == null || ghostCollider == null) return;
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        Vector3 targetPosition = lastLookPosition;
+        Vector3 targetPosition;
         bool hasHit = false;
         Vector3 hitNormal = Vector3.up;
         if (Physics.Raycast(ray, out RaycastHit hit, placeDistance, buildMask | groundMask)) {
             lastLookPosition = hit.point;
-            targetPosition = hit.point;
             hitNormal = hit.normal;
             hasHit = true;
+            float hitDist = Vector3.Distance(playerCamera.transform.position, hit.point);
+            currentPlaceDistance = Mathf.Lerp(currentPlaceDistance, hitDist, Time.deltaTime * placeDistanceLerpSpeed);
         } else {
-            targetPosition = playerCamera.transform.position + playerCamera.transform.forward * placeDistance;
+            currentPlaceDistance = Mathf.Lerp(currentPlaceDistance, placeDistance, Time.deltaTime * placeDistanceLerpSpeed);
         }
         if (hasHit) {
-            Vector3 extents = Vector3.Scale(ghostCollider.size, ghost.transform.localScale) * 0.5f;
-            Vector3 absNormal = new Vector3(Mathf.Abs(hitNormal.x), Mathf.Abs(hitNormal.y), Mathf.Abs(hitNormal.z));
-            float offsetDist = toPlace.placementOffset; //THIS OFFSET NEEDS TO BE MANAGED BY CONSTRUCTION HEGIHT
+            float offsetDist = toPlace.placementOffset;
             targetPosition = lastLookPosition + (hitNormal * offsetDist);
+        } else {
+            targetPosition = playerCamera.transform.position + playerCamera.transform.forward * currentPlaceDistance;
         }
         ghost.transform.position = targetPosition;
         hits.Clear();
         List<GameObject> foundConnectors = new List<GameObject>();
-        Collider[] overlaps = Physics.OverlapSphere(ghost.transform.position, snapDistance + 1f, buildMask);
+        Vector3 searchOrigin = hasHit ? lastLookPosition : (playerCamera.transform.position + playerCamera.transform.forward * currentPlaceDistance);
+        Collider[] overlaps = Physics.OverlapSphere(searchOrigin, snapDistance + 1f, buildMask);
         foreach (Collider c in overlaps) {
             if (c.transform.root == ghost.transform.root) continue;
             Construction hitConstruction = c.transform.root.GetComponent<Construction>();
@@ -131,18 +135,27 @@ public class Build : MonoBehaviour {
                 }
             }
         }
+        // Find target connector nearest to where we're looking
         GameObject bestGhostConn = null;
         GameObject bestTargetConn = null;
-        float bestDist = snapDistance;
+        float bestTargetDist = snapDistance + 1f;
         currentSnappedObject = null;
-        foreach (GameObject gConn in ghostConnectors) {
-            foreach (GameObject tConn in foundConnectors) {
-                float d = Vector3.Distance(gConn.transform.position, tConn.transform.position);
-                if (!hits.Contains(tConn)) hits.Add(tConn);
-                if (d < bestDist) {
-                    bestDist = d;
+        foreach (GameObject tConn in foundConnectors) {
+            if (!hits.Contains(tConn)) hits.Add(tConn);
+            float d = Vector3.Distance(tConn.transform.position, searchOrigin);
+            if (d < bestTargetDist) {
+                bestTargetDist = d;
+                bestTargetConn = tConn;
+            }
+        }
+        // Find ghost connector nearest to the best target connector
+        if (bestTargetConn != null) {
+            float bestGhostDist = float.MaxValue;
+            foreach (GameObject gConn in ghostConnectors) {
+                float d = Vector3.Distance(gConn.transform.position, bestTargetConn.transform.position);
+                if (d < bestGhostDist) {
+                    bestGhostDist = d;
                     bestGhostConn = gConn;
-                    bestTargetConn = tConn;
                 }
             }
         }
@@ -255,6 +268,7 @@ public class Build : MonoBehaviour {
             foreach (GameObject c in ghostConstruction.connectors) ghostConnectors.Add(c);
         SetLayer(ghost, noRaycastLayer);
         targetRotation = Quaternion.identity;
+        currentPlaceDistance = placeDistance;
         UpdateGhostMaterial();
     }
 }
