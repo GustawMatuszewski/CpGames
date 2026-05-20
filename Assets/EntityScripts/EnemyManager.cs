@@ -19,15 +19,29 @@ public class EnemyManager : MonoBehaviour
     // and any other system that needs to iterate enemies without modifying the list.
     public IReadOnlyList<EnemyEntity> AllEnemies => allEnemies;
 
+    // ZMIANA: Kwadrat promienia grupowania – obliczany raz przy starcie,
+    // eliminuje pierwiastkowanie w RegroupEnemies() (O(n²) par wrogów).
+    private float _groupRadiusSq;
+
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+
+        // Prekalkulacja kwadratu – robiona raz, używana w każdej iteracji grupowania.
+        _groupRadiusSq = groupRadius * groupRadius;
     }
 
     void Start()
     {
         StartCoroutine(RegroupLoop());
+    }
+
+    // NOWE: Jeśli groupRadius zmieni się w runtime (np. przez skrypt lub Inspector),
+    // zaktualizuj też kwadrat.
+    void OnValidate()
+    {
+        _groupRadiusSq = groupRadius * groupRadius;
     }
 
     public void RegisterEnemy(EnemyEntity enemy)
@@ -71,8 +85,12 @@ public class EnemyManager : MonoBehaviour
             for (int j = i + 1; j < allEnemies.Count; j++)
             {
                 if (allEnemies[j] == null || assigned[j]) continue;
-                float dist = Vector3.Distance(leader.transform.position, allEnemies[j].transform.position);
-                if (dist > groupRadius) continue;
+
+                // ZMIANA: sqrMagnitude zamiast Vector3.Distance – eliminuje sqrt
+                // przy każdej parze wrogów w pętli O(n²).
+                float distSq = (leader.transform.position - allEnemies[j].transform.position).sqrMagnitude;
+                if (distSq > _groupRadiusSq) continue;
+
                 allEnemies[j].isGroupLeader = false;
                 allEnemies[j].groupLeader   = leader;
                 assigned[j]                 = true;
