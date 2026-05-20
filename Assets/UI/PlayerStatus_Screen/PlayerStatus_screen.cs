@@ -82,6 +82,23 @@ public class PlayerStatus_screen : MonoBehaviour
         }
     }
 
+ 
+    public void PauseHide(bool toggle)
+    {
+        if (!toggle)
+        {
+            statusContainer.style.display = DisplayStyle.Flex;
+            statusContainer.pickingMode = PickingMode.Position; 
+        }
+        else
+        {
+            statusContainer.style.display = DisplayStyle.None;
+            statusContainer.pickingMode = PickingMode.Ignore;
+        }
+
+        toggle = !toggle;
+    }
+
     public void DisplayPlayerStatusOnScreen(DisplayItem3D.Hand hand, bool active)
     {
         if (statusContainer == null)

@@ -67,7 +67,7 @@ public class UI_GameOver : MonoBehaviour
 
     public void GameOver()
     {
-
+        PlayerStatus_screen.instance.PauseHide(true);
         root.style.display = DisplayStyle.Flex;
         DisablePlayerControls();
         Time.timeScale = 0f;
