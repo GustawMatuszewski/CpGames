@@ -85,7 +85,7 @@ public class PlayerStatus_screen : MonoBehaviour
  
     public void PauseHide(bool toggle)
     {
-        if (!toggle)
+        if (!toggle && helper)
         {
             statusContainer.style.display = DisplayStyle.Flex;
             statusContainer.pickingMode = PickingMode.Position; 
@@ -99,6 +99,7 @@ public class PlayerStatus_screen : MonoBehaviour
         toggle = !toggle;
     }
 
+    private bool helper;
     public void DisplayPlayerStatusOnScreen(DisplayItem3D.Hand hand, bool active)
     {
         if (statusContainer == null)
@@ -127,7 +128,9 @@ public class PlayerStatus_screen : MonoBehaviour
         {
             statusContainer.style.display = DisplayStyle.Flex;
             UI_doc.sortingOrder = 10; 
-            statusContainer.pickingMode = PickingMode.Position; 
+            statusContainer.pickingMode = PickingMode.Position;
+            helper = true;
+
         }
         else
         {
@@ -135,6 +138,7 @@ public class PlayerStatus_screen : MonoBehaviour
             ///UI_Logs.Log("Psuje UI");
             UI_doc.sortingOrder = -10; 
             statusContainer.pickingMode = PickingMode.Ignore;
+            helper = false;
         }
     }
 }

@@ -923,6 +923,7 @@ public void SendItemList(List<Item> items)
         var Crafting = root.Q<VisualElement>("Crafting");
         Crafting.style.display = DisplayStyle.Flex;
         crafintgIsOpen = true;
+       
     }
 
     public void toggleCrafting()
@@ -980,6 +981,7 @@ public void SendItemList(List<Item> items)
         inventoryIsOpen = false;
         HideOptionWindow();
         HideChest();
+        PlayerStatus_screen.instance.PauseHide(false);
     }
 
     public void ShowInventory()
@@ -1001,6 +1003,7 @@ public void SendItemList(List<Item> items)
        // foreach (Item recipeItem in UIRecipes) 
            // AddUnique(recipeItem);
         inventoryIsOpen = true;
+        PlayerStatus_screen.instance.PauseHide(true);
     }
     public void ShowChest()
     {
