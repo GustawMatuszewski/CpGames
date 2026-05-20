@@ -484,6 +484,9 @@ MonoBehaviour:
   maxPatrolInterval: 10
   investigateTime: 3
   aiUpdateInterval: 0.15
+  throttleDistance: 35
+  cullDistance: 70
+  throttleMultiplier: 3
   enemyState: 7
   windowTraversalSpeed: 2.5
   windowVaultAnimation: WindowVault
@@ -604,7 +607,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2701a4885403c5a390bf1af237eaffd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
+  debugMode: 1
   animator: {fileID: 4322998576290659199}
   ownerHitboxes:
   - name: LeftFoot
@@ -729,8 +732,8 @@ MonoBehaviour:
   hitboxTag: Hitbox
   attackTemplates:
   - {fileID: 11400000, guid: b1a95aa1505eba60288cb8946c533515, type: 2}
-  combatActive: 0
-  canAttack: 0
+  combatActive: 1
+  canAttack: 1
   singleShot: 1
   attackInput: {fileID: 0}
   currentAttack: {fileID: 11400000, guid: b1a95aa1505eba60288cb8946c533515, type: 2}

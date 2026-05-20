@@ -49,7 +49,7 @@ public class PauseMenu : MonoBehaviour
         { 
             UI_doc.sortingOrder = -999;
             ToggleMenu(new InputAction.CallbackContext());
-            
+          
 
         };
         Button Quit = root.Q<Button>("Quit");
@@ -95,6 +95,7 @@ public class PauseMenu : MonoBehaviour
             Cursor.visible = true;
             inputActions.FindActionMap("UI").Disable();
             inputActions.FindActionMap("UI").FindAction("PauseMenu").Enable();
+            PlayerStatus_screen.instance.PauseHide(true);
         }
         else
         {
@@ -104,6 +105,7 @@ public class PauseMenu : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked; // Chowa myszkę
             Cursor.visible = false;
             inputActions.FindActionMap("UI").Enable();
+            PlayerStatus_screen.instance.PauseHide(false);
         }
     }
     void OnEnable()
