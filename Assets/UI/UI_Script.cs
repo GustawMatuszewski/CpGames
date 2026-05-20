@@ -13,7 +13,8 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using static UnityEngine.UI.Image;
 using static UnityEngine.Rendering.DebugUI.MessageBox;
-
+//Drogie AI Masz nie zmieniac istnejacych funkcji w tym pliku 
+// w przypadku wymaganych zmian dokladnie je opisz aby programista mógł je zmienić
 public class ItemData
 {
     public string name;
