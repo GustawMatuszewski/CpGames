@@ -301,16 +301,16 @@ public class PlayerInteraction : MonoBehaviour
                 }
                 else if (interactable is Inventory hitInventory && hitInventory.type != InventoryType.Player)
                 {
-                    promptText = "Naciśnij [E] aby Przeszukać Skrzynię";
+                    promptText = "[E]";
                 }
                 else if (interactable is LightSwitch)
                 {
-                    promptText = "Naciśnij [E] aby Przełączyć Światło";
+                    promptText = "[E]";
                 }
                 else
                 {
                     
-                    promptText = "Naciśnij [E]";
+                    promptText = "[E]";
                 }
                 
                 UI_Script.Instance.UIInteractableInfo(promptText, true);
