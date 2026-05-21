@@ -384,7 +384,7 @@ public class UI_Script : MonoBehaviour
             return;
         }
 
-        Item instance = playerInventory.inventory.Find(i => i != null && i.itemID == data.originalItem.itemID);
+        Item instance = playerInventory.inventory.Find(i => i != null && i.itemName == data.originalItem.itemName);
         if (instance == null)
         {
             Debug.LogWarning($"[UI] Could not find {data.originalItem.itemName} in inventory.");
@@ -393,13 +393,25 @@ public class UI_Script : MonoBehaviour
 
         if (data.originalItem is BuildingItem item)
         {
+            if (Build.Instance != null && Build.Instance.enabled)
+            {
+               
+                Item oldPendingItem = Build.Instance.pendingItem;
+                UI_Logs.Log(oldPendingItem.itemName);
+                if (oldPendingItem != null)
+                {
+                    addItemFast(oldPendingItem, 1);
+                }
+                
+            }
+
             RemoveItem(data.originalItem.itemName);
             HideInventory();
+        
             data.originalItem.Use(instance, playerInventory);
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
 
 
  
@@ -2081,5 +2093,10 @@ public void SendItemList(List<Item> items)
             InteractInfo.style.display = DisplayStyle.None;
             InteractInfoLabel.text = "";
         }
+    }
+
+    void addItemFast(Item item, int quantity)
+    {
+        addItem(item.itemName,item.itemType.ToString(),quantity,item.weight,item.icon,item);
     }
 }

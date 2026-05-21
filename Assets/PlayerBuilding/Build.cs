@@ -72,8 +72,10 @@ public class Build : MonoBehaviour {
         if (interactVal <= 0) canBuild = true;
     }
     void PlaceConstruction() {
+        
         Instantiate(toPlace.gameObject, ghost.transform.position, ghost.transform.rotation);
         if (pendingInventory != null && pendingItem != null) {
+            Debug.Log(pendingItem.itemName+"Build Item");
             int index = -1;
             for (int i = 0; i < pendingInventory.inventory.Count; i++) {
                 if (pendingInventory.inventory[i] != null && pendingInventory.inventory[i].itemID == pendingItem.itemID) {
@@ -277,4 +279,5 @@ public class Build : MonoBehaviour {
         currentPlaceDistance = placeDistance;
         UpdateGhostMaterial();
     }
+    
 }
