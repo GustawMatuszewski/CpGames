@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 669125516857181619}
   - component: {fileID: -7135815207289594134}
   - component: {fileID: -3770427991900639583}
+  - component: {fileID: -3179305018777067877}
   m_Layer: 3
   m_Name: Bed 4
   m_TagString: Untagged
@@ -135,3 +136,18 @@ MonoBehaviour:
   ghostMaterial: {fileID: 0}
   snapPoints: []
   lookAtPoint: {fileID: 0}
+--- !u!114 &-3179305018777067877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1728233260602128700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2a1711dbb3e051f68cf96ed6a8f6f19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Bed
+  hoursToSleep: 8
+  interactionPositions: []
+  lookAtTarget: {fileID: 0}
