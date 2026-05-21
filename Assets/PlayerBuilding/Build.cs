@@ -43,7 +43,13 @@ public class Build : MonoBehaviour {
     GameObject currentSnappedObject;
     Quaternion targetRotation;
     float currentPlaceDistance;
-    void Awake() => SpawnGhost();
+    public static Build Instance;
+    void Awake()
+    {
+        Instance = this;
+        SpawnGhost();
+    }
+
     void Update() {
         MoveGhost();
         float interactVal = player.input.PlayerInputMap.InteractInput.ReadValue<float>();

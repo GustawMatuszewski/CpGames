@@ -93,6 +93,11 @@ public class PlayerInteraction : MonoBehaviour
 
     void OnInteractPerformed(InputAction.CallbackContext context)
     {
+        if (Build.Instance != null && Build.Instance.enabled)
+        {
+           
+            return; 
+        }
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (!Physics.Raycast(ray, out RaycastHit hit, interactionDistance)) return;
 
@@ -309,9 +314,15 @@ public class PlayerInteraction : MonoBehaviour
 
     void CheckForInteractablePrompt()
 {
+    if (Build.Instance != null && Build.Instance.enabled)
+    {
+        UI_Script.Instance.UIInteractableInfo("[E]\n<size=20>Build</size>", true);
+        return; 
+    }
     Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
     if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
     {
+        
         IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
 
         if (interactable != null)
