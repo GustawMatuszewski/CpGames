@@ -22,12 +22,19 @@ snapPoints != null && snapPoints.Count > 0
 : new List<Transform> { transform };
 public Transform LookAtTarget => lookAtPoint != null ? lookAtPoint : transform;
 List<Collider> ownColliders = new List<Collider>();
+
 public void OnInteract()
     {
     }
-public void RestoreColliders()
+    public void RestoreColliders()
     {
-foreach (Collider c in ownColliders)
-if (c != null) c.enabled = true;
+         foreach (Collider c in ownColliders)
+             if (c != null) c.enabled = true;
+    }
+
+    public void ActionDeconstruct()
+    {
+        
+        Destroy(gameObject);
     }
 }

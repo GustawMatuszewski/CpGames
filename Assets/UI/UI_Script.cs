@@ -384,7 +384,7 @@ public class UI_Script : MonoBehaviour
             return;
         }
 
-        Item instance = playerInventory.inventory.Find(i => i != null && i.itemID == data.originalItem.itemID);
+        Item instance = playerInventory.inventory.Find(i => i != null && i.itemName == data.originalItem.itemName);
         if (instance == null)
         {
             Debug.LogWarning($"[UI] Could not find {data.originalItem.itemName} in inventory.");
@@ -393,13 +393,25 @@ public class UI_Script : MonoBehaviour
 
         if (data.originalItem is BuildingItem item)
         {
+            if (Build.Instance != null && Build.Instance.enabled)
+            {
+               
+                Item oldPendingItem = Build.Instance.pendingItem;
+                UI_Logs.Log(oldPendingItem.itemName);
+                if (oldPendingItem != null)
+                {
+                    addItemFast(oldPendingItem, 1);
+                }
+                
+            }
+
             RemoveItem(data.originalItem.itemName);
             HideInventory();
+        
             data.originalItem.Use(instance, playerInventory);
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
 
 
  
@@ -923,6 +935,7 @@ public void SendItemList(List<Item> items)
         var Crafting = root.Q<VisualElement>("Crafting");
         Crafting.style.display = DisplayStyle.Flex;
         crafintgIsOpen = true;
+       
     }
 
     public void toggleCrafting()
@@ -980,6 +993,7 @@ public void SendItemList(List<Item> items)
         inventoryIsOpen = false;
         HideOptionWindow();
         HideChest();
+        PlayerStatus_screen.instance.PauseHide(false);
     }
 
     public void ShowInventory()
@@ -1001,6 +1015,7 @@ public void SendItemList(List<Item> items)
        // foreach (Item recipeItem in UIRecipes) 
            // AddUnique(recipeItem);
         inventoryIsOpen = true;
+        PlayerStatus_screen.instance.PauseHide(true);
     }
     public void ShowChest()
     {
@@ -1980,7 +1995,7 @@ public void SendItemList(List<Item> items)
       
     
         ItemData data = RightClicked.userData as ItemData;
-        if(data.originalItem.itemName=="Notebook")
+        if(data.originalItem.itemName=="Notebook" || data.originalItem.itemName=="Hammer" )
             return;
         if (data.originalItem is BuildingItem or FoodItem)
         {
@@ -2078,5 +2093,10 @@ public void SendItemList(List<Item> items)
             InteractInfo.style.display = DisplayStyle.None;
             InteractInfoLabel.text = "";
         }
+    }
+
+    void addItemFast(Item item, int quantity)
+    {
+        addItem(item.itemName,item.itemType.ToString(),quantity,item.weight,item.icon,item);
     }
 }

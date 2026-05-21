@@ -28,7 +28,7 @@ public class Door : MonoBehaviour, IInteractable
     //   Doors:   Closed ↔ Open ↔ Locked
     //   Windows: Closed ↔ Open → Broken  (one-way break)
     public enum OpenableState  { Closed, Open, Locked, Broken }
-    public enum DoorActionType { Opening, Closing, Locking, Unlocking, OpeningForce, Breaking, Climbing }
+    public enum DoorActionType { Opening, Closing, Locking, Unlocking, OpeningForce, Breaking, Climbing,Deconstructing }
 
     public OpenableState state = OpenableState.Closed;
 
@@ -118,15 +118,15 @@ public class Door : MonoBehaviour, IInteractable
         switch (state)
         {
             case OpenableState.Closed:
-                actions.Add(new DoorAction { label = "Otwórz",           enabled = true, execute = ActionOpen,      type = DoorActionType.Opening      });
-                actions.Add(new DoorAction { label = "Zamknij na klucz", enabled = true, execute = ActionLock,      type = DoorActionType.Locking      });
+                actions.Add(new DoorAction { label = "Open",           enabled = true, execute = ActionOpen,      type = DoorActionType.Opening      });
+                actions.Add(new DoorAction { label = "Close on Key", enabled = true, execute = ActionLock,      type = DoorActionType.Locking      });
                 break;
             case OpenableState.Open:
-                actions.Add(new DoorAction { label = "Zamknij",          enabled = true, execute = ActionClose,     type = DoorActionType.Closing      });
+                actions.Add(new DoorAction { label = "Close",          enabled = true, execute = ActionClose,     type = DoorActionType.Closing      });
                 break;
             case OpenableState.Locked:
-                actions.Add(new DoorAction { label = "Odblokuj",         enabled = true, execute = ActionUnlock,    type = DoorActionType.Unlocking    });
-                actions.Add(new DoorAction { label = "Otwórz (wyważ)",   enabled = true, execute = ActionBreakOpen, type = DoorActionType.OpeningForce, duration = 3f });
+                actions.Add(new DoorAction { label = "Unlock",         enabled = true, execute = ActionUnlock,    type = DoorActionType.Unlocking    });
+                actions.Add(new DoorAction { label = "Open (Force)",   enabled = true, execute = ActionBreakOpen, type = DoorActionType.OpeningForce, duration = 3f });
                 break;
         }
         return actions;
@@ -138,15 +138,15 @@ public class Door : MonoBehaviour, IInteractable
         switch (state)
         {
             case OpenableState.Closed:
-                actions.Add(new DoorAction { label = "Otwórz okno",       enabled = true, execute = ActionOpen,  type = DoorActionType.Opening  });
-                actions.Add(new DoorAction { label = "Wybij szybę",        enabled = true, execute = ActionBreak, type = DoorActionType.Breaking });
+                actions.Add(new DoorAction { label = "Open window",       enabled = true, execute = ActionOpen,  type = DoorActionType.Opening  });
+                actions.Add(new DoorAction { label = "break window",        enabled = true, execute = ActionBreak, type = DoorActionType.Breaking });
                 break;
             case OpenableState.Open:
-                actions.Add(new DoorAction { label = "Zamknij okno",       enabled = true, execute = ActionClose, type = DoorActionType.Closing  });
-                actions.Add(new DoorAction { label = "Wybij szybę",        enabled = true, execute = ActionBreak, type = DoorActionType.Breaking });
+                actions.Add(new DoorAction { label = "close window",       enabled = true, execute = ActionClose, type = DoorActionType.Closing  });
+                actions.Add(new DoorAction { label = "break window",        enabled = true, execute = ActionBreak, type = DoorActionType.Breaking });
                 break;
             case OpenableState.Broken:
-                actions.Add(new DoorAction { label = "Przeleź przez okno", enabled = true, execute = ActionClimb, type = DoorActionType.Climbing });
+                actions.Add(new DoorAction { label = "Slip through the window", enabled = true, execute = ActionClimb, type = DoorActionType.Climbing });
                 break;
         }
         return actions;
@@ -252,7 +252,14 @@ public class Door : MonoBehaviour, IInteractable
         transform.localRotation = target;
         _isAnimating = false;
     }
+ 
+
+
+    
+    
+    
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  DoorAction — unchanged, UI branch compiles as-is
