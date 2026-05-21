@@ -63,7 +63,7 @@ GameObject:
   m_Component:
   - component: {fileID: 398556145732032375}
   - component: {fileID: 926361824604403990}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (15)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116,7 +116,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6661899058787853150}
   - component: {fileID: 596295124409264501}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (11)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -169,7 +169,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8532362700192460791}
   - component: {fileID: 6419098738757720891}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (11)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -471,7 +471,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2242363742328643779}
   - component: {fileID: 4217803117376291453}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -845,7 +845,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2497036127315901265}
   - component: {fileID: 6109229759437660345}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -898,7 +898,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4939973149540472064}
   - component: {fileID: 8259960521523548096}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (13)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1591,7 +1591,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4206644123318656793}
   - component: {fileID: 7216106959074470234}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (11)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2200,7 +2200,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7058222391208598192}
   - component: {fileID: 6675798365148796326}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2253,7 +2253,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1312340648532462920}
   - component: {fileID: 8938419804839889071}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2390,7 +2390,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7304841718637732131}
   - component: {fileID: 5547469364211766832}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (13)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2496,7 +2496,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5367818798379229726}
   - component: {fileID: 8193476420230804484}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2767,7 +2767,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6610470647226695416}
   - component: {fileID: 303599160143285530}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (21)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2947,7 +2947,7 @@ Transform:
   m_GameObject: {fileID: 2307939327834263332}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 276.4125, y: -28, z: 254.88}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3003,6 +3003,7 @@ Transform:
   - {fileID: 85294341858090049}
   - {fileID: 3095778530915293605}
   - {fileID: 5363371113570874124}
+  - {fileID: 8044774921681170293}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2314214347790776311
@@ -3015,7 +3016,7 @@ GameObject:
   m_Component:
   - component: {fileID: 514170114888012146}
   - component: {fileID: 123925405080750960}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (17)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3068,7 +3069,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8677785728190710614}
   - component: {fileID: 7374775976998006050}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (10)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4621,7 +4622,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6776818476195841400}
   - component: {fileID: 1232668056960811734}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (10)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6017,7 +6018,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7716676721490645590}
   - component: {fileID: 6662798983228165686}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (20)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6070,7 +6071,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8721908632157875333}
   - component: {fileID: 730774411072697487}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6156,7 +6157,7 @@ GameObject:
   - component: {fileID: 2488205267414148083}
   - component: {fileID: 1470934113596871496}
   - component: {fileID: 7918593952691355402}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: PlasterWallCorner(Clone)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6250,7 +6251,7 @@ GameObject:
   m_Component:
   - component: {fileID: 654325897812878837}
   - component: {fileID: 2614815312609300942}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (12)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6406,7 +6407,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4555649822305707972}
   - component: {fileID: 6049369133570469141}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (10)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7075,7 +7076,7 @@ GameObject:
   - component: {fileID: 6611959532700768355}
   - component: {fileID: 4150615375233234801}
   - component: {fileID: 2933785610336453378}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: PlasterWallCorner(Clone)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7524,7 +7525,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5974547174972496854}
   - component: {fileID: 3934861845381056764}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (14)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7683,7 +7684,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3213808508419320442}
   - component: {fileID: 3997098525341870524}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7895,7 +7896,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1319643706160046011}
   - component: {fileID: 7094154580005061258}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7948,7 +7949,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8795654425846257272}
   - component: {fileID: 8184828658464741131}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (12)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8001,7 +8002,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7306347122620038056}
   - component: {fileID: 5226117561995885801}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (18)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8364,7 +8365,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2818247516223426643}
   - component: {fileID: 289563975990986075}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8582,7 +8583,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5607789190550415381}
   - component: {fileID: 536666655131184430}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9672,7 +9673,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4547931578484829772}
   - component: {fileID: 9096433974064367557}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9954,7 +9955,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8845205292387163970}
   - component: {fileID: 740957837509023548}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (13)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10284,7 +10285,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4484268528893694767}
   - component: {fileID: 5065683304214296487}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (16)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10390,7 +10391,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1104626122442357143}
   - component: {fileID: 8387711454179723292}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (14)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10443,7 +10444,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5725182385627105809}
   - component: {fileID: 9063535471748870413}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (12)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10987,7 +10988,7 @@ GameObject:
   - component: {fileID: 4428634616084662800}
   - component: {fileID: 7246576426355047149}
   - component: {fileID: 3613273857041500211}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: PlasterWallFrame(Clone)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11339,7 +11340,7 @@ GameObject:
   m_Component:
   - component: {fileID: 17700922204299921}
   - component: {fileID: 3965436531596566103}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (11)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11445,7 +11446,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4553098796222002993}
   - component: {fileID: 3305235763221237930}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (13)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11738,7 +11739,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1340830716562674075}
   - component: {fileID: 8437624729441603848}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (10)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11791,7 +11792,7 @@ GameObject:
   m_Component:
   - component: {fileID: 682483686839222882}
   - component: {fileID: 5223185791780918107}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (14)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11844,7 +11845,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8978381274310376522}
   - component: {fileID: 167962009512064455}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (14)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11897,7 +11898,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4948835711554782222}
   - component: {fileID: 329943037751364685}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12056,7 +12057,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8759807346820642848}
   - component: {fileID: 6239505149792464456}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12268,7 +12269,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5141620396349676201}
   - component: {fileID: 8655980016822693772}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (12)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12321,7 +12322,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6928994624193710226}
   - component: {fileID: 6983466669773210104}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (12)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12375,7 +12376,7 @@ GameObject:
   - component: {fileID: 7796556451169516640}
   - component: {fileID: 4526678327680266610}
   - component: {fileID: 6838874015811008047}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: PlasterWallCorner(Clone)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12469,7 +12470,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6138427319007416302}
   - component: {fileID: 5807310742847080118}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (11)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12628,7 +12629,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3788896069763667165}
   - component: {fileID: 5816183129705803536}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13071,7 +13072,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2567844856389890580}
   - component: {fileID: 5780998765546524442}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (10)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13348,7 +13349,7 @@ GameObject:
   m_Component:
   - component: {fileID: 117118447848857445}
   - component: {fileID: 8264830991456663572}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13433,7 +13434,7 @@ GameObject:
   - component: {fileID: 3996620645135683018}
   - component: {fileID: 7932911840500568483}
   - component: {fileID: 6826269214942474735}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: PlasterWallCorner(Clone)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13639,7 +13640,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2571301296875250566}
   - component: {fileID: 3330120350669591490}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (13)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13776,7 +13777,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1364279834812608410}
   - component: {fileID: 4260368430985735303}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Connector (14)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13872,3 +13873,65 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.2, y: 0.2, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1001 &673668439374585736
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 9161744745121000698}
+    m_Modifications:
+    - target: {fileID: 3510861821295003883, guid: 1db3222094ae68441a96179ef9d86e25, type: 3}
+      propertyPath: m_Name
+      value: door 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7421248063275446525, guid: 1db3222094ae68441a96179ef9d86e25, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 3.5071404
+      objectReference: {fileID: 0}
+    - target: {fileID: 7421248063275446525, guid: 1db3222094ae68441a96179ef9d86e25, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 27.892
+      objectReference: {fileID: 0}
+    - target: {fileID: 7421248063275446525, guid: 1db3222094ae68441a96179ef9d86e25, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 72.982
+      objectReference: {fileID: 0}
+    - target: {fileID: 7421248063275446525, guid: 1db3222094ae68441a96179ef9d86e25, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7421248063275446525, guid: 1db3222094ae68441a96179ef9d86e25, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7421248063275446525, guid: 1db3222094ae68441a96179ef9d86e25, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7421248063275446525, guid: 1db3222094ae68441a96179ef9d86e25, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7421248063275446525, guid: 1db3222094ae68441a96179ef9d86e25, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7421248063275446525, guid: 1db3222094ae68441a96179ef9d86e25, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7421248063275446525, guid: 1db3222094ae68441a96179ef9d86e25, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1db3222094ae68441a96179ef9d86e25, type: 3}
+--- !u!4 &8044774921681170293 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7421248063275446525, guid: 1db3222094ae68441a96179ef9d86e25, type: 3}
+  m_PrefabInstance: {fileID: 673668439374585736}
+  m_PrefabAsset: {fileID: 0}

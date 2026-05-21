@@ -127,7 +127,7 @@ public class Build : MonoBehaviour {
         Collider[] overlaps = Physics.OverlapSphere(searchOrigin, snapDistance + 1f, buildMask);
         foreach (Collider c in overlaps) {
             if (c.transform.root == ghost.transform.root) continue;
-            Construction hitConstruction = c.transform.root.GetComponent<Construction>();
+            Construction hitConstruction = c.GetComponentInParent<Construction>(); // FIXED: was c.transform.root.GetComponent<Construction>()
             if (hitConstruction != null) {
                 foreach (GameObject connector in hitConstruction.connectors) {
                     if (connector != null && !foundConnectors.Contains(connector))
