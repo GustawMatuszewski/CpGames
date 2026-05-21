@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 773518987f83ce650876c2337be76d44, type: 3}
+  m_Name: Bed 2
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingItem
+  itemID: 0
+  itemName: 
+  icon: {fileID: 0}
+  description: 
+  useScript: {fileID: 0}
+  craftingRecipe: {fileID: 0}
+  weight: 0
+  durability: 0
+  usesLeft: 0
+  burnCalories: 0
+  itemType: 0
+  materialType: 0
+  itemModel: {fileID: 0}
+  constructionPrefab: {fileID: -6575339911860034136, guid: d1cd2e3167c96b7458d922e4823ec379, type: 3}
