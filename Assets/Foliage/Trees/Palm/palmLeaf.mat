@@ -118,7 +118,7 @@ Material:
     - _DstBlend: 10
     - _DstBlend2: 10
     - _DstBlendAlpha: 0
-    - _EnableBlendModePreserveSpecularLighting: 1
+    - _EnableBlendModePreserveSpecularLighting: 0
     - _EnableFogOnTransparent: 1
     - _EnvironmentReflections: 1
     - _ExcludeFromTUAndAA: 0
@@ -178,7 +178,7 @@ Material:
     - _fadeEnd: 500
     - _fadeStart: 20
     m_Colors:
-    - _Albedo: {r: 0.9339623, g: 0.82900345, b: 0.6123621, a: 1}
+    - _Albedo: {r: 0.10826325, g: 0.9716981, b: 0.022917405, a: 1}
     - _BaseColor: {r: 1, g: 0.7803588, b: 0, a: 1}
     - _Color: {r: 1, g: 0.7803588, b: 0, a: 1}
     - _DoubleSidedConstants: {r: 1, g: 1, b: 1, a: 0}
