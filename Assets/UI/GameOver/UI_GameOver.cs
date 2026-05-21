@@ -180,7 +180,7 @@ private void DisplayAndUpdatePStats()
         playerStatsContainer.style.paddingRight = 40;
 
         // Tytuł okna statystyk
-        Label titleLabel = new Label("ZABÓJSTWA ZOMBIE PER DZIEŃ");
+        Label titleLabel = new Label("Killed Zombies Stats");
         titleLabel.style.color = Color.white;
         titleLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
         titleLabel.style.fontSize = 20;
