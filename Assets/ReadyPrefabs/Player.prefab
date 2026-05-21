@@ -1438,8 +1438,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1082485238595814356}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.000000015482916, y: -0.000000020190377, z: -0.000000005833878, w: 1}
-  m_LocalPosition: {x: 473.80334, y: -221.94786, z: 352.00272}
+  m_LocalRotation: {x: -0.000000017295168, y: 0.3564684, z: 0.22476359, w: -0.9068692}
+  m_LocalPosition: {x: 56.828552, y: -117.85118, z: 188.87714}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3235,11 +3235,14 @@ MonoBehaviour:
   blockedMaterial: {fileID: 0}
   requireGroundEvenWhenSnapped: 0
   blockCheckScale: 0.45
+  ignoreCollisionTags: []
   useContinuousRotation: 0
   continuousRotationSpeed: 2
   snapRotationDegrees: 15
+  rotationLerpSpeed: 10
   canBuild: 1
   placeDistance: 5
+  placeDistanceLerpSpeed: 8
   buildMask:
     serializedVersion: 2
     m_Bits: 8
@@ -3487,8 +3490,8 @@ MonoBehaviour:
   ownerHitboxes:
   - name: LeftFoot
     limbHitbox: {fileID: 6605871740782510567}
-    health: 0
-    damageMultiplier: 0
+    health: 100
+    damageMultiplier: 1
     severeMultiplier: 0
     fractureMultiplier: 0
     limbDamageList: 
@@ -3496,8 +3499,8 @@ MonoBehaviour:
     beatStacks: 0
   - name: RightFoot
     limbHitbox: {fileID: 2604989930815287296}
-    health: 0
-    damageMultiplier: 0
+    health: 100
+    damageMultiplier: 1
     severeMultiplier: 0
     fractureMultiplier: 0
     limbDamageList: 
@@ -3514,8 +3517,8 @@ MonoBehaviour:
     beatStacks: 0
   - name: LeftThigh
     limbHitbox: {fileID: 2243592218410802905}
-    health: 0
-    damageMultiplier: 0
+    health: 100
+    damageMultiplier: 1
     severeMultiplier: 0
     fractureMultiplier: 0
     limbDamageList: 
@@ -3523,8 +3526,8 @@ MonoBehaviour:
     beatStacks: 0
   - name: LeftThigh
     limbHitbox: {fileID: 2243592218410802905}
-    health: 0
-    damageMultiplier: 0
+    health: 100
+    damageMultiplier: 1
     severeMultiplier: 0
     fractureMultiplier: 0
     limbDamageList: 
@@ -3532,8 +3535,8 @@ MonoBehaviour:
     beatStacks: 0
   - name: RightUpperArm
     limbHitbox: {fileID: 2572223873894149041}
-    health: 0
-    damageMultiplier: 0
+    health: 100
+    damageMultiplier: 1
     severeMultiplier: 0
     fractureMultiplier: 0
     limbDamageList: 
@@ -3541,8 +3544,8 @@ MonoBehaviour:
     beatStacks: 0
   - name: RightHand
     limbHitbox: {fileID: 7027004250094990766}
-    health: 0
-    damageMultiplier: 0
+    health: 100
+    damageMultiplier: 1
     severeMultiplier: 0
     fractureMultiplier: 0
     limbDamageList: 
@@ -3550,8 +3553,8 @@ MonoBehaviour:
     beatStacks: 0
   - name: LeftHand
     limbHitbox: {fileID: 3019291115710710522}
-    health: 0
-    damageMultiplier: 0
+    health: 100
+    damageMultiplier: 1
     severeMultiplier: 0
     fractureMultiplier: 0
     limbDamageList: 
@@ -3559,8 +3562,8 @@ MonoBehaviour:
     beatStacks: 0
   - name: Body
     limbHitbox: {fileID: 7975980358092484508}
-    health: 0
-    damageMultiplier: 0
+    health: 100
+    damageMultiplier: 1
     severeMultiplier: 0
     fractureMultiplier: 0
     limbDamageList: 

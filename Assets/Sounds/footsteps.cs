@@ -120,13 +120,17 @@ public class FootstepsRedemption : MonoBehaviour
 
     void UpdateNavMesh()
     {
-        bool isMoving = navAgent.velocity.magnitude > moveThreshold;
+        float speed = navAgent.velocity.magnitude;
+        bool isMoving = speed > moveThreshold;
 
         if (isMoving)
         {
+            // Zakładamy, że prędkość powyżej np. 3.5 to sprint (dostosuj do speedu swojego agenta)
+            float currentRate = (speed > 3.5f) ? sprintStepRate : walkStepRate;
+            
             stepTimer += Time.deltaTime;
 
-            if (stepTimer >= walkStepRate)
+            if (stepTimer >= currentRate)
             {
                 PlayStep();
                 stepTimer = 0f;
@@ -275,7 +279,7 @@ public class FootstepsRedemption : MonoBehaviour
 
         if (data.terrainLayers == null || data.terrainLayers.Length == 0)
         {
-            if (enableDebugLogs) Debug.LogWarning("Terrain nie ma �adnych warstw tekstur!");
+            if (enableDebugLogs) Debug.LogWarning("Terrain nie ma �adnych warstw tekstur!");
             return terrain.gameObject.name;
         }
 

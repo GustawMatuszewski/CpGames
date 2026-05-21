@@ -77531,15 +77531,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8640716519931328059, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.000021517168
+      value: 0.0000070969586
       objectReference: {fileID: 0}
     - target: {fileID: 8640716519931328059, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.000010039808
+      value: 0.00000086177073
       objectReference: {fileID: 0}
     - target: {fileID: 8640716519931328059, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.00001592284
+      value: 0.00000042131438
+      objectReference: {fileID: 0}
+    - target: {fileID: 8640716519931328059, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8640716519931328059, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 2.0791811e-11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8640716519931328059, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.0000000066222268
+      objectReference: {fileID: 0}
+    - target: {fileID: 8640716519931328059, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.0000000038468895
       objectReference: {fileID: 0}
     - target: {fileID: 8727623641905712866, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: dithering
@@ -77629,7 +77645,7 @@ MonoBehaviour:
     clips:
     - {fileID: 8300000, guid: 06d96fe0c05e41d4fa63ec21802da881, type: 3}
   defaultClip: {fileID: 0}
-  landingClip: {fileID: 0}
+  landingClip: {fileID: 8300000, guid: 169705c173192894db0ca788363652d1, type: 3}
   landingVolumeMultiplier: 1.5
   walkStepRate: 0.5
   runStepRate: 0.3

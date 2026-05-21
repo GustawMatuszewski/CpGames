@@ -40,6 +40,13 @@ public class EnemyEntity : BaseEntity
     [Tooltip("Mnożnik interwału w Strefie 2. Wartość 3 = trzykrotnie rzadsze aktualizacje.")]
     public float throttleMultiplier = 3f;
 
+    [Header("Vocalizations (Jęki)")]
+    public AudioClip[] vocalClips;
+    public AudioSource vocalSource; // WAŻNE: Dodaj DRUGI AudioSource do wroga (jeden jest od kroków, drugi od głosu)
+    public float minVocalInterval = 5f;
+    public float maxVocalInterval = 15f;
+    private float vocalTimer;
+
     // Kwadraty odległości – obliczane raz w Start(), eliminują pierwiastkowanie w pętli.
     private float _throttleDistSq;
     private float _cullDistSq;
@@ -127,6 +134,8 @@ public class EnemyEntity : BaseEntity
 
         EnemyManager.Instance?.RegisterEnemy(this);
         StartCoroutine(AIPerceptionLoop());
+        // Dodaj to gdzieś na końcu metody Start()
+        vocalTimer = Random.Range(minVocalInterval, maxVocalInterval);
     }
 
     void OnDestroy()
@@ -271,6 +280,23 @@ public class EnemyEntity : BaseEntity
             if (investigateTimer <= 0f)
                 enemyState = EntityState.Patrol;
         }
+
+        // Wróg uśpiony (Strefa 3) ignoruje Update poza samą detekcją śmierci powyżej.
+        if (_currentZone == AIZone.Culled) return;
+
+        // --- DODANA LOGIKA JĘKÓW ---
+        if (vocalSource != null && vocalClips.Length > 0 && enemyState != EntityState.Attack)
+        {
+            vocalTimer -= Time.deltaTime;
+            if (vocalTimer <= 0f)
+            {
+                vocalSource.clip = vocalClips[Random.Range(0, vocalClips.Length)];
+                vocalSource.pitch = Random.Range(0.9f, 1.1f); // Lekka zmiana tonacji, żeby brzmiało naturalnie
+                vocalSource.Play();
+                vocalTimer = Random.Range(minVocalInterval, maxVocalInterval);
+            }
+        }
+        // ---------------------------
     }
 
     Door FindWindowAtLink(OffMeshLinkData linkData)
@@ -619,10 +645,16 @@ public class EnemyEntity : BaseEntity
 
         foreach (Collider col in cols)
         {
+            // IGNORUJ SWOICH I SAMEGO SIEBIE:
+            BaseEntity sourceEntity = col.GetComponentInParent<BaseEntity>();
+            if (sourceEntity != null && sourceEntity.faction == this.faction) continue;
+
             SoundController sc = col.GetComponent<SoundController>();
             if (sc == null) continue;
+            
             float speed = sc.GetVelocity().magnitude;
             if (speed < minVelocityThreshold || speed <= maxSpeed) continue;
+            
             maxSpeed = speed;
             loudest  = sc;
         }
