@@ -349,7 +349,7 @@ public class KCC : MonoBehaviour
 
         if (Physics.Raycast(origin, transform.forward, out RaycastHit forwardHit, forwardCheckDistance, ledgeMask))
         {
-            if (!forwardHit.collider.CompareTag(ledgeTag)) return false;
+            if (!forwardHit.collider.CompareTag(ledgeTag) && !forwardHit.collider.transform.root.CompareTag(ledgeTag)) return false; // FIXED
 
             Vector3 downOrigin = forwardHit.point + Vector3.up * 1.5f;
 
