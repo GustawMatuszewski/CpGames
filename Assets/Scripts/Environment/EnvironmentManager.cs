@@ -235,6 +235,72 @@ public class EnvironmentManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Natychmiastowo przesuwa czas gry o podaną liczbę godzin.
+    /// Obsługuje przejście przez próg 24h i inkrementację currentDay.
+    /// Po zakończeniu wymusza UpdateLight() i CheckShadowStatus(), żeby
+    /// oświetlenie odpowiadało nowej porze tuż po obudzeniu gracza.
+    /// Wywoływane przez SleepManager.
+    /// </summary>
+    /// <param name="hours">Liczba godzin do przeskoczenia (np. 8).</param>
+    public void SkipTime(int hours)
+    {
+        currentTime += hours;
+    
+        // Obsługa przejścia przez północ (może być więcej niż jedna doba)
+        while (currentTime >= 24f)
+        {
+            currentTime -= 24f;
+            currentDay++;
+            OnNewDayStarted();   // sprawdza odcięcie prądu, loguje nowy dzień
+        }
+    
+        // Natychmiastowa aktualizacja oświetlenia — gracz budzi się
+        // z właściwym słońcem/księżycem, bez czekania na kolejny Update()
+        UpdateLight();
+        CheckShadowStatus();
+    
+        Debug.Log($"[EnvironmentManager] SkipTime +{hours}h → {currentTimeString}, dzień {currentDay}");
+    }
+
+    /// <summary>
+    /// Natychmiastowo przeskakuje do losowego presetu pogody (innego niż aktualny).
+    /// Wywoływana przez SleepManager na czarnym ekranie — gracz nic nie widzi,
+    /// więc lerp jest zbędny. Po snapie resetuje timer zmiany pogody, żeby
+    /// nowa pogoda nie zmieniła się od razu po przebudzeniu.
+    ///
+    /// Jeśli lista availablePresets ma tylko jeden preset (lub jest pusta),
+    /// metoda cicho kończy działanie bez błędu.
+    /// </summary>
+    public void SnapRandomWeather()
+    {
+        // Potrzebujemy co najmniej 2 presetów, żeby mieć z czego losować
+        if (availablePresets == null || availablePresets.Count < 2) return;
+    
+        // Losujemy preset inny niż aktualny — identyczna logika co ChangeWeatherPreset(),
+        // ale bez uruchamiania przejścia (lerpa)
+        WeatherPreset next = activePreset;
+        while (next == activePreset)
+            next = availablePresets[Random.Range(0, availablePresets.Count)];
+    
+        // Snap: od razu ustawiamy aktywny preset, zerujemy trwające przejście
+        activePreset        = next;
+        _targetPreset       = null;
+        _isTransitioning    = false;
+        _transitionProgress = 0f;
+    
+        // Wymuszamy natychmiastowe zastosowanie wizualiów chmur/mgły/deszczu
+        // (Update zrobi to za chwilę, ale chcemy pewność już w tej klatce)
+        ApplyCloudsAndFog();
+        ApplyRainVFX();
+    
+        // Reset timera — gracz budzi się ze stabilną pogodą, nie zmienia się
+        // ona od razu w kolejnych sekundach po przebudzeniu
+        SetNextWeatherChangeTimer();
+    
+        Debug.Log($"[EnvironmentManager] SnapRandomWeather → {activePreset.name}");
+    }
+
     /// <summary>Wywoływana raz na początku każdego nowego dnia.</summary>
     void OnNewDayStarted()
     {

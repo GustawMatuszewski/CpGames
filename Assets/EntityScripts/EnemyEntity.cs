@@ -26,6 +26,25 @@ public class EnemyEntity : BaseEntity
     [Header("AI Optimization")]
     public float aiUpdateInterval = 0.15f;
 
+    // ─────────────────────────────────────────────────────────────────────
+    // NOWE: Distance Culling & Throttling – progi odległości konfigurowane
+    // bezpośrednio z Inspektora.
+    // Strefa 1: dist < throttleDistance → pełna aktywność (aiUpdateInterval)
+    // Strefa 2: throttleDistance <= dist < cullDistance → throttling (aiUpdateInterval * throttleMultiplier), brak słuchu/wzroku
+    // Strefa 3: dist >= cullDistance → pełne uśpienie, NavMeshAgent zatrzymany
+    [Header("Distance Culling & Throttling")]
+    [Tooltip("Poniżej tej odległości AI działa z pełną częstotliwością (Strefa 1).")]
+    public float throttleDistance = 35f;
+    [Tooltip("Powyżej tej odległości AI jest całkowicie uśpiona (Strefa 3).")]
+    public float cullDistance = 70f;
+    [Tooltip("Mnożnik interwału w Strefie 2. Wartość 3 = trzykrotnie rzadsze aktualizacje.")]
+    public float throttleMultiplier = 3f;
+
+    // Kwadraty odległości – obliczane raz w Start(), eliminują pierwiastkowanie w pętli.
+    private float _throttleDistSq;
+    private float _cullDistSq;
+    // ─────────────────────────────────────────────────────────────────────
+
     [Header("State")]
     public EntityState enemyState = EntityState.Patrol;
 
@@ -51,6 +70,9 @@ public class EnemyEntity : BaseEntity
     private EntityStatus _status;
     private bool    _isDead = false;
 
+    // ZMIANA: Animator keszowany raz w Start() – eliminuje GetComponent w TraverseWindow() i EnableRagdoll().
+    private Animator _animator;
+
     [Header("Group AI (set by EnemyManager)")]
     public bool        isGroupLeader = false;
     public EnemyEntity groupLeader;
@@ -60,12 +82,30 @@ public class EnemyEntity : BaseEntity
 
     private GameObject cachedVisibleTarget;
 
+    // NOWE: Aktualny poziom strefy – używany przez Update() i OnDeath(), żeby wiedzieć
+    // czy agent był zatrzymany przez culling i trzeba go reaktywować.
+    private enum AIZone { Full, Throttled, Culled }
+    private AIZone _currentZone = AIZone.Full;
+
+    // Prekalkulowane kwadraty zasięgów wzroku i słyszenia – eliminują sqrt w CanSeeTarget / CheckForNoise.
+    private float _viewDistSq;
+    private float _hearingRadiusSq;
+
     void Start()
     {
-        _status = GetComponent<EntityStatus>();
-        agent  = GetComponent<NavMeshAgent>();
-        player = FindAnyObjectByType<KCC>();
-        combat = GetComponent<Combat>();
+        _status   = GetComponent<EntityStatus>();
+        agent     = GetComponent<NavMeshAgent>();
+        player    = FindAnyObjectByType<KCC>();
+        combat    = GetComponent<Combat>();
+
+        // ZMIANA: Keszowanie Animatora w Start() zamiast GetComponent w czasie rozgrywki.
+        _animator = GetComponent<Animator>();
+
+        // Prekalkulacja kwadratów odległości – robione raz, używane w każdej klatce.
+        _throttleDistSq  = throttleDistance  * throttleDistance;
+        _cullDistSq      = cullDistance      * cullDistance;
+        _viewDistSq      = viewDistance      * viewDistance;
+        _hearingRadiusSq = hearingRadius     * hearingRadius;
 
         if (combat != null && combat.attackTemplates.Count > 0)
         {
@@ -94,22 +134,100 @@ public class EnemyEntity : BaseEntity
         EnemyManager.Instance?.UnregisterEnemy(this);
     }
 
+    // ─────────────────────────────────────────────────────────────────────
+    // ZMIANA: AIPerceptionLoop teraz wyznacza strefę na podstawie odległości
+    // do gracza i odpowiednio dostosowuje interwał oraz zakres operacji.
+    // ─────────────────────────────────────────────────────────────────────
     IEnumerator AIPerceptionLoop()
     {
+        // Rozproszenie startu – zapobiega synchronicznym szczytom co 0.15 s.
         yield return new WaitForSeconds(Random.Range(0f, aiUpdateInterval));
+
         while (true)
         {
+            // ── Sprawdzenie śmierci na początku każdej iteracji ──
             if (_status != null && _status.entityHealth <= 0f)
             {
                 OnDeath();
                 yield break;
             }
+
+            // ── Wyznaczanie aktualnej strefy ─────────────────────
+            float distToPlayerSq = player != null
+                ? (player.transform.position - transform.position).sqrMagnitude
+                : 0f;
+
+            AIZone newZone;
+            if      (distToPlayerSq >= _cullDistSq)      newZone = AIZone.Culled;
+            else if (distToPlayerSq >= _throttleDistSq)  newZone = AIZone.Throttled;
+            else                                          newZone = AIZone.Full;
+
+            // ── Reakcja na zmianę strefy ─────────────────────────
+            if (newZone != _currentZone)
+            {
+                _currentZone = newZone;
+                HandleZoneTransition(newZone);
+            }
+
+            // ── STREFA 3: Culling – pełne uśpienie ───────────────
+            // RunPerception i RunStateMachine są pomijane całkowicie.
+            // NavMeshAgent jest już zatrzymany w HandleZoneTransition.
+            if (_currentZone == AIZone.Culled)
+            {
+                // Czekamy dłużej zanim ponownie sprawdzimy dystans –
+                // używamy cullDistance / throttleMultiplier jako heurystyki,
+                // co odpowiada z grubsza 3× standardowy interwał.
+                yield return new WaitForSeconds(aiUpdateInterval * throttleMultiplier);
+                continue;
+            }
+
+            // ── STREFA 1 i 2: Wykonanie logiki AI ────────────────
             if (!_traversingWindow)
             {
+                // RunPerception wie o bieżącej strefie i samo pomija kosztowne operacje w Strefie 2.
                 RunPerception();
                 RunStateMachine();
             }
-            yield return new WaitForSeconds(aiUpdateInterval);
+
+            // ── Interwał zależny od strefy ────────────────────────
+            // Strefa 1 → standardowy aiUpdateInterval
+            // Strefa 2 → aiUpdateInterval * throttleMultiplier (np. 0.15 * 3 = 0.45 s)
+            float interval = (_currentZone == AIZone.Throttled)
+                ? aiUpdateInterval * throttleMultiplier
+                : aiUpdateInterval;
+
+            yield return new WaitForSeconds(interval);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // NOWE: Obsługa płynnych przejść między strefami.
+    // ─────────────────────────────────────────────────────────────────────
+    void HandleZoneTransition(AIZone zone)
+    {
+        if (agent == null) return;
+
+        switch (zone)
+        {
+            case AIZone.Culled:
+                // Strefa 3 → zatrzymaj agenta, żeby Unity nie przeliczało ścieżek w tle.
+                if (agent.isOnNavMesh) agent.isStopped = true;
+                if (debugMode) Debug.Log($"[EnemyEntity] {name} → STREFA 3 (Culled)");
+                break;
+
+            case AIZone.Throttled:
+                // Strefa 2 → reaktywuj agenta jeśli był uśpiony.
+                if (agent.isOnNavMesh) agent.isStopped = false;
+                if (debugMode) Debug.Log($"[EnemyEntity] {name} → STREFA 2 (Throttled)");
+                break;
+
+            case AIZone.Full:
+                // Strefa 1 → pełna reaktywacja.
+                if (agent.isOnNavMesh) agent.isStopped = false;
+                // Wymuś przeliczenie ścieżki, bo przez czas uśpienia cel mógł się mocno przesunąć.
+                InvalidateDestinationCache();
+                if (debugMode) Debug.Log($"[EnemyEntity] {name} → STREFA 1 (Full)");
+                break;
         }
     }
 
@@ -117,6 +235,9 @@ public class EnemyEntity : BaseEntity
     {
         if (_isDead) return;
         if (_status != null && _status.entityHealth <= 0f) return;
+
+        // Wróg uśpiony (Strefa 3) ignoruje Update poza samą detekcją śmierci powyżej.
+        if (_currentZone == AIZone.Culled) return;
 
         if (!_traversingWindow && agent != null && agent.isOnOffMeshLink)
         {
@@ -154,13 +275,11 @@ public class EnemyEntity : BaseEntity
 
     Door FindWindowAtLink(OffMeshLinkData linkData)
     {
-        // Check both link endpoints — whichever is closer to a passable window wins.
-        // IsPassableByAI covers both Open and Broken states.
         Collider[] nearby = Physics.OverlapSphere(linkData.startPos, 1.5f);
         foreach (Collider col in nearby)
         {
             Door w = col.GetComponentInParent<Door>();
-            if (w != null && w.IsPassableByAI)
+            if (w != null && w.isWindow && w.state == Door.OpenableState.Broken)
                 return w;
         }
 
@@ -168,7 +287,7 @@ public class EnemyEntity : BaseEntity
         foreach (Collider col in nearby)
         {
             Door w = col.GetComponentInParent<Door>();
-            if (w != null && w.IsPassableByAI)
+            if (w != null && w.isWindow && w.state == Door.OpenableState.Broken)
                 return w;
         }
 
@@ -183,9 +302,9 @@ public class EnemyEntity : BaseEntity
         Vector3 startPos = agent.transform.position;
         Vector3 endPos   = linkData.endPos + Vector3.up * agent.baseOffset;
 
-        Animator anim = GetComponent<Animator>();
-        if (anim != null && !string.IsNullOrEmpty(windowVaultAnimation))
-            anim.CrossFade(windowVaultAnimation, 0.1f);
+        // ZMIANA: Używamy skeszowanego _animator zamiast GetComponent<Animator>().
+        if (_animator != null && !string.IsNullOrEmpty(windowVaultAnimation))
+            _animator.CrossFade(windowVaultAnimation, 0.1f);
 
         float distance = Vector3.Distance(startPos, endPos);
         float duration = Mathf.Max(distance / Mathf.Max(windowTraversalSpeed, 0.1f), 0.15f);
@@ -221,6 +340,7 @@ public class EnemyEntity : BaseEntity
     {
         if (!isGroupLeader && groupLeader != null)
         {
+            // Uproszczona ochrona przed zniszczonym liderem.
             if (groupLeader == null) { isGroupLeader = true; return; }
 
             if (!hasIndependentVision)
@@ -247,8 +367,9 @@ public class EnemyEntity : BaseEntity
 
             if (player != null)
             {
+                // ZMIANA: sqrMagnitude zamiast Vector3.Distance (brak sqrt).
                 Vector3 toPlayer = player.transform.position - transform.position;
-                if (toPlayer.sqrMagnitude <= viewDistance * viewDistance)
+                if (toPlayer.sqrMagnitude <= _viewDistSq)
                 {
                     float dot          = Vector3.Dot(transform.forward, toPlayer.normalized);
                     float halfAngleCos = Mathf.Cos(viewAngle * 0.5f * Mathf.Deg2Rad);
@@ -263,6 +384,38 @@ public class EnemyEntity : BaseEntity
             return;
         }
 
+        // ─────────────────────────────────────────────────────────────────
+        // STREFA 2 (Throttled): pomijamy kosztowne Physics.OverlapSphere
+        // z CheckForNoise() i CheckForVisibleTarget(). Wróg sprawdza tylko,
+        // czy gracz wszedł w prosty zasięg wzroku (bez raycasta przez przeszkody)
+        // lub reaguje na komendy lidera grupy.
+        // ─────────────────────────────────────────────────────────────────
+        if (_currentZone == AIZone.Throttled)
+        {
+            if (player != null)
+            {
+                Vector3 toPlayer   = player.transform.position - transform.position;
+                float   distSq     = toPlayer.sqrMagnitude;
+
+                // Jeśli gracz wszedł w połowę zasięgu wzroku – wróg go zauważa bez pełnego raycasta.
+                float halfViewSq = _viewDistSq * 0.25f; // (viewDistance/2)^2
+                if (distSq <= halfViewSq)
+                {
+                    cachedVisibleTarget = player.gameObject;
+                    groupTargetDetected = true;
+                    groupSharedTarget   = player.gameObject;
+                    currentTarget       = player.gameObject;
+                    lastKnownTargetPos  = player.transform.position;
+                    if (enemyState != EntityState.Attack) enemyState = EntityState.Sprint;
+                }
+            }
+            // Wyjście – nie wykonujemy DetectEntitiesInSphere, CheckForVisibleTarget ani CheckForNoise.
+            return;
+        }
+
+        // ─────────────────────────────────────────────────────────────────
+        // STREFA 1 (Full): pełna percepcja jak w oryginale.
+        // ─────────────────────────────────────────────────────────────────
         DetectEntitiesInSphere(transform.position, viewDistance, entityMask, groundMask, entities);
 
         GameObject visible = CheckForVisibleTarget();
@@ -332,9 +485,12 @@ public class EnemyEntity : BaseEntity
             targetPos = hit.position;
 
         lastKnownTargetPos = targetPos;
-        float dist = Vector3.Distance(transform.position, lastKnownTargetPos);
 
-        if (dist <= agent.stoppingDistance + 0.2f)
+        // ZMIANA: sqrMagnitude zamiast Vector3.Distance – eliminacja sqrt.
+        float distSq         = (transform.position - lastKnownTargetPos).sqrMagnitude;
+        float stopThresholdSq = (agent.stoppingDistance + 0.2f) * (agent.stoppingDistance + 0.2f);
+
+        if (distSq <= stopThresholdSq)
         {
             enemyState      = EntityState.Attack;
             agent.isStopped = true;
@@ -342,8 +498,9 @@ public class EnemyEntity : BaseEntity
         else
         {
             agent.isStopped = false;
-            bool isMoving          = agent.velocity.sqrMagnitude > 0.1f;
-            bool targetMovedSignif = Vector3.Distance(agent.destination, targetPos) > 2.5f
+            bool isMoving         = agent.velocity.sqrMagnitude > 0.1f;
+            // ZMIANA: sqrMagnitude zamiast Vector3.Distance w warunku targetMovedSignif.
+            bool targetMovedSignif = (agent.destination - targetPos).sqrMagnitude > 6.25f  // 2.5^2
                                   || Mathf.Abs(agent.destination.y - targetPos.y) > 1.0f;
             if (!isMoving || targetMovedSignif)
                 TrySetDestination(targetPos);
@@ -364,8 +521,11 @@ public class EnemyEntity : BaseEntity
             return;
         }
 
-        float dist = Vector3.Distance(transform.position, currentTarget.transform.position);
-        if (dist >= attackRange * 1.5f)
+        // ZMIANA: sqrMagnitude zamiast Vector3.Distance.
+        float distSq         = (transform.position - currentTarget.transform.position).sqrMagnitude;
+        float exitThresholdSq = (attackRange * 1.5f) * (attackRange * 1.5f);
+
+        if (distSq >= exitThresholdSq)
         {
             enemyState          = EntityState.Sprint;
             combat.combatActive = false;
@@ -391,8 +551,11 @@ public class EnemyEntity : BaseEntity
 
         Vector3 origin = transform.position + Vector3.up;
         Vector3 dir    = ((suspectedPos + Vector3.up) - origin).normalized;
-        float   dist   = Vector3.Distance(origin, suspectedPos + Vector3.up);
+        // ZMIANA: sqrMagnitude zamiast Vector3.Distance.
+        float   distSq = ((suspectedPos + Vector3.up) - origin).sqrMagnitude;
 
+        // Raycast akceptuje float distance, więc odtwarzamy go z sqrt tylko raz tutaj.
+        float dist = Mathf.Sqrt(distSq);
         if (!Physics.Raycast(origin, dir, dist, obstacleMask))
         {
             groupSharedTarget   = player != null ? player.gameObject : null;
@@ -434,13 +597,15 @@ public class EnemyEntity : BaseEntity
         Vector3 origin    = transform.position + Vector3.up;
         Vector3 targetPos = target.position + Vector3.up;
         Vector3 dir       = targetPos - origin;
-        float   distance  = dir.magnitude;
 
-        if (distance > viewDistance) return false;
+        // ZMIANA: sqrMagnitude do wstępnego odrzucenia, sqrt tylko gdy potrzebny float do Raycast.
+        if (dir.sqrMagnitude > _viewDistSq) return false;
 
         Vector3 flatDir = (target.position - transform.position).normalized;
         flatDir.y = 0;
         if (Vector3.Angle(transform.forward, flatDir) > viewAngle * 0.5f) return false;
+
+        float distance = dir.magnitude; // sqrt potrzebny dla Raycast distance
         if (Physics.Raycast(origin, dir.normalized, distance, obstacleMask)) return false;
 
         return true;
@@ -465,11 +630,19 @@ public class EnemyEntity : BaseEntity
         return loudest != null ? loudest.transform.position : (Vector3?)null;
     }
 
-    // ── Death ─────────────────────────────────────────────────────
+    // ── Death ─────────────────────────────────────────────────────────────
     void OnDeath()
     {
         if (_isDead) return;
         _isDead = true;
+
+        // ZMIANA: Wróg uśpiony (Strefa 3) musi zostać obudzony przed aktywacją ragdolla,
+        // żeby fizyka poprawnie zadziałała – bez reaktywacji ragdoll może nie przejąć kolizji.
+        if (_currentZone == AIZone.Culled)
+        {
+            _currentZone = AIZone.Full;
+            HandleZoneTransition(AIZone.Full);
+        }
 
         if (combat != null) combat.combatActive = false;
         EnemyManager.Instance?.UnregisterEnemy(this);
@@ -480,17 +653,13 @@ public class EnemyEntity : BaseEntity
 
     void EnableRagdoll()
     {
-        // Freeze animator in last pose instead of disabling it globally
-        Animator anim = GetComponent<Animator>();
-        if (anim != null) anim.speed = 0f;
+        // ZMIANA: Używamy skeszowanego _animator zamiast GetComponent<Animator>().
+        if (_animator != null) _animator.speed = 0f;
 
-        // Stop and disable the nav agent
         agent.isStopped = true;
         agent.velocity  = Vector3.zero;
         agent.enabled   = false;
 
-        // Make sure the root collider is active and NOT a trigger
-        // so the rigidbody lands on the floor properly
         Collider col = GetComponent<Collider>();
         if (col != null)
         {
@@ -498,28 +667,20 @@ public class EnemyEntity : BaseEntity
             col.isTrigger = false;
         }
 
-        // Add rigidbody if not already present
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
 
         rb.isKinematic            = false;
         rb.interpolation          = RigidbodyInterpolation.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+        rb.linearDamping          = 2f;
+        rb.angularDamping         = 4f;
+        rb.constraints            = RigidbodyConstraints.FreezeRotationY;
 
-        // Higher drag makes it feel heavier and less like a bouncy box
-        rb.linearDamping  = 2f;
-        rb.angularDamping = 4f;
-
-        // Freeze Y rotation so it doesn't spin like a top,
-        // only tips forward/sideways like a real body would
-        rb.constraints = RigidbodyConstraints.FreezeRotationY;
-
-        // Tip it in the direction it was facing with slight randomness
         Vector3 fallDir = (-transform.forward + Vector3.up * 0.2f).normalized;
         fallDir += new Vector3(Random.Range(-0.3f, 0.3f), 0f, Random.Range(-0.3f, 0.3f));
         rb.AddForce(fallDir * 1.5f, ForceMode.Impulse);
 
-        // Torque only on X and Z so it pitches/rolls, not spins
         Vector3 torque = new Vector3(
             Random.Range(1f, 3f),
             0f,
@@ -534,7 +695,6 @@ public class EnemyEntity : BaseEntity
 
         List<Renderer> renderers = new List<Renderer>(GetComponentsInChildren<Renderer>());
 
-        // Switch all materials to transparent mode for fading
         foreach (Renderer r in renderers)
         {
             foreach (Material mat in r.materials)
@@ -550,7 +710,6 @@ public class EnemyEntity : BaseEntity
             }
         }
 
-        // Fade out
         float elapsed = 0f;
         while (elapsed < fadeDuration)
         {
@@ -566,7 +725,7 @@ public class EnemyEntity : BaseEntity
         Destroy(gameObject);
     }
 
-    // ── Gizmos ────────────────────────────────────────────────────
+    // ── Gizmos ────────────────────────────────────────────────────────────
     void OnDrawGizmos()
     {
         if (!debugMode) return;
@@ -593,5 +752,14 @@ public class EnemyEntity : BaseEntity
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        // NOWE: Wizualizacja stref cullingu w trybie debugowania.
+        if (Application.isPlaying)
+        {
+            Gizmos.color = new Color(1f, 1f, 0f, 0.05f);
+            Gizmos.DrawSphere(transform.position, throttleDistance);
+            Gizmos.color = new Color(1f, 0f, 0f, 0.03f);
+            Gizmos.DrawSphere(transform.position, cullDistance);
+        }
     }
 }

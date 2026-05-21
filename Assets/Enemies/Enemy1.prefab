@@ -484,9 +484,14 @@ MonoBehaviour:
   maxPatrolInterval: 10
   investigateTime: 3
   aiUpdateInterval: 0.15
+  throttleDistance: 35
+  cullDistance: 70
+  throttleMultiplier: 3
   enemyState: 7
   windowTraversalSpeed: 2.5
   windowVaultAnimation: WindowVault
+  disappearDelay: 30
+  fadeDuration: 2
   isGroupLeader: 0
   groupLeader: {fileID: 0}
   groupSharedTarget: {fileID: 0}
@@ -602,7 +607,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2701a4885403c5a390bf1af237eaffd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
+  debugMode: 1
   animator: {fileID: 4322998576290659199}
   ownerHitboxes:
   - name: LeftFoot
@@ -727,8 +732,8 @@ MonoBehaviour:
   hitboxTag: Hitbox
   attackTemplates:
   - {fileID: 11400000, guid: b1a95aa1505eba60288cb8946c533515, type: 2}
-  combatActive: 0
-  canAttack: 0
+  combatActive: 1
+  canAttack: 1
   singleShot: 1
   attackInput: {fileID: 0}
   currentAttack: {fileID: 11400000, guid: b1a95aa1505eba60288cb8946c533515, type: 2}
@@ -881,7 +886,7 @@ LODGroup:
   m_AnimateCrossFading: 1
   m_LastLODIsBillboard: 0
   m_LODs:
-  - screenRelativeHeight: 0.05419669
+  - screenRelativeHeight: 0.30913845
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 8610760417205646178}
@@ -924,11 +929,11 @@ LODGroup:
     - renderer: {fileID: 2205724343190537292}
     - renderer: {fileID: 9126117558504708705}
     - renderer: {fileID: 3120267647341577860}
-  - screenRelativeHeight: 0.008681295
+  - screenRelativeHeight: 0.059995845
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 3492941796247170393}
-  - screenRelativeHeight: 0.00077819696
+  - screenRelativeHeight: 0.019408165
     fadeTransitionWidth: 0.796
     renderers:
     - renderer: {fileID: 2370763012440194740}
