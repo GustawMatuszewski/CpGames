@@ -204,6 +204,7 @@ public class EntityStatus : MonoBehaviour
         
         if (entityType == EntityType.Player)
             UI_Script.Instance.UpdatePlayerHP(entityHealth, entityMaxHealth);
+    
         
         
         // Odliczaj cooldown hit reaction
@@ -661,6 +662,10 @@ public class EntityStatus : MonoBehaviour
             {
                 UI_GameOver.Instance.GameOver();
             }
+            if (entityType == EntityType.Enemy)
+            {
+                EnemyDie();
+            }
         }
     }
 
@@ -755,4 +760,16 @@ public class EntityStatus : MonoBehaviour
             UIUpdateStats.Invoke(currentStats);
         }
     }
+        public static event Action<int> OnZombieDeath;
+
+        public void EnemyDie()
+        {
+            
+                //Debug.Log("Zabito  Zombie");
+            
+                int deathDay = EnvironmentManager.Instance.currentDay;
+                OnZombieDeath?.Invoke(deathDay);
+            
+        }
+    
 }
