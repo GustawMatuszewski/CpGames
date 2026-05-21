@@ -13,7 +13,7 @@ using UnityEngine.UIElements;
         {
 
             VisualElement root = UI_doc.rootVisualElement;
-            root = root.Q<VisualElement>("AudioSettings"); //poprostu ogrania tylko i wylacznie video settings nic wiecej
+            root = root.Q<VisualElement>("AudioSettings"); //poprostu ogrania tylko i wylacznie audio settings nic wiecej
              MasterVolume = root.Q<Slider>("MasterVolume");
              MasterVolume.highValue = 1;
              MasterVolume.RegisterValueChangedCallback(evt =>
