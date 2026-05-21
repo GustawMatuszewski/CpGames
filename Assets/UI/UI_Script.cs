@@ -321,8 +321,8 @@ public class UI_Script : MonoBehaviour
         InitTooltip();//to jest descryption
         descryption = root.Q<VisualElement>("descriptionPanel");
         tooltipLabel = descryption.Q<Label>();
-       
 
+        InitUIInteractableInfo();
     }
 
     private Texture2D GetIconTexture(Item item)
@@ -2030,5 +2030,53 @@ public void SendItemList(List<Item> items)
         float rawOpacity = 1f - hpPercent;
         Overlay.style.opacity = Mathf.Lerp(0f, 1f, (rawOpacity - 0.7f) * 2f);
         
+    }
+
+    private void InitUIInteractableInfo()
+    {
+        VisualElement InteractInfo = new VisualElement();
+        InteractInfo.name = "InteractInfo";
+        InteractInfo.pickingMode = PickingMode.Ignore;
+        InteractInfo.style.position=Position.Absolute;
+        InteractInfo.style.bottom=0;
+        InteractInfo.style.left=0;
+        InteractInfo.style.width=Length.Percent(20);
+        InteractInfo.style.height=Length.Percent(10);
+        InteractInfo.style.backgroundColor = new StyleColor( new Color32(40, 40, 40, 75));
+        InteractInfo.style.display = DisplayStyle.None;
+        Label Title_Interact = new Label();
+        Title_Interact.name = "Title_Interact";
+        Title_Interact.style.unityTextAlign = TextAnchor.MiddleCenter;
+        Title_Interact.style.fontSize = 20;
+        Title_Interact.style.width = Length.Percent(100);
+        Title_Interact.style.height = Length.Percent(20);
+        Title_Interact.text = "Posible Interactions";
+        Title_Interact.style.color = new StyleColor(new Color32(170, 170, 170, 255));
+        Title_Interact.style.backgroundColor = new StyleColor( new Color32(40, 40, 40, 125));
+        InteractInfo.Add(Title_Interact);
+        Label InteractInfoLabel = new Label();
+        InteractInfoLabel.name = "InteractInfoLabel";
+        InteractInfoLabel.style.color = new StyleColor(new Color32(170, 170, 170, 255));
+        InteractInfoLabel.style.height=Length.Percent(80);
+        InteractInfoLabel.style.width=Length.Percent(100);
+        InteractInfoLabel.style.fontSize = 40;
+        InteractInfoLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
+        InteractInfo.Add(InteractInfoLabel);
+        root.Insert(0, InteractInfo);
+    }
+
+    public void  UIInteractableInfo(string text,bool active)
+    {
+        VisualElement InteractInfo = root.Q<VisualElement>("InteractInfo");
+        Label InteractInfoLabel = InteractInfo.Q<Label>("InteractInfoLabel");
+        //UI_Logs.Log(InteractInfoLabel);
+        InteractInfoLabel.text = text;
+        if(active)
+            InteractInfo.style.display = DisplayStyle.Flex;
+        else
+        {
+            InteractInfo.style.display = DisplayStyle.None;
+            InteractInfoLabel.text = "";
+        }
     }
 }

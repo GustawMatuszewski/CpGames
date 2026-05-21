@@ -27,7 +27,11 @@ public class PlayerInteraction : MonoBehaviour
 
     [Header("Debug")]
     public bool debugMode = true;
-
+    
+    [Header("UI Prompt Settings")]
+    public float checkInterval = 0.1f;    // Jak często sprawdzać (0.1 sekundy = 10 razy na sekundę)
+    float checkTimer;                     // Licznik czasu
+    IInteractable lastLookedInteractable; // Pamięć podręczna (już ją znasz)
     // ── Internal state ─────────────────────────────────────────────
     Transform         currentSnapPoint;
     float             snapExitTimer;
@@ -74,8 +78,15 @@ public class PlayerInteraction : MonoBehaviour
 
     void Update()
     {
-        HandleSnapLock();//Kiedys to wypierdzziele Wieze w to --- Windforce
+        HandleSnapLock();//Kiedys to wypierdzziele Wieze w to --- Windforce//wierzyłem w to ale już nie
         HandleChestAutoClose();
+        //smutno mi niestety ale chocia co ~0.1s
+        checkTimer += Time.deltaTime;
+        if (checkTimer >= checkInterval)
+        {
+            checkTimer = 0f;
+            CheckForInteractablePrompt();
+        }
     }
 
     // ── Input callbacks ────────────────────────────────────────────
@@ -251,13 +262,74 @@ public class PlayerInteraction : MonoBehaviour
     Transform GetClosestSnapPoint(List<Transform> points, Vector3 hitPoint)
     {
         Transform closest = null;
-        float     minDist = Mathf.Infinity;
+        float minDist = Mathf.Infinity;
         foreach (Transform t in points)
         {
             if (t == null) continue;
             float d = Vector3.Distance(hitPoint, t.position);
-            if (d < minDist) { minDist = d; closest = t; }
+            if (d < minDist)
+            {
+                minDist = d;
+                closest = t;
+            }
         }
+
         return closest;
     }
+
+    void CheckForInteractablePrompt()
+{
+    Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+    
+    // Jeśli chcesz użyć optymalizacji z LayerMask, dopisz na końcu: , interactableLayer
+    if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
+    {
+        IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
+
+        if (interactable != null)
+        {
+            // Sprawdzamy, czy to zupełnie nowy obiekt, na który patrzymy
+            if (interactable != lastLookedInteractable)
+            {
+                lastLookedInteractable = interactable;
+                
+                // Dynamicznie dobieramy napis w zależności od klasy obiektu
+                string promptText = "Interakcja"; // Domyślny tekst awaryjny
+
+                if (interactable is Door)
+                {
+                    promptText = "[E]";
+                }
+                else if (interactable is Inventory hitInventory && hitInventory.type != InventoryType.Player)
+                {
+                    promptText = "[E]";
+                }
+                else if (interactable is LightSwitch)
+                {
+                    promptText = "[E]";
+                }
+                else
+                {
+                    
+                    promptText = "[E]";
+                }
+                
+                UI_Script.Instance.UIInteractableInfo(promptText, true);
+                
+            }
+            return;
+        }
+    }
+
+  
+    if (lastLookedInteractable != null)
+    {
+        lastLookedInteractable = null;
+
+        UI_Script.Instance.UIInteractableInfo("", false);
+
+    }
+}
+    
+    
 }
