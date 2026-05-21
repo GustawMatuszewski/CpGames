@@ -5697,6 +5697,7 @@ GameObject:
   - component: {fileID: 165359110}
   - component: {fileID: 165359112}
   - component: {fileID: 165359113}
+  - component: {fileID: 165359114}
   m_Layer: 0
   m_Name: GameOver
   m_TagString: Untagged
@@ -5755,6 +5756,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_GameOver
   UIInput: {fileID: -944628639613478452, guid: bba0cde47dfeb3d42a725dcb64495b2f, type: 3}
+--- !u!114 &165359114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165359109}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdebf943b90c7626c88553c0f3978e93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ZombieDeathTracker
+  allDaysStats: []
 --- !u!1 &166356678
 GameObject:
   m_ObjectHideFlags: 0
