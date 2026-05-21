@@ -1983,7 +1983,7 @@ public void SendItemList(List<Item> items)
       
     
         ItemData data = RightClicked.userData as ItemData;
-        if(data.originalItem.itemName=="Notebook")
+        if(data.originalItem.itemName=="Notebook" || data.originalItem.itemName=="Hammer" )
             return;
         if (data.originalItem is BuildingItem or FoodItem)
         {

@@ -28,7 +28,7 @@ public class Door : MonoBehaviour, IInteractable
     //   Doors:   Closed ↔ Open ↔ Locked
     //   Windows: Closed ↔ Open → Broken  (one-way break)
     public enum OpenableState  { Closed, Open, Locked, Broken }
-    public enum DoorActionType { Opening, Closing, Locking, Unlocking, OpeningForce, Breaking, Climbing }
+    public enum DoorActionType { Opening, Closing, Locking, Unlocking, OpeningForce, Breaking, Climbing,Deconstructing }
 
     public OpenableState state = OpenableState.Closed;
 
@@ -252,7 +252,14 @@ public class Door : MonoBehaviour, IInteractable
         transform.localRotation = target;
         _isAnimating = false;
     }
+ 
+
+
+    
+    
+    
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  DoorAction — unchanged, UI branch compiles as-is

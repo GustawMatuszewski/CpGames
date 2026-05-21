@@ -90,21 +90,24 @@ public class PlayerInteraction : MonoBehaviour
     }
 
     // ── Input callbacks ────────────────────────────────────────────
+
     void OnInteractPerformed(InputAction.CallbackContext context)
     {
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (!Physics.Raycast(ray, out RaycastHit hit, interactionDistance)) return;
 
-        // Chest
+
+
+        // 2. Skrzynka / Chest
         Inventory hitInventory = hit.collider.GetComponentInParent<Inventory>();
         if (hitInventory != null && hitInventory.type != InventoryType.Player)
         {
             if (chestIsOpen && currentOpenChest == hitInventory) { CloseChest(); return; }
             OpenChest(hitInventory);
-            // return;
+            return;
         }
 
-        // Bed
+        // 3. Łóżko / Bed
         Bed bed = hit.collider.GetComponentInParent<Bed>();
         if (bed != null)
         {
@@ -112,20 +115,47 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // Door/Window
+        // 4. Drzwi i Okna
         Door openable = hit.collider.GetComponentInParent<Door>();
-        if (openable == null) return;
-        var actions = openable.GetDoorActions();
+        if (openable != null)
+        {
+            var actions = openable.GetDoorActions();
 
-        if (context.interaction is UnityEngine.InputSystem.Interactions.TapInteraction)
-        {
-            if (actions.Count > 0 && actions[0].enabled)
-                actions[0].execute?.Invoke();
+            if (context.interaction is UnityEngine.InputSystem.Interactions.TapInteraction)
+            {
+                if (actions.Count > 0 && actions[0].enabled)
+                    actions[0].execute?.Invoke();
+            }
+            else if (context.interaction is UnityEngine.InputSystem.Interactions.HoldInteraction)
+            {
+                if (actions.Count == 1) actions[0].execute?.Invoke();
+                else
+                {
+                    HandleSnapping(openable, hit);
+                    OpenMenu(openable, actions);
+                    menuOpen = true;
+                }
+            }
+            return;
         }
-        else if (context.interaction is UnityEngine.InputSystem.Interactions.HoldInteraction)
+        // 1. NAJWYŻSZY PRIORYTET: Jeśli gracz trzyma młotek i patrzy na konstrukcję, niszczymy!
+        Construction construction = hit.collider.GetComponentInParent<Construction>();
+        if (construction != null && UI_Script.Instance != null)
         {
-            if (actions.Count == 1) actions[0].execute?.Invoke();
-            else { HandleSnapping(openable, hit); OpenMenu(openable, actions); menuOpen = true; }
+            var rightHandItem = UI_Script.Instance.GetItemRightHand();
+            if (rightHandItem != null && rightHandItem.itemName == "Hammer")
+            {
+                // DODANY WARUNEK: Niszczymy tylko przy zwykłym kliknięciu (Tap), 
+                // dzięki czemu przytrzymanie [E] nie usunie ściany natychmiast.
+                if (context.interaction is UnityEngine.InputSystem.Interactions.TapInteraction)
+                {
+                    construction.ActionDeconstruct();
+                    return; // Kończymy akcję - młotek zadziałał
+                }
+                
+                // Jeśli gracz TRZYMA [E] celując w ścianę, a ściana ma też komponent Door (np. okno)
+                // pozwalamy kodowi przejść niżej, żeby otworzyło się menu kołowe.
+            }
         }
     }
 
@@ -280,8 +310,6 @@ public class PlayerInteraction : MonoBehaviour
     void CheckForInteractablePrompt()
 {
     Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-    
-    // Jeśli chcesz użyć optymalizacji z LayerMask, dopisz na końcu: , interactableLayer
     if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
     {
         IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
@@ -292,9 +320,7 @@ public class PlayerInteraction : MonoBehaviour
             if (interactable != lastLookedInteractable)
             {
                 lastLookedInteractable = interactable;
-                
-                // Dynamicznie dobieramy napis w zależności od klasy obiektu
-                string promptText = "Interakcja"; // Domyślny tekst awaryjny
+                string promptText = ""; 
 
                 if (interactable is Door)
                 {
@@ -308,9 +334,14 @@ public class PlayerInteraction : MonoBehaviour
                 {
                     promptText = "[E]";
                 }
+                else if (interactable is Construction)
+                {
+                    promptText = "<size=32><b>[E]</b></size><size=30> Destroy</size>\n" +
+                                 "<size=26><color=#DDDDDD>Hammer Required</color></size>";
+                }
                 else
                 {
-                    
+                    UI_Logs.Log((interactable as Component).name);
                     promptText = "[E]";
                 }
                 
