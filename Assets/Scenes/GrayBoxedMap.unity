@@ -76633,7 +76633,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: inventory.Array.size
-      value: 96
+      value: 97
       objectReference: {fileID: 0}
     - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: 'inventory.Array.data[0]'
@@ -77019,6 +77019,10 @@ PrefabInstance:
       propertyPath: 'inventory.Array.data[95]'
       value: 
       objectReference: {fileID: 11400000, guid: 2511df5ea659d8d49975160260a2fa33, type: 2}
+    - target: {fileID: 165502334374709518, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
+      propertyPath: 'inventory.Array.data[96]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 7f89cd5b75c2bd54197c7dc06a9cb79f, type: 2}
     - target: {fileID: 262931418499783343, guid: 0b0d7a219fd058219829424156ff278a, type: 3}
       propertyPath: m_Layer
       value: 1

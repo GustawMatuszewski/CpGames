@@ -11,6 +11,7 @@ public class UI_VideoSettings : MonoBehaviour
     public RawImage rawImage;
     public RenderTexture ditherTexture; 
     void Awake()
+
     {
         UpdateDitherResolution(Screen.width, Screen.height);
         VisualElement root = UI_doc.rootVisualElement;
