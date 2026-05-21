@@ -311,6 +311,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: roof metal 2x2.005
       objectReference: {fileID: 0}
+    - target: {fileID: 554583425968916750, guid: 77260c1c8f1b0b24685e3030daf05915, type: 3}
+      propertyPath: m_TagString
+      value: ClimbableTag
+      objectReference: {fileID: 0}
     - target: {fileID: 6445060155287434534, guid: 77260c1c8f1b0b24685e3030daf05915, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1
